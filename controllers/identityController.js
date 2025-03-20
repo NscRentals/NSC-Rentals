@@ -65,7 +65,7 @@ export async function getForms(req,res){
 }
 
 
-//approving identityForm - Admin
+//approving identityForm - Admins only
 
 export async function approveUser(req,res){
 
