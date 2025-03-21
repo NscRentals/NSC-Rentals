@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import userRouter from "./routes/userRoute.js";
 import driverRouter from "./routes/DriverRoutes.js";
+import adminVehicleRouter from "./routes/adminVehicle.routes.js";   
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
@@ -51,4 +52,5 @@ app.use((req,res,next)=>{
 
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
+app.use("/api/vehicles",adminVehicleRouter)
 
