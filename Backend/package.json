@@ -20,5 +20,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NscRentals/NSC-Rentals.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NscRentals/NSC-Rentals/issues"
+  },
+  "homepage": "https://github.com/NscRentals/NSC-Rentals#readme",
   "description": ""
 }

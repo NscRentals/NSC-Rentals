@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import userRouter from "./routes/userRoute.js";
+import driverRouter from "./routes/DriverRoutes.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
@@ -26,7 +27,6 @@ connection.once("open", ()=>{
     console.log("MongoDB connection established successfully!")
 })
 
-app.use(bodyParser.json());
 
 app.listen(4000, ()=>{
 
@@ -55,6 +55,5 @@ app.use((req,res,next)=>{
 })
 
 app.use("/api/users",userRouter)
-
-
+app.use("/api/driver",driverRouter)
 
