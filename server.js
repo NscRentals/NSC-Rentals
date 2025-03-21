@@ -5,6 +5,7 @@ import userRouter from "./routes/userRoute.js";
 import driverRouter from "./routes/DriverRoutes.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import sparePartsInventoryRouter from "./routes/sparePartsInventory.routes.js";
 
 
 const app = express();
@@ -51,4 +52,5 @@ app.use((req,res,next)=>{
 
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
+app.use("/api/maintenance", sparePartsInventoryRouter)
 
