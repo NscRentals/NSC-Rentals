@@ -184,19 +184,6 @@ const AdminVehicleSchema = new mongoose.Schema({
         endDate: Date
     }],
     
-
-    // who added the vehicle
-    addedBy: {
-        type:  mongoose.Schema.Types.ObjectId, 
-        ref: 'Admin',
-        required: true
-    },
-
-    dateAdded: {
-        type: Date,
-        default: Date.now
-    }
-
 });
 
 let Vehicle = mongoose.model("vehicle", AdminVehicleSchema);
