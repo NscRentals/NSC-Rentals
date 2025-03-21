@@ -38,7 +38,6 @@ app.use((req,res,next)=>{
     if(token!=null) {
 
         token = token.replace("Bearer ","");
-        console.log(token)
         jwt.verify(token, process.env.JWT_password,(err,decoded)=>{
             
             if(!err){
