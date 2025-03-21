@@ -16,24 +16,6 @@
         }    
     }
 
-
-    /*export async function addDeco(req, res) {
-        try {
-            let newDeco = new Decoration(req.body);
-            await newDeco.save();
-            return res.status(201).json({
-                success: true,
-                message: "Decoration saved successfully!",
-                data: newDeco
-            });
-        } catch (err) {
-            return res.status(400).json({
-                success: false,
-                error: err.message
-            });
-        }    
-    }*/
-
     //get decorations
     export async function getDeco (req,res){
 
