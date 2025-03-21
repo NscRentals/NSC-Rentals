@@ -5,10 +5,12 @@ import userRouter from "./routes/userRoute.js";
 import driverRouter from "./routes/DriverRoutes.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import cors from "cors";
 
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 dotenv.config();
 
 
