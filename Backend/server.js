@@ -13,6 +13,7 @@ dotenv.config();
 
 //import deco routes
 import decoRoutes from "./routes/decorationsRoute.js";
+import decoRouter from "./routes/decorationsRoute.js";
 
 //deco route middleware
 app.use(decoRoutes);
@@ -56,4 +57,5 @@ app.use((req,res,next)=>{
 
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
+app.use("/api/deco",decoRouter)
 
