@@ -10,6 +10,11 @@ const app = express();
 app.use(bodyParser.json());
 dotenv.config();
 
+//import deco routes
+import decoRoutes from "./routes/decorationsRoute.js";
+
+//deco route middleware
+app.use(decoRoutes);
 
 let mongoURL = process.env.MONGO_URL;
 
