@@ -155,3 +155,14 @@ export async function getUserDetails(req,res){
     
 }
 
+export function isItAdmin (req) {
+    let isAdmin = false;
+    
+    if(req.user != null) {
+        if(req.user.type == "Admin") {
+            isAdmin = true;
+        }
+    }
+
+    return isAdmin;
+}
