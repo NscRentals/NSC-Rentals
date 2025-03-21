@@ -13,11 +13,11 @@ router.get("/deco/get", getDeco);
 
 //update decorations
 import { updateDeco } from "../controllers/decorationsController.js";
-router.put("/deco/update", updateDeco);
+router.put("/deco/update/:id", updateDeco);
 
 //delete decorations
 import { deleteDeco } from "../controllers/decorationsController.js";
-router.delete("/deco/delete", deleteDeco);
+router.delete("/deco/delete/:id", deleteDeco);
 
 export default router;
 
