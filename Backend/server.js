@@ -14,11 +14,7 @@ dotenv.config();
 app.use(cors());
 
 //import deco routes
-import decoRoutes from "./routes/decorationsRoute.js";
 import decoRouter from "./routes/decorationsRoute.js";
-
-//deco route middleware
-app.use(decoRoutes);
 
 let mongoURL = process.env.MONGO_URL;
 
