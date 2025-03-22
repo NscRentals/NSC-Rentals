@@ -8,15 +8,18 @@ const driverSchema = new mongoose.Schema({
         required: true
     },
 
-    DriverAdd :{
-        type: String,
-        required: true
-    }/*
     DriverPhone:{
 
         type: String,
         required: true
     },
+
+    DriverAdd :{
+        type: String,
+        required: true
+    }/*
+
+   
 
     DriverEmail:{
 
@@ -37,9 +40,9 @@ const driverSchema = new mongoose.Schema({
     }
 
 
-*/
-    
 
+    
+*/
 });
 
 
