@@ -1,40 +1,38 @@
 import IdentityForm from "../models/identityForm";
+import identityUpload from "../middlewares/multerIdentity.js";
 
 
-export async function idntityFormSave(req,res){
-
-
-    const data = req.body;
-    req.body.fullName = req.user.firstName + " " + req.user.lastName;
-    req.body.email = req.user.email;
-    req.body.phone = req.user.phone;
-
-
-    try {
-
-        const user = data.email;
-        const existingFrom = await IdentityForm.FindOne({ user });
-
-        if(existingForm){
-
-            res.json({ message : "You have submitted a form already!"});
-            return;
+export async function identityFormSave(req, res) {
+    identityUpload(req, res, async (err) => {
+        if (err) return res.status(400).json({ message: err.message });
+        if (!req.files || !req.files.img1 || !req.files.img2) {
+            return res.status(400).json({ message: "Both images are required" });
         }
 
-        const newIdentityForm = new IdentityForm(data);
-        await newIdentityForm.save();
+        const data = req.body;
+        data.fullName = req.user.firstName + " " + req.user.lastName;
+        data.email = req.user.email;
+        data.phone = req.user.phone;
+        data.img1 = req.files.img1[0].filename;
+        data.img2 = req.files.img2[0].filename;
 
+        try {
+            const existingForm = await IdentityForm.findOne({ email: data.email });
+            if (existingForm) {
+                return res.status(400).json({ message: "You have submitted a form already!" });
+            }
 
+            const newIdentityForm = new IdentityForm(data);
+            await newIdentityForm.save();
 
-    }catch(e){
+            res.json({ message: "Identity form submitted successfully!" });
 
-        console.log(e);
-        res.status.json({ message : "Sending failed!"})
-    }
-
-
+        } catch (e) {
+            console.error("Error saving identity form:", e);
+            res.status(500).json({ message: "Sending failed!" });
+        }
+    });
 }
-
 
 //retrieving all the forms for idmin dashboard
 

@@ -54,6 +54,20 @@ phone : {
 
     
 },
+profilePicture : {
+
+    type : String,
+    required : true,
+    default: "aaaaaa"
+
+    
+},
+loyaltyPoints : {
+
+    type : Number,
+    default : 0 
+    
+}, 
 isVerified : {
 
     type: Boolean,

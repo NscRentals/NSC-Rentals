@@ -2,6 +2,9 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv";
+import profileUpload from "../middlewares/multerProfile.js";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();  
 
@@ -58,7 +61,9 @@ export async function loginUser(req,res){
                         firstName : user.firstName,
                         lastName: user.lastName,
                         email : user.email,
-                        type : user.type
+                        phone : user.phone,
+                        type : user.type,
+                        profilePicture : user.profilePicture
                         
                     },process.env.JWT_password)
 
@@ -132,7 +137,7 @@ export async function getAllUsers(req,res){
     const data = req.body;
     const user = req.user;
 
-    if(user.type=="admin"){
+    if(isItAdmin(req)){
 
         const users = await User.find();
         res.json(users);
@@ -155,3 +160,148 @@ export async function getUserDetails(req,res){
     
 }
 
+
+
+// Change Password Controller
+export async function changePassword(req, res) {
+
+
+    try {
+
+        const  newPassword  = req.body.password;
+        const email = req.user.email; 
+
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the password in the database
+        const result = await User.updateOne(
+            { email }, { $set: { password: hashedPassword } } // Update password field
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ message: "Failed to change password" });
+    }
+}
+
+
+//update user
+
+export async function updateUser(req, res){
+
+    try{
+
+        const data = req.body;
+        const user = req.user;
+        const email = req.body.email;
+
+    if(user.email==req.body.email){
+
+        await User.updateOne({email:email},data);
+        res.json({ message : " update sucessful!"})
+
+    }else{
+
+        res.json({ message : "you are not authorized to perform this task!"})
+    }
+
+}catch(e){
+
+    res.status(500).json({message :"Update Failed!"});
+}
+
+}
+
+
+
+
+// Delete user and their profile picture
+export async function deleteUser(req, res) {
+    try {
+        const data = req.body;
+        const user = req.user;
+        const email = req.body.email;
+
+        const deleteUser = await User.findOne({ email: email });
+
+        if (deleteUser == null) {
+            res.json({ message: "No user found for this email!" });
+            return;
+        }
+
+        // Check if the user is allowed to delete (admin or their own account)
+        if (isItAdmin(req) || req.user.email === req.body.email) {
+            // Delete profile picture if it exists
+            if (deleteUser.profilePicture) {
+                const filePath = path.join("./uploads/profile_pictures", deleteUser.profilePicture);
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }
+
+            // Delete the user from the database
+            await User.deleteOne({ email: email });
+
+            res.json({ message: "User successfully deleted!" });
+        } else {
+            res.json({ message: "You can't delete other users' accounts!" });
+        }
+    } catch (e) {
+        console.error("Error deleting user:", e);
+        res.status(500).json({ message: "Failed to delete the user!" });
+    }
+}
+
+
+
+//checking whether the user is Admin
+
+export function isItAdmin (req){
+
+    let isAdmin = false;
+
+    if(req.user!= null){
+
+        if(req.user.type=="admin"){
+
+            isAdmin=true;
+        }
+    }
+
+    return isAdmin;
+}
+
+
+// Profile picture upload function
+export async function updateProfilePicture(req, res) {
+    try {
+        if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+
+        const email = req.user.email; // Assuming `req.user` contains authenticated user info
+        const user = await User.findOne({ email });
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Delete old profile picture if it exists
+        if (user.profilePicture) {
+            const oldPath = path.join("./uploads/profile_pictures", user.profilePicture);
+            if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+
+        // Save new profile picture
+        user.profilePicture = req.file.filename;
+        await user.save();
+
+        res.json({ message: "Profile picture updated!", profilePicture: user.profilePicture });
+
+    } catch (e) {
+        console.error("Error updating profile picture:", e);
+        res.status(500).json({ message: "Failed to update profile picture" });
+    }
+}
