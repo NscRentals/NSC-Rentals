@@ -9,7 +9,7 @@ export async function addSpareParts(req, res) {
         })
         return
       }
-      if(req.user.type !="Admin"){
+      if(req.user.type !="admin"){
         res.status(403).json({
           message : "You are not authorized to perform this action"
         })
@@ -40,7 +40,7 @@ export async function getSpareParts(req, res) {
   }
 
   // Check if the user has the proper role
-  if (req.user.type !== "Admin" && req.user.type !== "Technician") {
+  if (req.user.type !== "admin" && req.user.type !== "Technician") {
     return res.status(403).json({
       message: "You are not authorized to perform this action"
     });
@@ -70,8 +70,8 @@ export async function getSparePartById(req, res) {
         })
         return
       }
-      if (req.user.role !== "admin" && req.user.role !== "technician") {
-        return res.status(403).json({
+      if (req.user.type !== "admin" && req.user.type !== "Technician") {
+         res.status(403).json({
              message: "You are not authorized to perform this action"
          })
         return
@@ -80,7 +80,7 @@ export async function getSparePartById(req, res) {
       try {
         const sparePart = await sparePartsInventory.findById(id);
         if (!sparePart) {
-          return res.status(404).json({ 
+           res.status(404).json({ 
             error: "Spare part not found"
          })
          return
@@ -103,7 +103,7 @@ export async function getSparePartById(req, res) {
         })
         return
       }
-      if (req.user.type !== "Admin") {
+      if (req.user.type !== "admin") {
          res.status(403).json({ 
             message: "You are not authorized to perform this action" 
         });
@@ -141,7 +141,7 @@ export async function getSparePartById(req, res) {
         });
         return
       }
-      if (req.user.type !== "Admin") {
+      if (req.user.type !== "admin") {
         res.status(403).json({ 
             message: "You are not authorized to perform this action" 
         });
