@@ -37,6 +37,31 @@
         }
     }
 
+    //get decorations by id
+    
+    export async function getDecoById(req, res) {
+        try {
+            const { id } = req.params; // Extracting ID from request parameters
+            const deco = await Decoration.findById(id); // Finding decoration by ID
+
+            if (!deco) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Decoration not found!"
+                });
+            }
+
+            return res.status(200).json({ success: true, deco });
+
+        } catch (err) {
+            return res.status(500).json({
+                success: false,
+                error: err.message
+            });
+        }
+    }
+
+
     //update decorations
     export async function updateDeco(req,res){
         try {
