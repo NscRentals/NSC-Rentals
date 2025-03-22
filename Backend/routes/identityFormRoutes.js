@@ -1,5 +1,5 @@
 import express from "express";
-import { identityFormSave,getForms } from "../controllers/identityController";
+import { identityFormSave,getForms } from "../controllers/identityController.js";
 import identityUpload from "../middlewares/multerIdentity.js";
 
 
