@@ -1,35 +1,48 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { Component } from "react";
+import axios from "axios";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default class App extends Component {
+  constructor(props){
+    super(props);
 
-  return (
-    <>
+    this.state = {
+      decorations: []
+    };
+
+  }
+
+  componentDidMount() {
+    this.retrieveDecorations();
+  }
+
+
+  retrieveDecorations() {
+    axios.get("http://localhost:4000/api/deco/get")
+      .then(res => {
+        if (res.data.success) {
+          this.setState({ 
+            decorations: res.data.deco 
+          });
+
+          console.log(this.state.decorations);
+
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching decorations:", error);
+      });
+  }
+
+  render() {
+    return (
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {this.state.decorations.map(decorations => (
+          <div>
+            <p>{decorations.dId}</p>
+            <p>{decorations.type}</p>
+          </div>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    )
+  }
 }
-
-export default App
