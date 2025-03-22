@@ -140,5 +140,5 @@ export async function deleteVehicle(req, res) {
             error: error.message
         });
     }   
-
+    
 }
