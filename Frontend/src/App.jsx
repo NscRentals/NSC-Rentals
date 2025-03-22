@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { Component } from 'react';
+import axios from 'axios';
 
-function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      drivers:[]
+      
+    };
+  }
+
+  componentDidMount(){
+    this.retrieveDrivers();
+  }
+//corrected code for the get driver option
+  retrieveDrivers(){
+    axios.get('http://localhost:4000/api/driver/')
+      .then(res => {
+        console.log("API Response:", res.data); // Debugging
+  
+        if(res.data.success){  // Fix: "sucess" → "success"
+          this.setState({
+            drivers: res.data.posts
+          }, () => {
+            console.log("Updated State:", this.state.drivers); // Debugging
+          });
+        } else {
+          console.log("No drivers found.");
+        }
+      })
+      .catch(error => {
+        console.error("Fetch Error:", error);
+      });
+  }
+  
+/*
+retrieveDrivers(){
+  axios.get('http://localhost:4000/api/driver/').then(res=>{
+    if(res.data.sucess){
+      this.setState({
+        drivers:res.data.posts
+      });
+
+      console.log(this.state.drivers)
+
+    }
+
+     });
+
+    }*/
+
+
+  render(){
+    return(
+      <div >
+        {this.state.drivers.map(drivers=>(
+
+          <div>
+        <h1>HElloo</h1>
+             <p>{drivers.DriverName}</p>
+             <p>{drivers.DriverAdd}</p>
+          
+          </div>
+        
+        ))}
+
+
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    )
+  }
+
 }
-
-export default App
