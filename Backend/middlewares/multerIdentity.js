@@ -17,7 +17,7 @@ const identityStorage = multer.diskStorage({
 // Multer upload configuration
 const identityUpload = multer({
     storage: identityStorage,
-    limits: { fileSize: 2 * 1024 * 1024 }, // Limit to 2MB
+    limits: { fileSize: 2 * 1024 * 1024 }, // Limit is 2MB
     fileFilter: (req, file, cb) => {
         const allowed = /jpeg|jpg|png/;
         const isValid = allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype);
