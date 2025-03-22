@@ -51,5 +51,4 @@ app.use((req,res,next)=>{
 
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
-app.use("/forms",identityRouter)
-
+app.use("/api/forms",identityRouter)

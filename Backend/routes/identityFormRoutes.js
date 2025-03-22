@@ -1,12 +1,12 @@
 import express from "express";
-import { identityFormSave,getForms } from "../controllers/identityController";
+import { identityFormSave,getForms } from "../controllers/identityController.js";
 import identityUpload from "../middlewares/multerIdentity.js";
 
 
 const identityRouter = express.Router();
 
-identityRouter.post("/form",identityFormSave)
-identityRouter.get("/",getForms)
+identityRouter.post("/",identityUpload,identityFormSave);
+identityRouter.get("/",getForms);
 
 
 export default identityRouter;
