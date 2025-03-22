@@ -7,6 +7,7 @@ import { driverAdd } from '../controllers/DriverController.js';
 import { driverFind } from '../controllers/DriverController.js';
 import { driverUpdate } from '../controllers/DriverController.js';
 import { driverDelete } from '../controllers/DriverController.js';  
+import { driverRegister } from '../controllers/DriverController.js';
 
 const driverRouter = express.Router();
 
@@ -16,10 +17,8 @@ driverRouter.post('/add', driverAdd);
 driverRouter.get('/', driverFind);
 driverRouter.put('/update/:id', driverUpdate);
 driverRouter.delete('/delete/:id', driverDelete);
+driverRouter.post('/register', driverRegister);
 
 
-//update post
-
-//delete post
 
 export default driverRouter;
