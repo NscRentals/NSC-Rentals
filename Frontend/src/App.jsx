@@ -35,13 +35,37 @@ export default class App extends Component {
 
   render() {
     return (
-      <div>
-        {this.state.decorations.map(decorations => (
-          <div>
-            <p>{decorations.dId}</p>
-            <p>{decorations.type}</p>
-          </div>
-        ))}
+      <div className = "container">
+        <p>All Decorations</p>
+        <table class = "table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Decoration ID</th>
+              <th scope="col">Type</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {this.state.decorations.map((decorations, index) => (
+              <tr>
+                <th scope="row">{index+1}</th>
+                <td>{decorations.dId}</td>
+                <td>{decorations.type}</td>
+                <td>
+                  <a className = "btn btn-warning" href = "#">
+                    <i className = "fas fa-edit"></i>&nbsp;Edit
+                  </a>
+                  &nbsp;
+                  <a className = "btn btn-danger" href = "#">
+                    <i className = "far fa-trash-alt"></i>&nbsp;Delete
+                  </a>  
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     )
   }
