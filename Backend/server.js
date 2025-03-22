@@ -5,6 +5,7 @@ import userRouter from "./routes/userRoute.js";
 import driverRouter from "./routes/DriverRoutes.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import identityRouter from "./routes/identityFormRoutes.js";
 
 
 const app = express();
@@ -37,7 +38,6 @@ app.use((req,res,next)=>{
     if(token!=null) {
 
         token = token.replace("Bearer ","");
-        console.log(token)
         jwt.verify(token, process.env.JWT_password,(err,decoded)=>{
             
             if(!err){
@@ -51,4 +51,5 @@ app.use((req,res,next)=>{
 
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
+app.use("/forms",identityRouter)
 
