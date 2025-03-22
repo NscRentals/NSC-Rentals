@@ -86,3 +86,33 @@ export async function driverDelete(req, res) {
         return res.status(400).json({ error: err.message });
     }
 }
+
+
+
+
+//gpt-reg driver
+
+
+export async function driverRegister(req, res) {
+    try {
+      const { DriverName, DriverPhone, DriverAdd } = req.body;
+      
+      // Check if the driver already exists
+      const existingDriver = await driver.findOne({ DriverName });
+      if (existingDriver) {
+        return res.status(400).json({ error: 'Driver with this email already exists.' });
+      }
+  
+      // Create a new driver
+      const newDriver = new driver({
+        DriverName,
+        DriverPhone,
+        DriverAdd
+      });
+  
+      await newDriver.save();
+      return res.status(200).json({ success: 'Driver registered successfully!' });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
