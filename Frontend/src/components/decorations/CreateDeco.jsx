@@ -19,7 +19,6 @@ export default class CreateDeco extends Component {
     e.preventDefault();
 
     const newDeco = {
-      dId: this.state.dId,
       type: this.state.type,
     };
 
@@ -41,17 +40,7 @@ export default class CreateDeco extends Component {
       <div className="container">
         <h2>Add New Decoration</h2>
         <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label>Decoration ID</label>
-            <input
-              type="text"
-              className="form-control"
-              name="dId"
-              value={this.state.dId}
-              onChange={this.handleInputChange}
-              required
-            />
-          </div>
+          {/* Remove dId input field */}
           <div className="form-group">
             <label>Type</label>
             <input
@@ -71,4 +60,3 @@ export default class CreateDeco extends Component {
     );
   }
 }
-
