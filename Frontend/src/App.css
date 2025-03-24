@@ -40,3 +40,87 @@
 .read-the-docs {
   color: #888;
 }
+
+
+/* Table Styling */
+.driver-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: 'Arial', sans-serif;
+}
+
+.driver-table th, .driver-table td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.driver-table thead {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.driver-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.driver-table tbody tr:hover {
+  background-color: #ddd;
+}
+
+/* Table Header */
+.driver-table th {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Table Data */
+.driver-table td {
+  font-size: 14px;
+  color: #333;
+}
+
+/* Action Buttons */
+.driver-table .btn {
+  padding: 8px 15px;
+  margin: 5px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.driver-table .btn-warning {
+  background-color: #ffcc00;
+  color: white;
+  border: none;
+}
+
+.driver-table .btn-danger {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.driver-table .btn-warning:hover {
+  background-color: #e6b800;
+}
+
+.driver-table .btn-danger:hover {
+  background-color: #d32f2f;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+  .driver-table th, .driver-table td {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .driver-table .btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

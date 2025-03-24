@@ -73,7 +73,7 @@ const DriverProfile = () => {
     try {
         console.log(`Fetching driver with ID: ${id}`);
         const res = await axios.get(`http://localhost:4000/api/driver/${id}`);
-        console.log("API Response:", res.data.driver);
+        console.log("API Response:", res.data.driverone);
 
         // Ensure you are setting the correct data structure
         if (res.data && res.data.driverone) {
@@ -97,7 +97,7 @@ const DriverProfile = () => {
     }
   };
 
-  // if (!driver) return <p>Loading...</p>; // Prevent rendering before data is loaded
+   if (!driver) return <p>Loading...</p>; // Prevent rendering before data is loaded
 
   return (
     <div className="container">
