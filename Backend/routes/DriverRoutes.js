@@ -20,7 +20,8 @@ driverRouter.put('/update/:id', driverUpdate);
 driverRouter.delete('/delete/:id', driverDelete);
 driverRouter.post('/register', driverRegister);
 
-driverRouter.get('/:id', driverFindOne);
+
+driverRouter.get('/:id', driverFindOne); 
 
 
 
