@@ -1,3 +1,4 @@
+
 import React, { Component } from "react";
 import axios from "axios";
 
@@ -13,7 +14,7 @@ export default class DecoDetails extends Component {
   componentDidMount() {
     const id = window.location.pathname.split("/")[2]; // Extract ID from URL
 
-    axios.get(`http://localhost:4000/api/deco/get/${id}`)
+    axios.get(`http://localhost:4000/api/deco/get/${id}`)                         
       .then((res) => {
         if (res.data.success) {
           this.setState({
