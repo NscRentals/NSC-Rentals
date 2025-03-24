@@ -16,6 +16,9 @@ app.use(cors());
 //import deco routes
 import decoRouter from "./routes/decorationsRoute.js";
 
+//import reservation routes
+import reservationsRouter from "./routes/reservationRoute.js";
+
 let mongoURL = process.env.MONGO_URL;
 
 mongoose.connect(mongoURL);
@@ -53,8 +56,10 @@ app.use((req,res,next)=>{
     next()
 })
 
-app.use("/api/users",userRouter)
-app.use("/api/driver",driverRouter)
-app.use("/api/deco",decoRouter)
+app.use("/api/users",userRouter);
+app.use("/api/driver",driverRouter);
+app.use("/api/deco",decoRouter);
+app.use("/api/reservation", reservationsRouter);
+
 
 
