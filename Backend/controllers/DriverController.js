@@ -116,3 +116,18 @@ export async function driverRegister(req, res) {
       return res.status(500).json({ error: err.message });
     }
   }
+
+  //get specific driver
+
+  export const driverFindOne = async (req, res) => {
+    try {
+      const driverone = await driver.findById(req.params.id);
+      if (!driver) {
+        return res.status(404).json({ success: false, message: "Driver not found" });
+      }
+      res.status(200).json({ success: true, driverone });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Server error", error });
+    }
+  };
+  

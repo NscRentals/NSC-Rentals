@@ -3,8 +3,13 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import userRouter from "./routes/userRoute.js";
 import driverRouter from "./routes/DriverRoutes.js";
+import identityRouter from "./routes/identityFormRoutes.js";
+
+
+
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import cors from "cors";
 
 
 const app = express();
