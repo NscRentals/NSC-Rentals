@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";  // Correct import
-import HomeD from "./components/HomeD";
-import CreateDeco from "./components/CreateDeco";
-import EditDeco from "./components/EditDeco";
-import DecoDetails from "./components/DecoDetails";
+import HomeD from "./components/decorations/HomeD";
+import CreateDeco from "./components/decorations/CreateDeco";
+import EditDeco from "./components/decorations/EditDeco";
+import DecoDetails from "./components/decorations/DecoDetails";
 
 export default class App extends Component {
   render() {
