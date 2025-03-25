@@ -3,7 +3,7 @@ import './App.css';
 import UserDashboard from './pages/user/userDashboard';
 import HomePage from './pages/home/homePage';
 import LoginPage from './pages/login/login';
-import {Toaster} from "react-hot-toast";
+import { Toaster } from 'react-hot-toast';
 import AdminPage from './pages/admin/adminDashboard';
 
 import DriverRegister from './components/driver/driverRegistration';

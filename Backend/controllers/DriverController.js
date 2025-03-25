@@ -1,15 +1,15 @@
 import driver from '../models/DriverModel.js'; 
 
 
-// export async function  driverAdd (req, res){
-//     try {
-//         let newPost = new driver(req.body);
-//         await newPost.save(); 
-//         return res.status(200).json({ success: "Post saved successfully" });
-//     } catch (err) {
-//         return res.status(400).json({ error: err.message });
-//     }
-// }
+export async function  driverAdd (req, res){
+    try {
+        let newPost = new driver(req.body);
+        await newPost.save(); 
+        return res.status(200).json({ success: "Post saved successfully" });
+    } catch (err) {
+        return res.status(400).json({ error: err.message });
+    }
+}
 
 
 export async function driverFind(req, res) {
