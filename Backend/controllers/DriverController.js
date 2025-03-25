@@ -1,6 +1,10 @@
 import driver from '../models/DriverModel.js'; 
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv";
 
 
+dotenv.config();  
 export async function  driverAdd (req, res){
     try {
         let newPost = new driver(req.body);
@@ -66,7 +70,36 @@ export async function driverDelete(req, res) {
 }
 
 
+export async function driverLogin(req, res) {
+  const { DriverEmail, DriverPW } = req.body;
 
+  try {
+      const driver = await driver.findOne({ DriverEmail });
+      
+      if (!driver) {
+          return res.status(404).json({ error: "Driver not found" });
+      }
+      
+      const isPasswordCorrect = bcrypt.compareSync(DriverPW, driver.DriverPW);
+      
+      if (isPasswordCorrect) {
+          const token = jwt.sign({
+              DriverName: driver.DriverName,
+              DriverPhone: driver.DriverPhone,
+              DriverAdd: driver.DriverAdd,
+              DriverEmail: driver.DriverEmail,
+              DLNo: driver.DLNo,
+              NICNo: driver.NICNo
+          }, "Amindu123");
+          
+          return res.json({ message: "Login successful", token, driver });
+      } else {
+          return res.status(401).json({ error: "Login failed" });
+      }
+  } catch (e) {
+      return res.status(500).json({ error: "Internal server error", details: e.message });
+  }
+}
 
 export async function driverRegister(req, res) {
     try {

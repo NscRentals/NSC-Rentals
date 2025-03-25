@@ -24,7 +24,7 @@ function App() {
         <Route path="/admin/" element={<AdminPage/>}/>
         <Route path="/register" element={<DriverRegister />} />
               <Route path="/drivers" element={<AllDrivers />} />
-              <Route path="/dashboard" element={< DriverDashboard />} />   
+              <Route path="/dashboard/:id" element={< DriverDashboard />} />   
               <Route path="/driverprofile/:id" element={<DriverProfile />} />     
               <Route path ="/driverprofile/update/:id" element={<DriverProfileUpdate />} />  
 

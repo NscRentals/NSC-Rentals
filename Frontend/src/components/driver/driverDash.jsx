@@ -12,7 +12,7 @@ const DriverDashboard = () => {
       
       <div className="card p-3">
         <button className="btn btn-primary mb-2" onClick={() => navigate(`/driverprofile/${id}`)}>
-          View Profile
+          Edit Profile
         </button>
 
         <button className="btn btn-success mb-2" onClick={() => navigate(`/driver/reservations/${id}`)}>
