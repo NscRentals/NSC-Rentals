@@ -7,8 +7,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.6",
-    "node": "^20.19.0",
-    "nodemon": "^3.1.9"
+    "multer": "^1.4.5-lts.2"
   },
   "name": "nsc-car-rental",
   "version": "1.0.0",
