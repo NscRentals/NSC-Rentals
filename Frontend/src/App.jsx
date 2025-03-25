@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";  // Correct import
-import HomeD from "./components/decorations/HomeD";
-import CreateDeco from "./components/decorations/CreateDeco";
-import EditDeco from "./components/decorations/EditDeco";
-import DecoDetails from "./components/decorations/DecoDetails";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+import HomeD from "./pages/decorations/admin/DecorationsPage";
+import CreateDeco from "./pages/decorations/admin/CreateDecoPage";
+import EditDeco from "./pages/decorations/admin/EditDecoPage";
+import DecoDetails from "./pages/decorations/admin/DecoDetailsPage";
+import ReservationForm from "./pages/reservations/user/ReservationForm";
 
 export default class App extends Component {
   render() {
@@ -17,6 +20,7 @@ export default class App extends Component {
             <Route path="/add" element={<CreateDeco />} />
             <Route path="/edit/:id" element={<EditDeco />} />
             <Route path="/deco/:id" element={<DecoDetails />} />
+            <Route path="/reservations" element={<ReservationForm />} />
           </Routes>
         </div>
       </BrowserRouter>
