@@ -8,6 +8,9 @@ export default class EditDeco extends Component {
     this.state = {
       dId: "",
       type: "",
+      price: "",
+      description: "",
+      images: "",
     };
   }
 
@@ -21,6 +24,9 @@ export default class EditDeco extends Component {
           this.setState({
             dId: res.data.deco.dId,
             type: res.data.deco.type,
+            price: res.data.deco.price,
+            description: res.data.deco.description,
+            images: res.data.deco.images,
           });
         }
       })
@@ -40,6 +46,9 @@ export default class EditDeco extends Component {
     const updatedDeco = {
       dId: this.state.dId,
       type: this.state.type,
+      price: this.state.price,
+      description: this.state.description,
+      images: this.state.images,
     };
 
     axios
@@ -47,7 +56,7 @@ export default class EditDeco extends Component {
       .then((res) => {
         if (res.data.success) {
           alert("Decoration Updated Successfully!");
-          window.location.href = `/deco/${id}`; // Redirect back to details page
+          window.location.href = "/"; // Redirect back to decorations list
         }
       })
       .catch((error) => {
@@ -61,6 +70,7 @@ export default class EditDeco extends Component {
         <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-lg">
           <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Edit Decoration</h2>
           <form onSubmit={this.handleSubmit} className="space-y-4">
+            {/* Decoration ID (Disabled) */}
             <div>
               <label className="block text-gray-700 font-medium">Decoration ID</label>
               <input
@@ -71,6 +81,8 @@ export default class EditDeco extends Component {
                 disabled
               />
             </div>
+
+            {/* Type */}
             <div>
               <label className="block text-gray-700 font-medium">Type</label>
               <input
@@ -82,6 +94,47 @@ export default class EditDeco extends Component {
                 required
               />
             </div>
+
+            {/* Price */}
+            <div>
+              <label className="block text-gray-700 font-medium">Price (LKR)</label>
+              <input
+                type="number"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                name="price"
+                value={this.state.price}
+                onChange={this.handleInputChange}
+                required
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-gray-700 font-medium">Description</label>
+              <textarea
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                name="description"
+                value={this.state.description}
+                onChange={this.handleInputChange}
+                rows="3"
+                required
+              />
+            </div>
+
+            {/* Image URL */}
+            <div>
+              <label className="block text-gray-700 font-medium">Image URL</label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                name="images"
+                value={this.state.images}
+                onChange={this.handleInputChange}
+                required
+              />
+            </div>
+
+            {/* Update Button */}
             <button
               type="submit"
               className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition"
@@ -94,7 +147,6 @@ export default class EditDeco extends Component {
     );
   }
 }
-
 
 
 
