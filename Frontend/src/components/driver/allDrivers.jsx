@@ -1,20 +1,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';  // Import for navigation
+import { useNavigate } from 'react-router-dom';
 
-
-
-
-
- class AllDrivers extends Component {
+class AllDrivers extends Component {
   constructor(props) {
     super(props);
     this.state = {
       drivers: []
     };
   }
-
-
 
   componentDidMount() {
     this.retrieveDrivers();
@@ -40,8 +34,6 @@ import { useNavigate } from 'react-router-dom';  // Import for navigation
       });
   }
 
-
-  
   deleteDriver(driverId) {
     axios.delete(`http://localhost:4000/api/driver/delete/${driverId}`)
       .then(res => {
@@ -71,13 +63,17 @@ import { useNavigate } from 'react-router-dom';  // Import for navigation
           Register New Driver
         </button>
 
-
         <table className="table">
           <thead>
             <tr>
               <th>#</th>
+              <th>Driver ID</th>
               <th>Driver Name</th>
+              <th>Driver Phone</th>
               <th>Driver Address</th>
+              <th>Driver Email</th>
+              <th>DL No</th>
+              <th>NIC No</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -85,10 +81,15 @@ import { useNavigate } from 'react-router-dom';  // Import for navigation
             {this.state.drivers.map((driver, index) => (
               <tr key={driver._id}>
                 <td>{index + 1}</td>
+                <td>{driver.DriverID}</td>
                 <td>{driver.DriverName}</td>
+                <td>{driver.DriverPhone}</td>
                 <td>{driver.DriverAdd}</td>
+                <td>{driver.DriverEmail}</td>
+                <td>{driver.DLNo}</td>
+                <td>{driver.NICNo}</td>
                 <td>
-                  <button className="btn btn-warning" /*onClick={() => this.}*/>Edit</button>
+                  <button className="btn btn-warning">Edit</button>
                   &nbsp;
                   <button className="btn btn-danger" onClick={() => this.deleteDriver(driver._id)}>Delete</button>
                 </td>
@@ -100,7 +101,6 @@ import { useNavigate } from 'react-router-dom';  // Import for navigation
     );
   }
 }
-
 
 function AllDriversWrapper() {
   const navigate = useNavigate();

@@ -1,15 +1,15 @@
 import driver from '../models/DriverModel.js'; 
 
 
-export async function  driverAdd (req, res){
-    try {
-        let newPost = new driver(req.body);
-        await newPost.save(); 
-        return res.status(200).json({ success: "Post saved successfully" });
-    } catch (err) {
-        return res.status(400).json({ error: err.message });
-    }
-}
+// export async function  driverAdd (req, res){
+//     try {
+//         let newPost = new driver(req.body);
+//         await newPost.save(); 
+//         return res.status(200).json({ success: "Post saved successfully" });
+//     } catch (err) {
+//         return res.status(400).json({ error: err.message });
+//     }
+// }
 
 
 export async function driverFind(req, res) {
@@ -51,28 +51,6 @@ export async function driverUpdate(req, res) {
 
 
 
-   
-
-  /*  Post.findByIdAndUpdate(
-        req.params.id,
-        {
-            $set: req.body
-        },
-        (err,post)=>{
-            if(err){
-                return res.status(400).json({error:err});   
-            }
-
-            return res.status(200).json({
-                success:"Updated successfully"
-            });
-
-        }
-        
-    );
-*/
-
-
 export async function driverDelete(req, res) {
     try {
         const deletedPost = await driver.findByIdAndDelete(req.params.id);
@@ -90,12 +68,9 @@ export async function driverDelete(req, res) {
 
 
 
-//gpt-reg driver
-
-
 export async function driverRegister(req, res) {
     try {
-      const { DriverName, DriverPhone, DriverAdd } = req.body;
+      const { DriverName, DriverPhone, DriverAdd, DriverEmail,DLNo,NICNo, DriverPW } = req.body;
       
       // Check if the driver already exists
       const existingDriver = await driver.findOne({ DriverName });
@@ -103,11 +78,23 @@ export async function driverRegister(req, res) {
         return res.status(400).json({ error: 'Driver with this email already exists.' });
       }
   
-      // Create a new driver
+      // Generate a unique Driver ID
+      const latestDriver = await driver.findOne().sort({ DriverID: -1 });
+      const newDriverID = latestDriver ? latestDriver.DriverID + 1 : 1001; // Start from 1001
+
+      console.log("Generated Driver ID:", newDriverID);
+
+      // Create and save the new driver
       const newDriver = new driver({
-        DriverName,
-        DriverPhone,
-        DriverAdd
+          DriverID: newDriverID,
+          DriverName,
+          DriverPhone,
+          DriverAdd,
+          DriverEmail,
+          DLNo,
+          NICNo,
+          DriverPW
+
       });
   
       await newDriver.save();
@@ -116,6 +103,9 @@ export async function driverRegister(req, res) {
       return res.status(500).json({ error: err.message });
     }
   }
+
+
+
 
   //get specific driver
 
