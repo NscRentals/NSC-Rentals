@@ -6,11 +6,15 @@ import driverRouter from "./routes/DriverRoutes.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import identityRouter from "./routes/identityFormRoutes.js";
+import blogRouter from "./routes/blogRoutes.js";
+import cors from "cors";
 import adminVehicleRouter from "./routes/adminVehicleRoutes.js";
 import peerToPeerVehiclesRouter from "./routes/peerToPeerVehiclesRoutes.js";
 
 
 const app = express();
+app.use(cors());
+
 app.use(bodyParser.json());
 dotenv.config();
 
@@ -53,5 +57,6 @@ app.use((req,res,next)=>{
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
 app.use("/api/forms",identityRouter)
+app.use("/api/blogpost",blogRouter)
 app.use("/api/vehicles",adminVehicleRouter)
 app.use("/api/peerToPeerVehicles",peerToPeerVehiclesRouter)
