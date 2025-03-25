@@ -1,4 +1,4 @@
-import Vehicle from "../models/AdminVehicle.js";
+import Vehicle from "../models/adminVehicle.js";
 import { isItAdmin } from "./userController.js";
 
 
@@ -86,10 +86,10 @@ export async function updateVehicle(req, res) {
     try {
         if(isItAdmin(req)) {
 
-            const id = req.params.key;
+            const id = req.params.id;
             const data = req.body;
             
-            await Vehicle.updateOne ( {id : id}, data );
+            await Vehicle.updateOne ( { _id: id }, data );
             
             res.json({
                 message: "Vehicle updated successfully"
@@ -118,10 +118,9 @@ export async function deleteVehicle(req, res) {
     try {
         if(isItAdmin(req)) {
 
-            const id = req.params.key;
-            const data = req.body;
+            const id = req.params.id;
             
-            await Vehicle.deleteOne ( {id : id} );
+            await Vehicle.deleteOne ( { _id: id } );
             
             res.json({
                 message: "Vehicle deleted successfully"

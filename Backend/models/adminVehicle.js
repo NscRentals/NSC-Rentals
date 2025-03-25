@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
  
 const AdminVehicleSchema = new mongoose.Schema({
-
     vehicleID: {
         type: String,
         unique: true,
@@ -11,7 +10,7 @@ const AdminVehicleSchema = new mongoose.Schema({
     // Owner details with type (company-owned or peer-to-peer)
     owner: {
         ownerId: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,           
             ref: 'User',
             required: true
         },

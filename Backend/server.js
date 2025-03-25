@@ -7,13 +7,12 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import identityRouter from "./routes/identityFormRoutes.js";
 import adminVehicleRouter from "./routes/adminVehicleRoutes.js";
-import cors from "cors";
+import peerToPeerVehiclesRouter from "./routes/peerToPeerVehiclesRoutes.js";
 
 
 const app = express();
 app.use(bodyParser.json());
 dotenv.config();
-app.use(cors());
 
 let mongoURL = process.env.MONGO_URL;
 
@@ -55,3 +54,4 @@ app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
 app.use("/api/forms",identityRouter)
 app.use("/api/vehicles",adminVehicleRouter)
+app.use("/api/peerToPeerVehicles",peerToPeerVehiclesRouter)
