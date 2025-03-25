@@ -9,7 +9,7 @@ const decorationSchema = new mongoose.Schema({
     type:{
         type: String,
         required: true
-    }/*,
+    },
     price:{
         type: Number,
         required: true
@@ -21,7 +21,7 @@ const decorationSchema = new mongoose.Schema({
     images:{
         type: String, //image URL
         required: true
-    }*/
+    }
 
 });
 

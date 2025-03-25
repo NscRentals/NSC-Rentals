@@ -13,11 +13,22 @@ async function generateDecorationId() {
 // Add decorations
 export async function addDeco(req, res) {
     try {
+        const { type, price, description, images } = req.body;
+
+        if (!type || !price || !description || !images) {
+            return res.status(400).json({
+                error: "All fields (type, price, description, images) are required",
+            });
+        }
+
         const generatedId = await generateDecorationId(); // Generate new dId
 
         let newDeco = new Decoration({
             dId: generatedId, // Auto-generated ID
-            type: req.body.type, // Keep other fields as they are
+            type, 
+            price,
+            description,
+            images,
         });
 
         await newDeco.save();
@@ -43,7 +54,17 @@ export async function getDeco(req, res) {
                 message: "No decorations found!",
             });
         }
-        return res.status(200).json({ success: true, deco });
+        return res.status(200).json({ 
+            success: true, 
+            deco: deco.map(({ _id, dId, type, price, description, images }) => ({
+                _id,
+                dId,
+                type,
+                price,
+                description,
+                images,
+            }))
+        });
     } catch (err) {
         return res.status(500).json({
             error: err.message,
@@ -64,7 +85,11 @@ export async function getDecoById(req, res) {
             });
         }
 
-        return res.status(200).json({ success: true, deco });
+        const { _id, dId, type, price, description, images } = deco;
+        return res.status(200).json({
+            success: true,
+            deco: { _id, dId, type, price, description, images },
+        });
     } catch (err) {
         return res.status(500).json({
             success: false,
@@ -87,6 +112,7 @@ export async function updateDeco(req, res) {
                 message: "Decoration not found!",
             });
         }
+
         return res.status(200).json({
             success: true,
             updatedDeco,
@@ -121,8 +147,7 @@ export async function deleteDeco(req, res) {
         });
     }
 }
-    
-    
+   
     
     
     

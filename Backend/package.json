@@ -28,5 +28,6 @@
     "url": "https://github.com/NscRentals/NSC-Rentals/issues"
   },
   "homepage": "https://github.com/NscRentals/NSC-Rentals#readme",
-  "description": ""
+  "description": "NSC Wedding Car Rentals",
+  "devDependencies": {}
 }

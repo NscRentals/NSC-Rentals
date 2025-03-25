@@ -1,24 +1,23 @@
 import express from "express";
-/*import Decoration from "../models/decorations.js";*/
+
+// Import decoration controller functions
+import { addDeco, getDecoById, getDeco, updateDeco, deleteDeco } from "../controllers/decorationsController.js";
 
 const decoRouter = express.Router();
 
-//add decorations
-import { addDeco, getDecoById } from "../controllers/decorationsController.js";
+// Add decorations
 decoRouter.post("/save", addDeco);
 
-//get decorations
-import { getDeco } from "../controllers/decorationsController.js";
+// Get all decorations
 decoRouter.get("/get", getDeco);
-decoRouter.get("/get/:id", getDecoById); //specific decoration
 
-//update decorations
-import { updateDeco } from "../controllers/decorationsController.js";
+// Get decoration by ID
+decoRouter.get("/get/:id", getDecoById);
+
+// Update decoration
 decoRouter.put("/update/:id", updateDeco);
 
-//delete decorations
-import { deleteDeco } from "../controllers/decorationsController.js";
+// Delete decoration
 decoRouter.delete("/delete/:id", deleteDeco);
 
 export default decoRouter;
-
