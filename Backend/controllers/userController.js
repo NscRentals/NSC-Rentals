@@ -67,7 +67,7 @@ export async function loginUser(req,res){
                         
                     },process.env.JWT_password)
 
-                    res.json({ message: "Login successful" , token : token})
+                    res.json({ message: "Login successful" , token : token , user:user })
                 }else{
                     
                     res.status(401).json({ error: "Login failed"})
@@ -276,6 +276,19 @@ export function isItAdmin (req){
     }
 
     return isAdmin;
+}
+
+//checking whether the user is a Customer 
+export function isItCustomer(req) {
+	let isCustomer = false;
+
+	if (req.user != null) {
+		if (req.user.type == "customer") {
+			isCustomer = true;
+		}
+	}
+
+	return isCustomer;
 }
 
 
