@@ -32,19 +32,19 @@ export async function addSpareParts(req, res) {
 
 //Get all spare parts
 export async function getSpareParts(req, res) {
-  // Check if user is authenticated
-  if (!req.user) {
-    return res.status(401).json({
+  //check  if user is authenticated
+   if (!req.user) {
+   return res.status(401).json({
       message: "Please login and try again"
-    });
+     });
   }
 
-  // Check if the user has the proper role
-  if (req.user.type !== "admin" && req.user.type !== "Technician") {
-    return res.status(403).json({
-      message: "You are not authorized to perform this action"
-    });
-  }
+   // Check if the user has the proper role
+   if (req.user.type !== "admin" && req.user.type !== "Technician") {
+     return res.status(403).json({
+       message: "You are not authorized to perform this action"
+     });
+   }
 
   // Attempt to fetch spare parts
   try {
@@ -91,7 +91,7 @@ export async function getSparePartById(req, res) {
              error: "Error fetching spare part", details: error
          });
       }
-    }
+}
 
     
   //Update a spare part by ID
