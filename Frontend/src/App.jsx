@@ -13,11 +13,15 @@ import DriverDashboard from './components/driver/driverDash';
 import DriverProfileUpdate from './components/driver/driverProfileupdate';
 
 
+import Home from './pages/home/homePage';
+
+
 function App() {
   return (
     <BrowserRouter path ="/*">
       <Toaster/>
       <Routes>
+        <Route path="/" element={<Home/>} />  
         <Route path="/user/*" element={<UserDashboard/>} />
         <Route path="/*" element={<HomePage/>} />
         <Route path="/login" element ={<LoginPage></LoginPage>}></Route>
