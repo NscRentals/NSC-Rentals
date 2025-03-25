@@ -64,7 +64,7 @@ export async function getSpareParts(req, res) {
 
 //Get a single spare part by ID
 export async function getSparePartById(req, res) {
-    if (!req.user) {
+   if (!req.user) {
          res.status(401).json({ 
             message: "Please login and try again" 
         })
