@@ -305,3 +305,23 @@ export async function updateProfilePicture(req, res) {
         res.status(500).json({ message: "Failed to update profile picture" });
     }
 }
+
+//Checking whether the user is Technician
+
+export function isItTechnician(req) {
+
+    let isTechnician = false;
+
+    if (req.user != null) {
+
+      if (req.user.type === "Technician") {
+
+        isTechnician = true;
+      }
+
+    }
+
+    return isTechnician;
+  }
+
+  

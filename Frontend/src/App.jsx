@@ -1,35 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+//import NavBar from "./components/navBar.jsx";
+import AdminAddSpareParts from "./components/adminAddSpareParts.jsx";
+import AdminUpdateSpareParts from "./components/adminUpdateSpareParts.jsx";
+import AdminDeleteSpareParts from "./components/adminDeleteSpareParts.jsx";
+//import SparePartsDetails from "./components/sparePartsDetails.jsx";
+import adminViewDetails from "./components/adminViewDetails";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <NavBar />
+      <div className="container">
+        <Routes>
+         
+          <Route path="/adminViewDetails" element={<adminViewDetails />} />
+          {/* <Route path="/add-spareParts" element={<AdminAddSpareParts />} /> */}
+          {/* <Route path="/update-spareParts/:id" element={<AdminUpdateSpareParts />} /> */}
+          {/* <Route path="/delete-spareParts/:id" element={<AdminDeleteSpareParts />} /> */}
+          {/* <Route path="/sparePartsDetails" element={<SparePartsDetails />} /> */}
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </BrowserRouter>
+  );
 }
-
-export default App
