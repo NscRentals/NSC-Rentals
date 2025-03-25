@@ -9,10 +9,12 @@ import identityRouter from "./routes/identityFormRoutes.js";
 
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import cors from "cors";
+import identityRouter from "./routes/identityFormRoutes.js";
 
 
 const app = express();
+app.use(cors());
+
 app.use(bodyParser.json());
 app.use(cors());
 dotenv.config();
@@ -57,3 +59,4 @@ app.use((req,res,next)=>{
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
 app.use("/api/forms",identityRouter)
+app.use("/api/blogpost",blogRouter)
