@@ -25,6 +25,13 @@ export default function LoginPage(){
             console.log(res)
             toast.success("Login Successfull");
             const user = res.data.user;
+
+            const token = res.data.token; // Get JWT token from response
+
+        if (token) {
+            localStorage.setItem("authToken", token); // Store token
+        }
+
             if(user.type=="Customer"){
                 Navigate("/")
             }else{
