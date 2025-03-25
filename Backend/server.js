@@ -7,12 +7,13 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import identityRouter from "./routes/identityFormRoutes.js";
 import adminVehicleRouter from "./routes/adminVehicleRoutes.js";
+import cors from "cors";
 
 
 const app = express();
 app.use(bodyParser.json());
 dotenv.config();
-
+app.use(cors());
 
 let mongoURL = process.env.MONGO_URL;
 
