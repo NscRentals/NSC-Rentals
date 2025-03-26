@@ -62,16 +62,6 @@ app.use((req,res,next)=>{
     next()
 })
 
-// app.post("/api/reservations", async (req, res) => {
-//     try {
-//       const reservation = new reservation(req.body);
-//       await reservation.save();
-//       res.status(201).json({ success: true, reservation });
-//     } catch (error) {
-//       console.error("Reservation error:", error);
-//       res.status(400).json({ error: error.message });
-//     }
-//   });
   
 
 

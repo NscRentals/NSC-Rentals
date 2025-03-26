@@ -31,8 +31,7 @@ export default class ReservationPage extends Component {
     e.preventDefault();
   
     const newReservation = {
-      rType: this.state.reservationType,  // Ensure this matches the backend's field name
-      name: this.state.name,
+      rType: this.state.reservationType,  
       email: this.state.email,
       pickupLocation: this.state.pickupLocation,
       driverReq: this.state.driverReq,
