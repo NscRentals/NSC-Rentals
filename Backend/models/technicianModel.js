@@ -1,14 +1,14 @@
  import mongoose from 'mongoose';
 
-const driverSchema = new mongoose.Schema({
+const technicianSchema = new mongoose.Schema({
 
-    DriverName:{
+    TechnicianName:{
 
         type: String,
         required: true
     },
 
-    DriverAdd :{
+    TechnicianAdd :{
         type: String,
         required: true
     }/*
@@ -43,5 +43,5 @@ const driverSchema = new mongoose.Schema({
 });
 
 
-const driver = mongoose.model('Driver', driverSchema);
-export default driver;
+const technician = mongoose.model('Technician', technicianSchema);
+export default technician;
