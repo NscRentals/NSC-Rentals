@@ -24,11 +24,17 @@ export default function LoginPage(){
 
             console.log(res)
             toast.success("Login Successfull");
+            const token = res.data.token;
+
+            if(token){
+                localStorage.setItem("token",token)}
+
+
             const user = res.data.user;
             if(user.type=="Customer"){
                 Navigate("/")
             }else{
-                Navigate("/admin")
+                Navigate("/maintainance/adminViewDetails")
             }
 
         }).catch((err)=>{
