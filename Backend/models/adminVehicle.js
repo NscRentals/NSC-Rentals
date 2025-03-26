@@ -11,12 +11,10 @@ const AdminVehicleSchema = new mongoose.Schema({
     owner: {
         ownerId: {
             type: mongoose.Schema.Types.ObjectId,           
-            ref: 'User',
-            required: true
+            ref: 'User'
         },
         ownerType: {
             type: String,
-            required: true,
             enum: ['Company', 'Peer-to-Peer']
         }
     },
@@ -101,7 +99,6 @@ const AdminVehicleSchema = new mongoose.Schema({
     // Current availability status of the vehicle
     availabilityStatus: { 
         type: String, 
-        required: true, 
         enum: ['Available', 'Booked', 'Under Maintenance'], 
         default: 'Available' 
     },
@@ -137,7 +134,6 @@ const AdminVehicleSchema = new mongoose.Schema({
     maintenance: {
         mileage: {
             type: Number,
-            required: true,
             min: 0
         },
         lastServiceDate: {

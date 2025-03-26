@@ -10,7 +10,7 @@ export async function addVehicle (req, res) {
         })
         return
     }
-    if(req.user.type !="Admin"){
+    if(req.user.type !="admin"){
         res.status(403).json({
           message : "You are not authorized to perform this action"
         })

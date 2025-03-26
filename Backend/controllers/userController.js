@@ -292,21 +292,6 @@ export function isItCustomer(req) {
 }
 
 
-export function isItCustomer(req){
-
-    let isCustomer = false;
-
-    if(req.user!= null){
-
-        if(req.user.type=="customer"){
-
-            isCustomer=true;
-        }
-    }
-
-    return isCustomer;
-}
-
 // Profile picture upload function
 export async function updateProfilePicture(req, res) {
     try {
