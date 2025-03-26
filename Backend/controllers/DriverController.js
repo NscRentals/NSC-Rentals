@@ -1,6 +1,10 @@
 import driver from '../models/DriverModel.js'; 
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv";
 
 
+dotenv.config();  
 export async function  driverAdd (req, res){
     try {
         let newPost = new driver(req.body);
@@ -20,7 +24,7 @@ export async function driverFind(req, res) {
             return res.status(404).json({ success: false, message: "No posts found" });
         }
 
-        return res.status(200).json({ success: true, posts });
+        return res.status(200).json({ success: true,posts });
     } catch (err) {
         return res.status(400).json({ error: err.message });
     }
@@ -51,28 +55,6 @@ export async function driverUpdate(req, res) {
 
 
 
-   
-
-  /*  Post.findByIdAndUpdate(
-        req.params.id,
-        {
-            $set: req.body
-        },
-        (err,post)=>{
-            if(err){
-                return res.status(400).json({error:err});   
-            }
-
-            return res.status(200).json({
-                success:"Updated successfully"
-            });
-
-        }
-        
-    );
-*/
-
-
 export async function driverDelete(req, res) {
     try {
         const deletedPost = await driver.findByIdAndDelete(req.params.id);
@@ -86,3 +68,89 @@ export async function driverDelete(req, res) {
         return res.status(400).json({ error: err.message });
     }
 }
+
+
+export async function driverLogin(req, res) {
+  const { DriverEmail, DriverPW } = req.body;
+
+  try {
+      const driver = await driver.findOne({ DriverEmail });
+      
+      if (!driver) {
+          return res.status(404).json({ error: "Driver not found" });
+      }
+      
+      const isPasswordCorrect = bcrypt.compareSync(DriverPW, driver.DriverPW);
+      
+      if (isPasswordCorrect) {
+          const token = jwt.sign({
+              DriverName: driver.DriverName,
+              DriverPhone: driver.DriverPhone,
+              DriverAdd: driver.DriverAdd,
+              DriverEmail: driver.DriverEmail,
+              DLNo: driver.DLNo,
+              NICNo: driver.NICNo
+          }, "Amindu123");
+          
+          return res.json({ message: "Login successful", token, driver });
+      } else {
+          return res.status(401).json({ error: "Login failed" });
+      }
+  } catch (e) {
+      return res.status(500).json({ error: "Internal server error", details: e.message });
+  }
+}
+
+export async function driverRegister(req, res) {
+    try {
+      const { DriverName, DriverPhone, DriverAdd, DriverEmail,DLNo,NICNo, DriverPW } = req.body;
+      
+      // Check if the driver already exists
+      const existingDriver = await driver.findOne({ DriverName });
+      if (existingDriver) {
+        return res.status(400).json({ error: 'Driver with this email already exists.' });
+      }
+  
+      // Generate a unique Driver ID
+      const latestDriver = await driver.findOne().sort({ DriverID: -1 });
+      const newDriverID = latestDriver ? latestDriver.DriverID + 1 : 1001; // Start from 1001
+
+      console.log("Generated Driver ID:", newDriverID);
+
+      // Create and save the new driver
+      const newDriver = new driver({
+          DriverID: newDriverID,
+          DriverName,
+          DriverPhone,
+          DriverAdd,
+          DriverEmail,
+          DLNo,
+          NICNo,
+          DriverPW
+
+      });
+  
+      await newDriver.save();
+      return res.status(200).json({ success: 'Driver registered successfully!' });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+
+
+
+  //get specific driver
+
+  export const driverFindOne = async (req, res) => {
+    try {
+      const driverone = await driver.findById(req.params.id);
+      if (!driver) {
+        return res.status(404).json({ success: false, message: "Driver not found" });
+      }
+      res.status(200).json({ success: true, driverone });
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Server error", error });
+    }
+  };
+  
