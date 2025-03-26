@@ -1,4 +1,5 @@
 import express from "express";
+import Reservation from "../models/reservations.js";
 import { 
     addReservation, 
     getReservations, 
@@ -7,21 +8,21 @@ import {
     deleteReservation 
 } from "../controllers/reservationsController.js";
 
-const router = express.Router();
+const resRouter = express.Router();
 
 // Route to add a new reservation
-router.post("/", addReservation);
+resRouter.post("/", addReservation);
 
 // Route to get all reservations
-router.get("/", getReservations);
+resRouter.get("/", getReservations);
 
 // Route to get a reservation by ID
-router.get("/:id", getReservationById);
+resRouter.get("/:id", getReservationById);
 
 // Route to update a reservation
-router.put("/:id", updateReservation);
+resRouter.put("/:id", updateReservation);
 
 // Route to delete a reservation
-router.delete("/:id", deleteReservation);
+resRouter.delete("/:id", deleteReservation);
 
-export default router;
+export default resRouter;

@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 
 
 const reservationSchema = new mongoose.Schema({
-    rId: {
-        type: String,
-        required: true
-    },
+    // rId: {
+    //     type: String,
+    //     required: true
+    // },
     name: {
         type: String,
         required: true
@@ -16,7 +16,7 @@ const reservationSchema = new mongoose.Schema({
     },
     rType: {
         type: String,
-        enum : ["Wedding", "normal"],
+        enum : ["wedding", "normal"],
         required: true
     },
     startTime: {
@@ -27,39 +27,40 @@ const reservationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    weddingDate: {
+        type: Date,
+    },
     startDate: {
         type: Date,
-        required: true
     },
     endDate: {
         type: Date,
     },
-    vehicleId: {
-        type: String,
-        required: true
-    },
+    // vehicleId: {
+    //     type: String,
+    //     required: true
+    // },
     decorations: {
         type: Boolean,
-        required: true
+     
     },
     decoType: {
         type: String,
     },
-    isVerified: {
-        type: Boolean, // True for Verified, False for Not Verified
-        required: true
-    },
-    price: {
-        type: Number,
-        required: true
-    },
+    // isVerified: {
+    //     type: Boolean, // True for Verified, False for Not Verified
+    //     required: true
+    // },
+    // price: {
+    //     type: Number,
+    //     required: true
+    // },
     driverReq: {
         type: Boolean, // True for Driver Required, False for Not Required
         required: true
     },
     driverId: {
         type: String,
-        required: true
     },
     pickupLocation: {
         type: String,

@@ -22,7 +22,9 @@ app.use(cors());
 import decoRouter from "./routes/decorationsRoute.js";
 
 //import reservation routes
-import reservationsRouter from "./routes/reservationRoute.js";
+import resRouter from "./routes/reservationRoute.js";
+
+
 
 let mongoURL = process.env.MONGO_URL;
 
@@ -60,9 +62,24 @@ app.use((req,res,next)=>{
     next()
 })
 
+// app.post("/api/reservations", async (req, res) => {
+//     try {
+//       const reservation = new reservation(req.body);
+//       await reservation.save();
+//       res.status(201).json({ success: true, reservation });
+//     } catch (error) {
+//       console.error("Reservation error:", error);
+//       res.status(400).json({ error: error.message });
+//     }
+//   });
+  
+
+
+
+
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
 app.use("/api/forms",identityRouter)
 app.use("/api/blogpost",blogRouter)
 app.use("/api/deco",decoRouter);
-app.use("/api/reservation", reservationsRouter);
+app.use("/api/reservations", resRouter);

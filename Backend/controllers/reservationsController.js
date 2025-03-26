@@ -1,5 +1,15 @@
 import Reservation from "../models/reservations.js";
 
+// Function to generate the next sequential reservation ID
+async function generateReservationId() {
+    const lastReservation = await Reservation.findOne().sort({ rId: -1 }); // Get last inserted reservation
+    if (lastReservation) {
+        const lastIdNumber = parseInt(lastReservation.rId.substring(1)); // Extract number from "R###"
+        return `R${(lastIdNumber + 1).toString().padStart(3, "0")}`; // Increment and format
+    }
+    return "R001"; // Default for first entry
+}
+
 // Add reservation
 export async function addReservation(req, res) {
     try {
@@ -14,6 +24,7 @@ export async function addReservation(req, res) {
         });
     }
 }
+
 
 // Get all reservations
 export async function getReservations(req, res) {
