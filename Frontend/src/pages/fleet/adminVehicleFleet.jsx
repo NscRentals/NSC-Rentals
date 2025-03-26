@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +13,13 @@ export default function AdminVehicleFleet() {
   }, []);
 
   const retrieveVehicles = () => {
-    axios.get('http://localhost:4000/api/vehicles')
+    const token = localStorage.getItem("token"); 
+    
+    axios.get('http://localhost:4000/api/vehicles', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(res => {
         console.log('Server data:', res.data);
         setVehicles(res.data);

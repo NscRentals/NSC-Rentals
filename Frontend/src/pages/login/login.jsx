@@ -28,7 +28,7 @@ export default function LoginPage(){
             if(user.type=="Customer"){
                 Navigate("/")
             }else{
-                Navigate("/admin")
+                Navigate("/fleet")
             }
 
         }).catch((err)=>{

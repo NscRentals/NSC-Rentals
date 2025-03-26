@@ -27,6 +27,7 @@ export async function addVehicle (req, res) {
             message: "Vehicle Registered Successfully"
         })
     }catch(error) {
+        console.log(error);
         res.status(500).json ({
             message: "Vehicle Registration Failed"
         })

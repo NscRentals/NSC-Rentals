@@ -4,7 +4,6 @@ const AdminVehicleSchema = new mongoose.Schema({
     vehicleID: {
         type: String,
         unique: true,
-        required: true
     },
 
     // Owner details with type (company-owned or peer-to-peer)
@@ -22,30 +21,25 @@ const AdminVehicleSchema = new mongoose.Schema({
     // Specifies the vehicle is used for wedding or normal rental
     vehicleType: {
         type: String,
-        required: true,
         enum: ['wedding car', 'Normal rental']
     },
 
     // Basic vehicle specifications
     make: {
         type: String,
-        required: true
     },
 
     model: {
         type: String,
-        required: true
     },
 
     year: {
         type: Number,
-        required: true,
         max: new Date().getFullYear()
     },
 
     registrationNumber: {
         type: String,
-        required: true,
         unique: true,
     },
 
@@ -173,7 +167,7 @@ const AdminVehicleSchema = new mongoose.Schema({
     },
 
     // History of rentals for tracking past usage
-    rentalHistory: [{
+  rentalHistory: [{
         renterId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         startDate: Date,
         endDate: Date

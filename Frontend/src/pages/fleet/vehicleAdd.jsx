@@ -75,6 +75,8 @@ export default function AddVehicle() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    
 
     try {
       const payload = {
@@ -84,10 +86,13 @@ export default function AddVehicle() {
           ownerType: formData.ownerType,
         },
       };
+      const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:4000/api/vehicles", payload, {
-        withCredentials: true,
-      });
+      await axios.post("http://localhost:4000/api/vehicles", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+    });
 
       toast.success("Vehicle Registered Successfully");
       navigate("/admin-fleet");
@@ -106,7 +111,6 @@ export default function AddVehicle() {
         onSubmit={handleSubmit}
       >
         <input className="input" name="vehicleID" value={formData.vehicleID} onChange={handleChange} placeholder="Vehicle ID" required />
-        <input className="input" name="ownerId" value={formData.ownerId} onChange={handleChange} placeholder="Owner ID" required />
 
         <select name="ownerType" value={formData.ownerType} onChange={handleChange} className="input">
           <option>Company</option>
@@ -138,9 +142,6 @@ export default function AddVehicle() {
           <option>Hybrid</option>
         </select>
 
-        <input className="input" name="pricing.daily" type="number" value={formData.pricing.daily} onChange={handleChange} placeholder="Daily Price" required />
-        <input className="input" name="pricing.hourly" type="number" value={formData.pricing.hourly} onChange={handleChange} placeholder="Hourly Price" required />
-        <input className="input" name="pricing.weddingDecorationPrice" type="number" value={formData.pricing.weddingDecorationPrice} onChange={handleChange} placeholder="Wedding Decoration Price" />
 
         <select name="availabilityStatus" value={formData.availabilityStatus} onChange={handleChange} className="input">
           <option>Available</option>
@@ -159,9 +160,6 @@ export default function AddVehicle() {
           <option>Needs Repair</option>
         </select>
 
-        <input className="input" name="maintenance.mileage" type="number" value={formData.maintenance.mileage} onChange={handleChange} placeholder="Mileage" required />
-        <input className="input" name="maintenance.lastServiceDate" type="date" value={formData.maintenance.lastServiceDate} onChange={handleChange} />
-        <input className="input" name="maintenance.nextServiceDate" type="date" value={formData.maintenance.nextServiceDate} onChange={handleChange} />
 
         <select name="maintenance.maintenanceStatus" value={formData.maintenance.maintenanceStatus} onChange={handleChange} className="input">
           <option>Up-to-date</option>
@@ -169,17 +167,9 @@ export default function AddVehicle() {
           <option>Requires Repair</option>
         </select>
 
-        <label className="col-span-2 flex items-center gap-2">
-          <input type="checkbox" name="verification.verified" checked={formData.verification.verified} onChange={handleChange} />
-          Verified
-        </label>
-        <input className="input" name="verification.verificationDate" type="date" value={formData.verification.verificationDate} onChange={handleChange} />
+    
 
-        <label className="col-span-2 flex items-center gap-2">
-          <input type="checkbox" name="decoration.decorated" checked={formData.decoration.decorated} onChange={handleChange} />
-          Decorated
-        </label>
-        <input className="input" name="decoration.decorationStyle" value={formData.decoration.decorationStyle} onChange={handleChange} placeholder="Decoration Style" />
+       
 
         <div className="col-span-2 flex justify-end">
           <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
