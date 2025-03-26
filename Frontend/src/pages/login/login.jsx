@@ -1,6 +1,6 @@
 import "./login.css" 
 import axios from "axios"
-import { useState } from "react"
+import { useState } from "react" 
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -29,7 +29,7 @@ export default function LoginPage(){
             const token = res.data.token; // Get JWT token from response
 
         if (token) {
-            localStorage.setItem("authToken", token); // Store token
+            localStorage.setItem("token", token); // Store token
         }
 
             if(user.type=="Customer"){
