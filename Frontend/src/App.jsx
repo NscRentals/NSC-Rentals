@@ -12,6 +12,9 @@ import DriverProfile from './components/driver/driverProfile';
 import DriverDashboard from './components/driver/driverDash';    
 import DriverProfileUpdate from './components/driver/driverProfileupdate';
 
+import './index.css';
+
+
 
 import Home from './pages/home/homePage';
 
@@ -30,8 +33,8 @@ function App() {
               <Route path="/drivers" element={<AllDrivers />} />
               <Route path="/dashboard/:id" element={< DriverDashboard />} />   
               <Route path="/driverprofile/:id" element={<DriverProfile />} />     
-              <Route path ="/driverprofile/update/:id" element={<DriverProfileUpdate />} />  
-
+              <Route path ="/driverprofile/update/:id" element={<DriverProfileUpdate />} /> 
+           
       </Routes>
     </BrowserRouter>
   );
