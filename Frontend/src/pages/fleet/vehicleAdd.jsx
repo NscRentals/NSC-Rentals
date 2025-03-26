@@ -88,11 +88,16 @@ export default function AddVehicle() {
       };
       const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:4000/api/vehicles", {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.post(
+        "http://localhost:4000/api/vehicles",
+        payload, // <- This is the data you want to send
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
         }
-    });
+      );
+      
 
       toast.success("Vehicle Registered Successfully");
       navigate("/admin-fleet");
