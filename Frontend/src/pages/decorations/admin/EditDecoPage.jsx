@@ -56,7 +56,7 @@ export default class EditDeco extends Component {
       .then((res) => {
         if (res.data.success) {
           alert("Decoration Updated Successfully!");
-          window.location.href = "/"; // Redirect back to decorations list
+          window.location.href = "/deco"; // Redirect back to decorations list
         }
       })
       .catch((error) => {

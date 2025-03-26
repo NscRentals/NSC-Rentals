@@ -8,6 +8,7 @@ export default function Header() {
       <nav className="flex space-x-6">
         <Link to="/" className="text-gray-700 font-semibold hover:text-black">Home</Link>
         <Link to="/contact" className="text-gray-700 font-semibold hover:text-black">Contact Us</Link>
+        <Link to="/resForm" className="text-blue font-semibold hover:text-black">Make a Reservation</Link>
       </nav>
 
       {/* User Profile */}

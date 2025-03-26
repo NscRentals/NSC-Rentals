@@ -9,9 +9,11 @@ import AdminPage from './pages/admin/adminDashboard';
 import DecorationsPage from "./pages/decorations/admin/DecorationsPage";
 import CreateDeco from "./pages/decorations/admin/CreateDecoPage";
 import EditDeco from "./pages/decorations/admin/EditDecoPage";
+import DecorationsList from "./pages/decorations/user/DecorationsList";
+import ReservationPage from "./pages/reservations/user/ReservationPage";
+import ReservationList from './pages/reservations/admin/ReservationList';
 
-import ReservationForm from "./pages/reservations/user/ReservationForm";
-import DecorationsList from './pages/decorations/user/DecorationsList';
+
 
 function App() {
   return (
@@ -22,11 +24,13 @@ function App() {
         <Route path="/*" element={<HomePage/>} />
         <Route path="/login" element ={<LoginPage></LoginPage>}></Route>
         <Route path="/admin/" element={<AdminPage/>}/>
-        <Route path="/" element={<DecorationsPage />} />
+        <Route path="/deco" element={<DecorationsPage />} />
         <Route path="/add" element={<CreateDeco />} />
         <Route path="/edit/:id" element={<EditDeco />} />
-        <Route path="/reservations" element={<ReservationForm />} />
         <Route path="/decorations" element={<DecorationsList />} />
+        <Route path="/resForm" element={<ReservationPage />} />
+        <Route path="/rList" element={<ReservationList />} />
+    
       </Routes>
     </BrowserRouter>
   );

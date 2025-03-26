@@ -32,7 +32,7 @@ export default class CreateDeco extends Component {
       .then((res) => {
         if (res.data.success) {
           alert("Decoration Added Successfully!");
-          window.location.href = "/"; // Redirect back to home page after success
+          window.location.href = "/deco"; // Redirect back to home page after success
         }
       })
       .catch((error) => {

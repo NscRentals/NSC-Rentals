@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 
 class DecorationsList extends Component {
@@ -30,63 +29,53 @@ class DecorationsList extends Component {
       });
   }
 
-  deleteDecoration = (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this decoration?");
-    if (!confirmDelete) return;
-
-    axios
-      .delete(`http://localhost:4000/api/deco/delete/${id}`)
-      .then((res) => {
-        if (res.data.success) {
-          alert("Decoration Deleted Successfully!");
-          this.setState({
-            decorations: this.state.decorations.filter((deco) => deco._id !== id),
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Error deleting decoration:", error);
-      });
+  handleAddDecoration = (id) => {
+    alert(`Decoration ID: ${id} added successfully!`);
   };
 
   render() {
     return (
       <div className="min-h-screen bg-gray-50">
+        {/* Page Header */}
         <header className="bg-gray-800 text-white py-4 shadow-md">
           <div className="container mx-auto text-center">
-            <h1 className="text-3xl font-semibold">Wedding Car Decorations List</h1>
+            <h1 className="text-3xl font-semibold">Wedding Car Decorations</h1>
           </div>
         </header>
 
+        {/* Decorations List */}
         <main className="container mx-auto p-6">
-          <h2 className="text-2xl font-medium text-gray-700 mb-4">All Decorations</h2>
+          <h2 className="text-2xl font-medium text-gray-700 mb-4 text-center">
+            Available Decorations
+          </h2>
 
+          {/* Card Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {this.state.decorations.map((decoration, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300">
-                <div className="text-center">
+              <div
+                key={index}
+                className="bg-white p-5 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
+              >
+                {/* Decoration Details */}
+                <div className="mt-4">
                   <h3 className="text-lg font-bold text-gray-800">{decoration.type}</h3>
                   <p className="text-sm text-gray-500">{decoration.dId}</p>
+                  <p className="text-gray-700 mt-2">{decoration.description}</p>
+                  <p className="text-blue-600 font-semibold mt-1">{decoration.price} LKR</p>
                 </div>
 
-                <div className="flex justify-between items-center mt-4">
-                  <Link
-                    to={`/edit/${decoration._id}`}
-                    className="text-gray-600 hover:underline text-sm"
-                  >
-                    Edit
-                  </Link>
+                {/* Add Button */}
+                <div className="mt-4 text-center">
                   <button
-                    className="text-gray-600 hover:underline text-sm"
-                    onClick={() => this.deleteDecoration(decoration._id)}
+                    onClick={() => this.handleAddDecoration(decoration._id)}
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
                   >
-                    Delete
+                    Add
                   </button>
                 </div>
               </div>
             ))}
           </div>
-
         </main>
       </div>
     );
