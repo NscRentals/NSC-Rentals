@@ -257,7 +257,7 @@ export default class ReservationPage extends Component {
               type="submit"
               className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
             >
-              Submit Reservation
+              Send Reservation Request
             </button>
           </form>
         </div>
