@@ -2,12 +2,29 @@ import driver from '../models/DriverModel.js';
 
 
 export async function  driverAdd (req, res){
+    const data = req.body;
+    const email = data.email;
+
     try {
-        let newPost = new driver(req.body);
-        await newPost.save(); 
-        return res.status(200).json({ success: "Post saved successfully" });
-    } catch (err) {
-        return res.status(400).json({ error: err.message });
+        // Check if user already exists
+        const existingUser = await driver.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "A Driver already exists with this email" });
+        }
+
+        // Hash password asynchronously
+        data.password = await bcrypt.hash(data.password, 10);
+
+        // Create new user
+        const newDriver = new driver(data);
+        await newDriver.save();
+
+        // Send success response
+        res.status(201).json({ message: "Driver added successfully!" });
+
+    } catch (e) {
+        console.error("Registration error:", e);
+        return res.status(500).json({ error: "User registration failed!" });
     }
 }
 
