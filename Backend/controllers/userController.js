@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import profileUpload from "../middlewares/multerProfile.js";
 import fs from "fs";
 import path from "path";
+import driver from "../models/DriverModel.js";
+import Technician from "../models/technician.js";
 
 dotenv.config();  
 
@@ -41,45 +43,65 @@ export async function registerUser(req, res) {
 
 //user login for admins and customers
 
-export async function loginUser(req,res){
+export async function loginUser(req, res) {
+    const { email, password } = req.body;
 
-    const data = req.body;
+    try {
+        let user = await User.findOne({ email });
+        let role = null;
 
-    try{
-    const user =  await User.findOne({ email : data.email});
-              
-        if (user== null){
-         res.status(404).json({ error : "User not found"});
-
-            }else {
-                const isPasswordCorrect = bcrypt.compareSync(data.password,user.password);
-
-                if(isPasswordCorrect){
-
-                    const token = jwt.sign({
-
-                        firstName : user.firstName,
-                        lastName: user.lastName,
-                        email : user.email,
-                        phone : user.phone,
-                        type : user.type,
-                        profilePicture : user.profilePicture
-                        
-                    },process.env.JWT_password)
-
-                    res.json({ message: "Login successful" , token : token , user:user })
-                }else{
-                    
-                    res.status(401).json({ error: "Login failed"})
-                }
-            }
-
-        }catch(e){
-
-            res.status().json(e);
+        if (!user) {
+            user = await driver.findOne({ email });
+            if (user) role = "driver";
         }
-        
-    
+
+        if (!user) {
+            user = await Technician.findOne({ email });
+            if (user) role = "technician";
+        }
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Determine role if not already set (for User model)
+        if (!role) {
+            role = user.type; // "admin" or "customer"
+        }
+
+        // Validating the password
+        const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+
+        const tokenPayload = {
+            id: user._id,
+            //If the role is "admin" or "customer", use user.firstName.otherwise its null
+            firstName: role === "admin" || role === "Customer" ? user.firstName : null,
+            //same
+            lastName: role === "admin" || role === "Customer" ? user.lastName : null,
+            name: role === "driver" || role === "technician" ? user.name : null,
+            email: user.email,
+            phone: user.phone || "",
+            type: role,
+            profilePicture: role === "admin" || role === "Customer" ? user.profilePicture || null : null,
+        };
+
+        // Generate JWT token
+        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+        res.json({
+            message: "Login successful",
+            token,
+            user: tokenPayload,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 }
 
 //admin registration(Authorization needed as admin)

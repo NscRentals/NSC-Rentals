@@ -11,7 +11,7 @@ export default function Header() {
       </nav>
 
       {/* User Profile */}
-      <Link to="/profile" className="flex items-center space-x-2">
+      <Link to="/user/general" className="flex items-center space-x-2">
         <FaUserCircle className="text-gray-600 w-8 h-8" />
         <span className="text-gray-700 font-semibold">Profile</span>
       </Link>
