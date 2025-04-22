@@ -1,5 +1,56 @@
 import mongoose from "mongoose";
- 
+
+// Nested schema for individual pricing details
+const PricingDetailSchema = new mongoose.Schema({
+
+    price: {
+        type: Number,
+        default: 0,
+    },
+
+    mileageLimit: {
+        type: Number,
+        default: 0,
+    },
+
+    extraCharge: {
+        type: Number,
+        default: 0,
+    },  
+},
+    { _id: false }); // Disable automatic _id field for subdocument
+
+
+// Nested schema for each rental period (hourly/daily/weekly/monthly)
+const PeriodPricingSchema = new mongoose.Schema({
+    
+    enabled: {
+        type: Boolean,
+        default: false,
+    },
+
+    withDriver: {
+        type: PricingDetailSchema,
+        default: () => ({
+            price: 0,
+            mileageLimit: 0,
+            extraCharge: 0,
+        })
+    },
+
+    vehicleOnly: {
+        type: PricingDetailSchema,
+        default: () => ({
+            price: 0,
+            mileageLimit: 0,
+            extraCharge: 0,
+        })
+    },
+},
+    { _id: false }); // Disable automatic _id field for subdocument
+
+
+// Main Vehicle schema 
 const VehicleSchema = new mongoose.Schema({
 
     // Basic vehicle specifications
@@ -78,7 +129,7 @@ const VehicleSchema = new mongoose.Schema({
     },
     
 
-    //Vehicle collection point address
+    // Location where the vehicle can be picked up
     district: {
         type: String,
         required: true
@@ -95,7 +146,7 @@ const VehicleSchema = new mongoose.Schema({
     },
 
 
-    //Vehicle owner conditions 
+    // Vehicle owner conditions 
     minRentalPeriod: {
         type: String,
         required : true,
@@ -115,7 +166,35 @@ const VehicleSchema = new mongoose.Schema({
     },
     
 
-    //Vehhicle dynamic pricing system
+    // Pricing block
+    pricing: {
+
+        // Market value of the vehicle
+        vehicleValue: {
+            type: Number,
+            required: true,
+        },
+
+        hourly: {
+            type: PeriodPricingSchema,
+            default: () => ({})
+        },
+
+        daily: {
+            type: PeriodPricingSchema,
+            default: () => ({})
+        },
+
+        weekly: {
+            type: PeriodPricingSchema,
+            default: () => ({})
+        },
+
+        monthly: {
+            type: PeriodPricingSchema,
+            default: () => ({})
+        }
+    },    
 
 
     // Current availability status of the vehicle
@@ -147,8 +226,10 @@ const VehicleSchema = new mongoose.Schema({
         enum: ['Pending', 'Approved', 'Rejected'],
         default: 'Pending'
     },
-
-});
+},    
+    {
+        timestamps: true, // Automatically manage createdAt and updatedAt fields
+    });
 
 const Vehicle = mongoose.model("vehicle", VehicleSchema);
 
