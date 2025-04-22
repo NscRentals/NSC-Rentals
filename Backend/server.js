@@ -8,8 +8,8 @@ import jwt from "jsonwebtoken";
 import identityRouter from "./routes/identityFormRoutes.js";
 import blogRouter from "./routes/blogRoutes.js";
 import cors from "cors";
-import adminVehicleRouter from "./routes/adminVehicleRoutes.js";
-import peerToPeerVehiclesRouter from "./routes/peerToPeerVehiclesRoutes.js";
+import vehicleRouter from "./routes/vehicleRoutes.js";
+
 
 
 const app = express();
@@ -58,5 +58,4 @@ app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
 app.use("/api/forms",identityRouter)
 app.use("/api/blogpost",blogRouter)
-app.use("/api/vehicles",adminVehicleRouter)
-app.use("/api/peerToPeerVehicles",peerToPeerVehiclesRouter)
+app.use("/api/vehicles",vehicleRouter)
