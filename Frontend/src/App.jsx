@@ -7,7 +7,7 @@ import {Toaster} from "react-hot-toast";
 import AdminPage from './pages/admin/adminDashboard';
 import TechDashboard from './pages/technician/techDashboard';
 import DriverDashboard from './pages/driver/driverDashboard';
-import SignUp from './pages/user/UserSignUp';
+import RegisterPage from './pages/login/registrationPage';
 
 function App() {
   return (
@@ -20,7 +20,7 @@ function App() {
         <Route path="/admin/" element={<AdminPage/>}/>
         <Route path="/Tech" element ={<TechDashboard/>}></Route>
         <Route path="/Driver" element ={<DriverDashboard/>}></Route>
-        <Route path="/user/add" element={<SignUp></SignUp>}></Route>
+        <Route path="/user/add" element={<RegisterPage></RegisterPage>}></Route>
       </Routes>
     </BrowserRouter>
   );
