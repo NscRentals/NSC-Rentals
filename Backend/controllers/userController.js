@@ -265,13 +265,10 @@ export async function deleteUser(req, res) {
 //checking whether the user is Admin
 
 export function isItAdmin (req){
-
     let isAdmin = false;
 
     if(req.user!= null){
-
-        if(req.user.type=="admin"){
-
+        if(req.user.type=="Admin"){
             isAdmin=true;
         }
     }
@@ -281,15 +278,15 @@ export function isItAdmin (req){
 
 //checking whether the user is a Customer 
 export function isItCustomer(req) {
-	let isCustomer = false;
+    let isCustomer = false;
 
-	if (req.user != null) {
-		if (req.user.type == "customer") {
-			isCustomer = true;
-		}
-	}
+    if (req.user != null) {
+        if (req.user.type == "Customer") {
+            isCustomer = true;
+        }
+    }
 
-	return isCustomer;
+    return isCustomer;
 }
 
 

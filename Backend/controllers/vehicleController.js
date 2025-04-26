@@ -51,8 +51,10 @@ export async function addVehicle (req, res) {
     }
 }
 
+// 2. Update a vehicle (Admin applies or approves customer update requests)
 export async function updateVehicle(req, res) {
     try {
+      
       const vehicleId = req.params.id;
       const vehicle = await Vehicle.findById(vehicleId);
   
@@ -67,11 +69,7 @@ export async function updateVehicle(req, res) {
       if (!isAdmin && !isCustomer) {
         return res.status(403).json({ message: 'You are not authorized to update this vehicle' });
       }
-  
-      // Debugging logs
-      console.log("Vehicle Owner ID:", vehicle.owner?.toString());
-      console.log("Logged-in User ID:", req.user?._id?.toString());
-  
+
       // Admin path
       if (isAdmin) {
         if (vehicle.pendingUpdate && vehicle.updateApprovalStatus === 'Pending') {
@@ -79,7 +77,7 @@ export async function updateVehicle(req, res) {
           vehicle.pendingUpdate = null;
           vehicle.updateApprovalStatus = 'Approved';
           await vehicle.save();
-          return res.json({ message: 'Owner’s update approved and applied.' });
+          return res.json({ message: "Owner's update approved and applied." });
         }
         Object.assign(vehicle, req.body);
         vehicle.pendingUpdate = null;
@@ -106,8 +104,130 @@ export async function updateVehicle(req, res) {
   }
   
 
+// 3) Delete a vehicle (Admin or owner-with-reason)
+export async function deleteVehicle(req, res) {
+    try {
+        const vehicleId = req.params.id;
+        const vehicle = await Vehicle.findById(vehicleId).populate('owner', 'firstName lastName email');
 
-/*
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehicle not found' });
+        }
+
+        const isAdmin = isItAdmin(req);
+        const isCustomer = isItCustomer(req);
+
+        // Check if user is authorized (must be either admin or customer)
+        if (!isAdmin && !isCustomer) {
+            return res.status(403).json({ 
+                message: 'You must be an admin or registered customer to perform this action',
+                userType: req.user?.type,
+                isAdmin: isAdmin,
+                isCustomer: isCustomer
+            });
+        }
+
+        // Admin path - can delete any vehicle
+        if (isAdmin) {
+            // Actually delete the vehicle from database
+            await Vehicle.findByIdAndDelete(vehicleId);
+            
+            return res.json({ 
+                message: 'Vehicle permanently deleted by admin',
+                deletionDetails: {
+                    vehicle: `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})`,
+                    owner: `${vehicle.owner.firstName} ${vehicle.owner.lastName}`,
+                    timestamp: new Date()
+                }
+            });
+        }
+
+        // Customer path - can delete their own vehicles
+        if (isCustomer) {
+            // Check if the vehicle belongs to the user
+            if (vehicle.owner._id.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ message: 'You can only delete your own vehicles' });
+            }
+
+            // Check if deletion reason is provided
+            if (!req.body.reason) {
+                return res.status(400).json({ message: 'Please provide a reason for deletion' });
+            }
+
+            // Store deletion notification for admin before deleting
+            const deletionNotification = {
+                vehicleInfo: {
+                    make: vehicle.make,
+                    model: vehicle.model,
+                    year: vehicle.year,
+                    registrationNumber: vehicle.registrationNumber
+                },
+                ownerInfo: {
+                    name: `${vehicle.owner.firstName} ${vehicle.owner.lastName}`,
+                    email: vehicle.owner.email
+                },
+                reason: req.body.reason,
+                deletedAt: new Date()
+            };
+
+            // Log notification for admin
+            console.log('Vehicle Deletion Notification for Admin:', deletionNotification);
+
+            // Actually delete the vehicle from database
+            await Vehicle.findByIdAndDelete(vehicleId);
+
+            return res.json({ 
+                message: 'Vehicle permanently deleted',
+                deletionDetails: {
+                    vehicle: `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})`,
+                    reason: req.body.reason,
+                    timestamp: new Date()
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error('Delete vehicle error:', error);
+        return res.status(500).json({ message: 'Failed to delete vehicle' });
+    }
+}
+
+// Get deleted vehicles history (Admin only)
+export async function getDeletedVehicles(req, res) {
+    try {
+        if (!isItAdmin(req)) {
+            return res.status(403).json({ message: 'Only admins can view deleted vehicles history' });
+        }
+
+        const deletedVehicles = await Vehicle.find({
+            isDeleted: true
+        }).populate('owner', 'firstName lastName email');
+
+        const formattedDeletedVehicles = deletedVehicles.map(vehicle => ({
+            vehicleInfo: {
+                make: vehicle.make,
+                model: vehicle.model,
+                year: vehicle.year,
+                registrationNumber: vehicle.registrationNumber
+            },
+            ownerInfo: {
+                name: `${vehicle.owner.firstName} ${vehicle.owner.lastName}`,
+                email: vehicle.owner.email
+            },
+            deletionReason: vehicle.deletionRequest?.reason || 'No reason provided',
+            deletedAt: vehicle.deletionRequest?.requestedAt || vehicle.updatedAt
+        }));
+
+        return res.json({
+            message: 'Deleted vehicles history retrieved successfully',
+            deletedVehicles: formattedDeletedVehicles
+        });
+    } catch (error) {
+        console.error('Get deleted vehicles error:', error);
+        return res.status(500).json({ message: 'Failed to retrieve deleted vehicles history' });
+    }
+}
+
 // Read - Get all vehicles
 export async function getVehicles(req, res) {
 
@@ -129,88 +249,3 @@ export async function getVehicles(req, res) {
     }
     
 }
-
-
-
-// Read - Get a specific vehicle by ID
-export async function getVehicle(req, res) {
-
-    try {
-
-        const { id } = req.params;
-        const vehicle = await Vehicle.findById(id);
-        if (!vehicle) {
-            return res.status(404).json({ message: "Vehicle not found" });
-        }
-        res.json(vehicle);
-        } catch (error) {
-        res.status(500).json({
-            message: "Failed to retrieve vehicle",
-            error: error.message
-        });
-    }
-}
-
-
-
-// Update - Update vehicle information by ID
-export async function updateVehicle(req, res) {
-
-    try {
-        if(isItAdmin(req)) {
-
-            const id = req.params.id;
-            const data = req.body;
-            
-            await Vehicle.updateOne ( { _id: id }, data );
-            
-            res.json({
-                message: "Vehicle updated successfully"
-            });
-     
-        } else {
-            res.status(403).json({
-                message: "You are not authorized to perform this action"
-            })
-            return;
-        }
-
-    } catch (error) {
-        res.status(500).json({
-            message: "Failed to update vehicle",
-            error: error.message
-        });
-    }   
-
-}
-
-
-// Delete - Delete vehicle information by ID
-export async function deleteVehicle(req, res) {
-
-    try {
-        if(isItAdmin(req)) {
-
-            const id = req.params.id;
-            
-            await Vehicle.deleteOne ( { _id: id } );
-            
-            res.json({
-                message: "Vehicle deleted successfully"
-            });
-     
-        } else {
-            res.status(403).json({
-                message: "You are not authorized to perform this action"
-            })
-            return;
-        }
-
-    } catch (error) {
-        res.status(500).json({
-            message: "Failed to delete vehicle",
-            error: error.message
-        });
-    }   
-
-} */
