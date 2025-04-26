@@ -72,16 +72,16 @@ export async function updateVehicle(req, res) {
 
       // Admin path
       if (isAdmin) {
-        if (vehicle.pendingUpdate && vehicle.updateApprovalStatus === 'Pending') {
+        if (vehicle.pendingUpdate && vehicle.approvalStatus === 'Pending') {
           Object.assign(vehicle, vehicle.pendingUpdate);
           vehicle.pendingUpdate = null;
-          vehicle.updateApprovalStatus = 'Approved';
+          vehicle.approvalStatus = 'Approved';
           await vehicle.save();
           return res.json({ message: "Owner's update approved and applied." });
         }
         Object.assign(vehicle, req.body);
         vehicle.pendingUpdate = null;
-        vehicle.updateApprovalStatus = null;
+        vehicle.approvalStatus = null;
         await vehicle.save();
         return res.json({ message: 'Vehicle updated successfully by admin.' });
       }
@@ -91,8 +91,12 @@ export async function updateVehicle(req, res) {
         if (vehicle.owner.toString() !== req.user._id.toString()) {
           return res.status(403).json({ message: 'You can only request updates to your own vehicle' });
         }
-        vehicle.pendingUpdate = req.body;
-        vehicle.updateApprovalStatus = 'Pending';
+        // Store the entire update request
+        vehicle.pendingUpdate = {
+            ...req.body,
+            updatedAt: new Date()
+        };
+        vehicle.approvalStatus = 'Pending';
         await vehicle.save();
         return res.json({ message: 'Update request submitted. Awaiting admin approval.' });
       }
@@ -103,6 +107,61 @@ export async function updateVehicle(req, res) {
     }
   }
   
+
+// Admin approves pending vehicle updates
+export async function approvePendingVehicleUpdate(req, res) {
+    try {
+        const vehicleId = req.params.id;
+        
+        // Check if user is admin
+        if (!isItAdmin(req)) {
+            return res.status(403).json({ 
+                message: 'Only administrators can approve vehicle updates'
+            });
+        }
+
+        // Find the vehicle
+        const vehicle = await Vehicle.findById(vehicleId);
+        if (!vehicle) {
+            return res.status(404).json({ 
+                message: 'Vehicle not found'
+            });
+        }
+
+        // Check if there's a pending update
+        if (!vehicle.pendingUpdate || vehicle.approvalStatus !== 'Pending') {
+            return res.status(400).json({ 
+                message: 'No pending updates found for this vehicle'
+            });
+        }
+
+        // Apply the pending updates
+        const updates = vehicle.pendingUpdate;
+        delete updates.updatedAt; // Remove the timestamp before applying
+        Object.assign(vehicle, updates);
+        
+        // Clear the pending update and update status
+        vehicle.pendingUpdate = null;
+        vehicle.approvalStatus = 'Approved';
+        
+        // Save the changes
+        await vehicle.save();
+
+        return res.status(200).json({
+            message: 'Vehicle update approved and applied successfully',
+            vehicle: vehicle
+        });
+
+    } catch (error) {
+        console.error('Error approving vehicle update:', error);
+        return res.status(500).json({ 
+            message: 'Failed to approve vehicle update',
+            error: error.message 
+        });
+    }
+}
+
+
 
 // 3) Delete a vehicle (Admin or owner-with-reason)
 export async function deleteVehicle(req, res) {
@@ -260,3 +319,4 @@ export async function getVehicles(req, res) {
     }
     
 }
+
