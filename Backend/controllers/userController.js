@@ -2,7 +2,6 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv";
-import profileUpload from "../middlewares/multerProfile.js";
 import fs from "fs";
 import path from "path";
 
@@ -319,22 +318,14 @@ export async function updateProfilePicture(req, res) {
     }
 }
 
-//Checking whether the user is Technician
+//Checking whether the user is a Driver
+export function isItDriver(req) {
+    return req.user?.type === 'Driver';
+  }
 
-export function isItTechnician(req) {
-
-    let isTechnician = false;
-
-    if (req.user != null) {
-
-      if (req.user.type === "Technician") {
-
-        isTechnician = true;
-      }
-
-    }
-
-    return isTechnician;
+  //Checking whether the user is a Technician
+  export function isItTechnician(req) {
+    return req.user?.type === 'Technician';
   }
 
   
