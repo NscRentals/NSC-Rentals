@@ -1,24 +1,22 @@
 import express from 'express';
-import { addDamageRequest, getUserDamageRequests, deleteDamageRequest, getTechnicianDamageRequest, updateDamageRequestStatus, deleteVehicleDamageRequest} from '../controllers/damageRequestController.js';
+import { verifyToken } from '../middlewares/authMiddleware.js';
+import {addDamageRequest, getAllDamageRequests, acceptDamageRequest, assignDamageRequest} from '../controllers/damageRequestController.js';
 
-const damageRequestRouter = express.Router();
+const router = express.Router();
 
-//User added a damage request
-damageRequestRouter.post("/", addDamageRequest);
+// All routes require a valid JWT
+router.use(verifyToken);
 
-//User get all their damage requests
-damageRequestRouter.get("/", getUserDamageRequests);
+//create
+router.post('/', addDamageRequest);       
 
-//User delete a damage request
-damageRequestRouter.delete("/:id", deleteDamageRequest);
+//List for techs
+router.get('/', getAllDamageRequests);   
 
-//Technician get all damage requests
-damageRequestRouter.get("/tech", getTechnicianDamageRequest);
+//Technicians accept self
+router.patch('/:id/accept', acceptDamageRequest);    
 
-//Update damage request statu
-damageRequestRouter.put("/", updateDamageRequestStatus);
+//Tech/admin assign
+router.patch('/:id/assign', assignDamageRequest); 
 
-//Admin delete a damage request
-damageRequestRouter.delete("/admin/:id", deleteVehicleDamageRequest);
-
-export default damageRequestRouter;
+export default router;
