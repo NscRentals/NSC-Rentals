@@ -199,7 +199,7 @@ export async function updateUser(req, res){
 
     try{
 
-        const data = req.body;
+        const data = req.body;o
         const user = req.user;
         const email = req.body.email;
 

@@ -207,6 +207,7 @@ const VehicleSchema = new mongoose.Schema({
     // Vehicle images
     vehicleImages: {
         type: [String],
+        required: true
     },
 
     // peer‑to‑peer vs company & approval
@@ -221,11 +222,18 @@ const VehicleSchema = new mongoose.Schema({
         ref: 'User',
     },
 
+    // store an owner’s requested changes until approved
+    pendingUpdate: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null,
+    },
+
     approvalStatus: {
         type: String,
         enum: ['Pending', 'Approved', 'Rejected'],
         default: 'Pending'
     },
+    
 },    
     {
         timestamps: true, // Automatically manage createdAt and updatedAt fields
