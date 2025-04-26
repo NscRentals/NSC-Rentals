@@ -10,6 +10,7 @@ import blogRouter from "./routes/blogRoutes.js";
 import cors from "cors";
 import sparePartsInventoryRouter from "./routes/sparePartsInventoryRoutes.js";
 import damageRequestRouter from "./routes/damageRequestRoutes.js";
+import vehicleRouter from "./routes/vehicleRoutes.js";
 
 
 const app = express();
@@ -62,3 +63,4 @@ app.use("/api/forms",identityRouter)
 app.use("/api/blogpost",blogRouter)
 app.use("/api/maintenance",sparePartsInventoryRouter)
 app.use("/api/damageRequest",damageRequestRouter)
+app.use("/api/vehicles",vehicleRouter)
