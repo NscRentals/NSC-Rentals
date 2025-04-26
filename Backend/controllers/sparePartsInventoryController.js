@@ -164,4 +164,3 @@ export async function getSparePartById(req, res) {
          });
       }
     }
-//comment
