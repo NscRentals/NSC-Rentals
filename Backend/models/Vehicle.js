@@ -239,6 +239,7 @@ const VehicleSchema = new mongoose.Schema({
         timestamps: true, // Automatically manage createdAt and updatedAt fields
     });
 
-const Vehicle = mongoose.model("vehicle", VehicleSchema);
+//const Vehicle = mongoose.model("vehicle", VehicleSchema);
+const Vehicle = mongoose.model("Vehicle", VehicleSchema);
 
 export default Vehicle;
