@@ -46,7 +46,7 @@ export async function addVehicle (req, res) {
         // Handle all other errors
         res.status(500).json({
             message: "Failed to add vehicle",
-           // error: error.message
+            //error: error.message
         });
     }
 }
@@ -114,8 +114,19 @@ export async function deleteVehicle(req, res) {
             return res.status(404).json({ message: 'Vehicle not found' });
         }
 
-        const isAdmin = isItAdmin(req);
-        const isCustomer = isItCustomer(req);
+        // Check if user exists and has type property
+        if (!req.user || !req.user.type) {
+            return res.status(403).json({ 
+                message: 'You must be an admin or registered customer to perform this action',
+                userType: null,
+                isAdmin: false,
+                isCustomer: false
+            });
+        }
+
+        // Case insensitive check for admin and customer
+        const isAdmin = req.user.type.toLowerCase() === 'admin';
+        const isCustomer = req.user.type.toLowerCase() === 'customer';
 
         // Check if user is authorized (must be either admin or customer)
         if (!isAdmin && !isCustomer) {
