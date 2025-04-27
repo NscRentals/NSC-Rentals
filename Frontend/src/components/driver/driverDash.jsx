@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { FaUserEdit, FaCalendarCheck, FaMoneyBill, FaClock, FaEnvelope, FaPhone, FaUserCircle, FaTrash } from "react-icons/fa";
+import { FaUserEdit, FaCalendarCheck, FaMoneyBill, FaClock, FaEnvelope, FaPhone, FaUserCircle, FaTrash, FaCamera, FaMapMarkerAlt, FaIdCard, FaIdBadge, FaEdit, FaUser } from "react-icons/fa";
 import axios from "axios";
 import Notification from "../Notification";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { format } from "date-fns";
 import ViewAvailability from "./ViewAvailability";
+import DriverHeader from "./DriverHeader";
 
 const API_BASE_URL = "http://localhost:4000/api";
 
@@ -26,60 +27,72 @@ const DriverDashboard = () => {
   const driverId = localStorage.getItem('driverId');
 
   useEffect(() => {
-    fetchDriverData();
-    fetchCurrentAvailability();
-    fetchUpcomingSchedule();
-  }, []);
-
-  const fetchDriverData = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`http://localhost:4000/api/driver/${id}`);
-      setDriver(response.data.driverone);
-      setError('');
-    } catch (err) {
-      setError('Failed to fetch driver data');
+    // Check if we have a valid driverId
+    if (!driverId) {
       setNotification({
-        message: 'Failed to fetch driver data',
+        message: 'Please log in to access the dashboard',
         type: 'error'
       });
-    } finally {
-      setLoading(false);
+      navigate('/login');
+      return;
     }
-  };
 
-  const fetchCurrentAvailability = async () => {
-    try {
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const response = await axios.get(`${API_BASE_URL}/driver/availability/schedule/${driverId}`);
-      if (response.data.success) {
-        const todaySchedule = response.data.data.find(item => item.date === today);
-        setCurrentAvailability(todaySchedule ? todaySchedule.availability : true);
-      }
-    } catch (error) {
-      console.error('Error fetching availability:', error);
+    // Check if the URL id matches the logged-in driver's id
+    if (id !== driverId) {
       setNotification({
-        message: 'Failed to fetch availability status',
+        message: 'Unauthorized access',
         type: 'error'
       });
+      navigate(`/dashboard/${driverId}`);
+      return;
     }
-  };
 
-  const fetchUpcomingSchedule = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/driver/availability/schedule/${driverId}`);
-      if (response.data.success) {
-        const today = new Date();
-        const upcoming = response.data.data
-          .filter(item => new Date(item.date) >= today)
-          .sort((a, b) => new Date(a.date) - new Date(b.date))
-          .slice(0, 5);
-        setUpcomingSchedule(upcoming);
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError('');
+
+        // Fetch all data in parallel
+        const [driverResponse, availabilityResponse, scheduleResponse] = await Promise.all([
+          axios.get(`${API_BASE_URL}/driver/${id}`),
+          axios.get(`${API_BASE_URL}/driver/availability/schedule/${driverId}`),
+          axios.get(`${API_BASE_URL}/driver/availability/schedule/${driverId}`)
+        ]);
+
+        // Set driver data
+        setDriver(driverResponse.data.driverone);
+
+        // Set current availability
+        if (availabilityResponse.data.success) {
+          const today = format(new Date(), 'yyyy-MM-dd');
+          const todaySchedule = availabilityResponse.data.data.find(item => item.date === today);
+          setCurrentAvailability(todaySchedule ? todaySchedule.availability : true);
+        }
+
+        // Set upcoming schedule
+        if (scheduleResponse.data.success) {
+          const today = new Date();
+          const upcoming = scheduleResponse.data.data
+            .filter(item => new Date(item.date) >= today)
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .slice(0, 5);
+          setUpcomingSchedule(upcoming);
+        }
+
+      } catch (err) {
+        console.error('Dashboard loading error:', err);
+        setError(err.response?.data?.message || 'Failed to load dashboard data');
+        setNotification({
+          message: err.response?.data?.message || 'Failed to load dashboard data',
+          type: 'error'
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching upcoming schedule:', error);
-    }
-  };
+    };
+
+    loadDashboardData();
+  }, [id, driverId, navigate]);
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
@@ -206,213 +219,203 @@ const DriverDashboard = () => {
 
   const renderProfileContent = () => {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto p-6">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Driver Profile</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Driver Profile</h1>
+            <p className="text-gray-600 mt-2">Manage your personal information</p>
+          </div>
           <div className="flex flex-col items-center">
-            {driver?.profilePicture ? (
-              <img 
-                src={`http://localhost:4000/uploads/profile_pictures/${driver.profilePicture}`} 
-                alt="Profile" 
-                className="w-20 h-20 rounded-full object-cover"
-              />
-            ) : (
-              <FaUserCircle className="text-gray-500 w-20 h-20" />
-            )}
-            <label className="mt-2 px-4 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded cursor-pointer">
-              Change
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files[0]) {
-                    handleProfilePictureUpdate(e.target.files[0]);
-                  }
-                }}
-              />
-            </label>
+            <div className="relative">
+              {driver?.profilePicture ? (
+                <img 
+                  src={`http://localhost:4000/uploads/profile_pictures/${driver.profilePicture}`} 
+                  alt="Profile" 
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+              ) : (
+                <FaUserCircle className="text-gray-400 w-24 h-24" />
+              )}
+              <label className="absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-blue-600 transition-colors">
+                <FaCamera className="text-white w-4 h-4" />
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files[0]) {
+                      handleProfilePictureUpdate(e.target.files[0]);
+                    }
+                  }}
+                />
+              </label>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
           {!isEditing ? (
             <>
-              <div className="space-y-6">
-                <div className="border-b pb-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div>
-                      <h3 className="text-lg font-bold">Name</h3>
-                      <p className="text-gray-700">{driver?.DriverName}</p>
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-500">Name</label>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaUser className="text-gray-400" />
+                      <span className="text-gray-900">{driver?.DriverName}</span>
                     </div>
                   </div>
-                </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaEnvelope className="text-gray-500" />
-                    <div>
-                      <h3 className="text-lg font-bold">Email</h3>
-                      <p className="text-gray-700">{driver?.DriverEmail}</p>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-500">Email</label>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaEnvelope className="text-gray-400" />
+                      <span className="text-gray-900">{driver?.DriverEmail}</span>
                     </div>
                   </div>
-                </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaPhone className="text-gray-500" />
-                    <div>
-                      <h3 className="text-lg font-bold">Phone</h3>
-                      <p className="text-gray-700">{driver?.DriverPhone}</p>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-500">Phone</label>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaPhone className="text-gray-400" />
+                      <span className="text-gray-900">{driver?.DriverPhone}</span>
                     </div>
                   </div>
-                </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div>
-                      <h3 className="text-lg font-bold">Address</h3>
-                      <p className="text-gray-700">{driver?.DriverAdd}</p>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-500">Address</label>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaMapMarkerAlt className="text-gray-400" />
+                      <span className="text-gray-900">{driver?.DriverAdd}</span>
                     </div>
                   </div>
-                </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div>
-                      <h3 className="text-lg font-bold">License No</h3>
-                      <p className="text-gray-700">{driver?.DLNo}</p>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-500">License No</label>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaIdCard className="text-gray-400" />
+                      <span className="text-gray-900">{driver?.DLNo}</span>
                     </div>
                   </div>
-                </div>
-                <div className="pt-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div>
-                      <h3 className="text-lg font-bold">NIC No</h3>
-                      <p className="text-gray-700">{driver?.NICNo}</p>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-500">NIC No</label>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaIdBadge className="text-gray-400" />
+                      <span className="text-gray-900">{driver?.NICNo}</span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="mt-6">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors"
-                >
-                  Edit Profile
-                </button>
+              <div className="px-6 py-4 bg-gray-50 border-t">
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    <FaEdit className="w-4 h-4" />
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    <FaTrash className="w-4 h-4" />
+                    Delete Account
+                  </button>
+                </div>
               </div>
             </>
           ) : (
-            <form onSubmit={handleProfileUpdate}>
-              <div className="space-y-6">
-                <div className="border-b pb-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div className="w-full">
-                      <h3 className="text-lg font-bold">Name</h3>
-                      <input
-                        type="text"
-                        name="DriverName"
-                        value={driver?.DriverName || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+            <form onSubmit={handleProfileUpdate} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500">Name</label>
+                  <div className="relative">
+                    <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      name="DriverName"
+                      value={driver?.DriverName || ''}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaEnvelope className="text-gray-500" />
-                    <div className="w-full">
-                      <h3 className="text-lg font-bold">Email</h3>
-                      <input
-                        type="email"
-                        name="DriverEmail"
-                        value={driver?.DriverEmail || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <div className="relative">
+                    <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="email"
+                      name="DriverEmail"
+                      value={driver?.DriverEmail || ''}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaPhone className="text-gray-500" />
-                    <div className="w-full">
-                      <h3 className="text-lg font-bold">Phone</h3>
-                      <input
-                        type="tel"
-                        name="DriverPhone"
-                        value={driver?.DriverPhone || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500">Phone</label>
+                  <div className="relative">
+                    <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="tel"
+                      name="DriverPhone"
+                      value={driver?.DriverPhone || ''}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div className="w-full">
-                      <h3 className="text-lg font-bold">Address</h3>
-                      <input
-                        type="text"
-                        name="DriverAdd"
-                        value={driver?.DriverAdd || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500">Address</label>
+                  <div className="relative">
+                    <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      name="DriverAdd"
+                      value={driver?.DriverAdd || ''}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
-                <div className="border-b py-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div className="w-full">
-                      <h3 className="text-lg font-bold">License No</h3>
-                      <input
-                        type="text"
-                        name="DLNo"
-                        value={driver?.DLNo || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500">License No</label>
+                  <div className="relative">
+                    <FaIdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      name="DLNo"
+                      value={driver?.DLNo || ''}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
-                <div className="pt-4">
-                  <div className="flex items-center gap-2">
-                    <FaUserCircle className="text-gray-500" />
-                    <div className="w-full">
-                      <h3 className="text-lg font-bold">NIC No</h3>
-                      <input
-                        type="text"
-                        name="NICNo"
-                        value={driver?.NICNo || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-500">NIC No</label>
+                  <div className="relative">
+                    <FaIdBadge className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      name="NICNo"
+                      value={driver?.NICNo || ''}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
               </div>
-              <div className="mt-6 flex gap-4">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className={`flex-1 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors ${
-                    loading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {loading ? 'Updating...' : 'Save Changes'}
-                </button>
+              <div className="mt-6 flex justify-end gap-4">
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition-colors"
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>
@@ -523,72 +526,92 @@ const DriverDashboard = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Notification message={notification.message} type={notification.type} />
+    <div className="min-h-screen bg-gray-100">
+      <DriverHeader />
       
-      {/* Sidebar */}
-      <aside className="w-[400px] bg-white p-6 border-r">
-        <h2 className="text-2xl font-bold mb-6">Driver Panel</h2>
-        <nav className="space-y-4">
-          <button 
-            onClick={() => setActiveTab('profile')}
-            className={`flex items-center gap-2 p-2 rounded w-full text-left ${
-              activeTab === 'profile' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'
-            }`}
-          >
-            <FaUserEdit className={activeTab === 'profile' ? 'text-blue-600' : 'text-gray-600'} />
-            <span className={activeTab === 'profile' ? 'font-semibold text-blue-600' : 'text-gray-600'}>Profile</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('reservations')}
-            className={`flex items-center gap-2 p-2 rounded w-full text-left ${
-              activeTab === 'reservations' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'
-            }`}
-          >
-            <FaCalendarCheck className={activeTab === 'reservations' ? 'text-blue-600' : 'text-gray-600'} />
-            <span className={activeTab === 'reservations' ? 'font-semibold text-blue-600' : 'text-gray-600'}>Assigned Reservations</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('salary')}
-            className={`flex items-center gap-2 p-2 rounded w-full text-left ${
-              activeTab === 'salary' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'
-            }`}
-          >
-            <FaMoneyBill className={activeTab === 'salary' ? 'text-blue-600' : 'text-gray-600'} />
-            <span className={activeTab === 'salary' ? 'font-semibold text-blue-600' : 'text-gray-600'}>Salary Details</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('availability')}
-            className={`flex items-center gap-2 p-2 rounded w-full text-left ${
-              activeTab === 'availability' ? 'bg-blue-50 text-blue-600' : 'hover:bg-gray-100'
-            }`}
-          >
-            <FaClock className={activeTab === 'availability' ? 'text-blue-600' : 'text-gray-600'} />
-            <span className={activeTab === 'availability' ? 'font-semibold text-blue-600' : 'text-gray-600'}>Update Availability</span>
-          </button>
-          <button 
-            onClick={handleDeleteAccount}
-            className="flex items-center gap-2 p-2 rounded hover:bg-red-50 w-full text-left mt-8"
-          >
-            <FaTrash className="text-red-600" />
-            <span className="text-red-600">Delete account</span>
-          </button>
-        </nav>
-      </aside>
+      <div className="flex pt-16">
+        <div className="w-64 bg-white shadow-lg min-h-screen fixed left-0 top-16">
+          <div className="p-4">
+            <div className="flex items-center justify-center mb-6">
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-2">
+                  {driver?.profilePicture ? (
+                    <img
+                      src={`http://localhost:4000/${driver.profilePicture}`}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <FaUserCircle className="w-full h-full text-gray-400" />
+                  )}
+                </div>
+                <h2 className="text-xl font-semibold">{driver?.DriverName}</h2>
+              </div>
+            </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-10">
-        {renderDashboardHeader()}
-        {activeTab === 'profile' && (
-          <>
-            {renderUpcomingSchedule()}
-            {renderProfileContent()}
-          </>
-        )}
-        {activeTab === 'reservations' && renderReservationsContent()}
-        {activeTab === 'salary' && renderSalaryContent()}
-        {activeTab === 'availability' && renderAvailabilityContent()}
-      </main>
+            <nav className="space-y-2">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  activeTab === 'profile' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+                }`}
+              >
+                <FaUserEdit />
+                <span>Profile</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('reservations')}
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  activeTab === 'reservations' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+                }`}
+              >
+                <FaCalendarCheck />
+                <span>Reservations</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('salary')}
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  activeTab === 'salary' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+                }`}
+              >
+                <FaMoneyBill />
+                <span>Salary Details</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('availability')}
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                  activeTab === 'availability' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
+                }`}
+              >
+                <FaClock />
+                <span>Availability</span>
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        <div className="flex-1 ml-64 p-8">
+          {notification.message && (
+            <Notification message={notification.message} type={notification.type} />
+          )}
+          
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <>
+              {activeTab === 'profile' && renderProfileContent()}
+              {activeTab === 'reservations' && renderReservationsContent()}
+              {activeTab === 'salary' && renderSalaryContent()}
+              {activeTab === 'availability' && renderAvailabilityContent()}
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

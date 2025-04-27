@@ -136,17 +136,17 @@ export async function driverDelete(req, res) {
 
 
 export async function driverLogin(req, res) {
-  const { DriverEmail, DriverPW } = req.body;
+  const { email, password } = req.body;
 
   try {
-      console.log("Login attempt for:", DriverEmail);
+      console.log("Login attempt for:", email);
       
-      if (!DriverEmail || !DriverPW) {
+      if (!email || !password) {
           console.log("Missing email or password");
           return res.status(400).json({ error: "Email and password are required" });
       }
 
-      const driverDoc = await driver.findOne({ DriverEmail });
+      const driverDoc = await driver.findOne({ DriverEmail: email });
       
       if (!driverDoc) {
           console.log("Driver not found");
@@ -156,31 +156,35 @@ export async function driverLogin(req, res) {
       console.log("Found driver:", driverDoc.DriverName);
       
       // Compare passwords
-      const isPasswordCorrect = await bcrypt.compare(DriverPW, driverDoc.DriverPW);
+      const isPasswordCorrect = await bcrypt.compare(password, driverDoc.DriverPW);
       console.log("Password comparison result:", isPasswordCorrect);
       
       if (isPasswordCorrect) {
           const token = jwt.sign({
-              DriverName: driverDoc.DriverName,
-              DriverPhone: driverDoc.DriverPhone,
-              DriverAdd: driverDoc.DriverAdd,
-              DriverEmail: driverDoc.DriverEmail,
-              DLNo: driverDoc.DLNo,
-              NICNo: driverDoc.NICNo
-          }, "Amindu123");
+              id: driverDoc._id,
+              name: driverDoc.DriverName,
+              email: driverDoc.DriverEmail,
+              phone: driverDoc.DriverPhone,
+              address: driverDoc.DriverAdd,
+              licenseNo: driverDoc.DLNo,
+              nicNo: driverDoc.NICNo,
+              type: 'driver'
+          }, process.env.JWT_SECRET || "your-secret-key");
           
           console.log("Login successful, token generated");
           return res.json({ 
-              message: "Login successful", 
+              success: true,
               token, 
-              driver: {
-                  _id: driverDoc._id,
-                  DriverName: driverDoc.DriverName,
-                  DriverEmail: driverDoc.DriverEmail,
-                  DriverPhone: driverDoc.DriverPhone,
-                  DriverAdd: driverDoc.DriverAdd,
-                  DLNo: driverDoc.DLNo,
-                  NICNo: driverDoc.NICNo
+              driverId: driverDoc._id,
+              user: {
+                  id: driverDoc._id,
+                  name: driverDoc.DriverName,
+                  email: driverDoc.DriverEmail,
+                  phone: driverDoc.DriverPhone,
+                  address: driverDoc.DriverAdd,
+                  licenseNo: driverDoc.DLNo,
+                  nicNo: driverDoc.NICNo,
+                  type: 'driver'
               }
           });
       } else {

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaCar } from "react-icons/fa";
 import Logo from "./Logo"; // Make sure this path is correct
 import { useAuth } from "../context/AuthContext";
 
@@ -37,6 +37,13 @@ export default function Header() {
         >
           Contact
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+        </Link>
+        <Link 
+          to="/register" 
+          className="flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-600 transition-colors duration-200"
+        >
+          <FaCar className="text-xl" />
+          <span>Driver Registration</span>
         </Link>
       </nav>
 
