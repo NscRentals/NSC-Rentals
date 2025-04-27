@@ -14,7 +14,7 @@ export function verifyToken(req, res, next) {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_password);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;  // ✅ sets req.user
         next();
     } catch (err) {
