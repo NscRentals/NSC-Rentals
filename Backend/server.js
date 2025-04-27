@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import identityRouter from "./routes/identityFormRoutes.js";
 import blogRouter from "./routes/blogRoutes.js";
+import vehicleRouter from "./routes/vehicleRoutes.js";
 import cors from "cors";
 import path from "path"
 import { fileURLToPath } from 'url'; 
@@ -66,3 +67,4 @@ app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
 app.use("/api/forms",identityRouter)
 app.use("/api/blogpost",blogRouter)
+app.use("/api/vehicles",vehicleRouter)
