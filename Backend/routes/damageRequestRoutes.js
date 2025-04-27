@@ -1,22 +1,28 @@
 import express from 'express';
 import { verifyToken } from '../middlewares/authMiddleware.js';
-import {addDamageRequest, getAllDamageRequests, acceptDamageRequest, assignDamageRequest} from '../controllers/damageRequestController.js';
+import {addDamageRequest, getAllDamageRequests, acceptDamageRequest, assignDamageRequest,scheduleDamageRequest, updateRepairStatus} from '../controllers/damageRequestController.js';
 
-const router = express.Router();
+const damageRequestRouter = express.Router();
 
 // All routes require a valid JWT
-router.use(verifyToken);
+damageRequestRouter.use(verifyToken);
 
 //create
-router.post('/', addDamageRequest);       
+damageRequestRouter.post('/', addDamageRequest);       
 
 //List for techs
-router.get('/', getAllDamageRequests);   
+damageRequestRouter.get('/', getAllDamageRequests);   
 
 //Technicians accept self
-router.patch('/:id/accept', acceptDamageRequest);    
+damageRequestRouter.patch('/:id/accept', acceptDamageRequest);    
 
 //Tech/admin assign
-router.patch('/:id/assign', assignDamageRequest); 
+damageRequestRouter.patch('/:id/assign', assignDamageRequest); 
 
-export default router;
+//Schedule damage request
+damageRequestRouter.patch('/:id/schedule', scheduleDamageRequest);
+
+//Update repair status
+damageRequestRouter.patch('/:id/updateRepairStatus', updateRepairStatus);
+
+export default damageRequestRouter;

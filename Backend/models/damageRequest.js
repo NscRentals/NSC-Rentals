@@ -22,13 +22,29 @@ const damageRequestSchema = new mongoose.Schema({
   attachments: [String],       // e.g. array of image URLs
   status: {
     type: String,
-    enum: ['Pending', 'Accepted', 'Assigned', 'Completed'],
+    enum: ['Pending', 'Accepted', 'Assigned', 'In Progress', 'Completed'],
     default: 'Pending'
   },
 
   assignedTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    default: null
+  },
+
+  // Scheduling fields
+  scheduledDate: {
+    type: Date,
+    default: null
+  },
+  
+  scheduledTimeSlot: {
+    type: String,
+    default: null
+  },
+  
+  estimatedDuration: {
+    type: Number,  // in hours
     default: null
   }
 
