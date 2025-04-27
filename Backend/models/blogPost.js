@@ -45,6 +45,8 @@ const blogPostSchema = new mongoose.Schema({
     }
 
 
+}, {
+    timestamps: true // This will add createdAt and updatedAt fields
 })
 
 const BlogPost = mongoose.model("blogPost", blogPostSchema)

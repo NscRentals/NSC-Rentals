@@ -2,11 +2,13 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
 
 export default function UpdateProfilePicture() {
     const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null); // State to store image preview
     const navigate = useNavigate();
+    const { checkLoginStatus } = useAuth();
 
     // Handle file input change
     function handleFileChange(e) {
@@ -19,20 +21,26 @@ export default function UpdateProfilePicture() {
     }
 
     // Handle the form submission
-    function handleUpload(e) {
+    async function handleUpload(e) {
         e.preventDefault();
         const token = localStorage.getItem("token");
         const formData = new FormData();
         formData.append("profilePicture", file);
 
-        axios.put("http://localhost:4000/api/users/pic", formData, {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
-        })
-        .then(() => {
+        try {
+            await axios.put("http://localhost:4000/api/users/pic", formData, {
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
+            });
+            
+            // Refresh auth state to update profile picture
+            await checkLoginStatus();
+            
             toast.success("Profile Picture Updated!");
             navigate("/user/general");
-        })
-        .catch(error => console.error("Error updating profile picture:", error));
+        } catch (error) {
+            console.error("Error updating profile picture:", error);
+            toast.error("Failed to update profile picture");
+        }
     }
 
     return (
@@ -44,6 +52,7 @@ export default function UpdateProfilePicture() {
                     <input
                         type="file"
                         onChange={handleFileChange}
+                        accept="image/*"
                         required
                         className="file:border file:border-gray-300 file:rounded-lg file:px-6 file:py-4 file:bg-green-700 file:text-white hover:file:bg-green-800 transition"
                     />
@@ -55,7 +64,7 @@ export default function UpdateProfilePicture() {
                         <img 
                             src={preview} 
                             alt="Preview"
-                            className="w-40 h-40 rounded-full border-4 border-gray-300 mb-6"
+                            className="w-40 h-40 rounded-full border-4 border-gray-300 mb-6 object-cover"
                         />
                     </div>
                 )}

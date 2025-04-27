@@ -1,4 +1,4 @@
-import BlogPost from "../models/BlogPost.js";
+import BlogPost from "../models/blogPost.js";
 
 // Function to save blog post
 export async function saveBlogPost(req, res) {
@@ -6,7 +6,7 @@ export async function saveBlogPost(req, res) {
         return res.status(400).json({ message: "At least img1 and img2 are required!" });
     }
 
-    if (!req.user || !req.user.email || !req.user.name) {
+    if (!req.user || !req.user.email || (!req.user.name && (!req.user.firstName || !req.user.lastName))) {
         return res.status(400).json({ message: "User authentication required!" });
     }
 
@@ -15,7 +15,7 @@ export async function saveBlogPost(req, res) {
     }
 
     const data = {
-        name: req.user.name,
+        name: req.user.name || (req.user.firstName + " " + req.user.lastName),
         email: req.user.email,
         caption: req.body.caption,
         img1: req.files.img1[0].filename,
@@ -38,7 +38,7 @@ export async function saveBlogPost(req, res) {
 // Function to get all blog posts
 export async function getBlogPosts(req, res) {
     try {
-        const posts = await BlogPost.find();
+        const posts = await BlogPost.find({ isVerified: false });
         res.json(posts);
     } catch (error) {
         console.error("Error fetching blog posts:", error);
