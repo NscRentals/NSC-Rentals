@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
-const API_BASE_URL = "http://localhost:4000"; // Update this to match your backend URL
+const API_BASE_URL = "http://localhost:4000/api"; // Update this to match your backend URL
 
 const DriverAvailability = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -112,7 +112,10 @@ const DriverAvailability = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Manage Your Availability</h1>
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Driver Availability</h1>
+        <p className="text-gray-600">Manage your schedule and availability</p>
+      </div>
       
       {/* Calendar Section */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">

@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import UserDashboard from './pages/user/userDashboard';
 import HomePage from './pages/home/homePage';
 import LoginPage from './pages/login/login';
 import { Toaster } from 'react-hot-toast';
@@ -12,6 +11,7 @@ import AllDrivers from './components/driver/allDrivers';
 import DriverProfile from './components/driver/driverProfile';
 import DriverProfileUpdate from './components/driver/driverProfileupdate';
 import Navigation from './components/Navigation';
+import DriverDashboard from './components/driver/driverDash';
 
 import './index.css';
 
@@ -24,12 +24,10 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        {/* <Navigation /> */}
+        <Navigation />
         <Toaster/>
         <Routes>
           <Route path="/" element={<Home/>} />  
-          <Route path="/user/*" element={<UserDashboard/>} />
-          <Route path="/*" element={<HomePage/>} />
           <Route path="/login" element={<LoginPage/>} />
           <Route path="/admin/" element={<AdminPage/>}/>
           <Route path="/register" element={<DriverRegister />} />
@@ -39,6 +37,8 @@ function App() {
           <Route path="/driver/availability" element={<DriverAvailability />} />
           <Route path="/driver/availability/view" element={<ViewAvailability />} />
           <Route path="/admin/drivers/available" element={<AvailableDrivers />} />
+          <Route path="/dashboard/:id" element={<DriverDashboard />} />
+          <Route path="*" element={<HomePage/>} />
         </Routes>
       </div>
     </Router>

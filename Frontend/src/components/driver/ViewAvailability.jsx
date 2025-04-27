@@ -4,7 +4,6 @@ import { format } from 'date-fns';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Notification from '../Notification';
-import Layout from '../Layout';
 
 const API_BASE_URL = "http://localhost:4000/api";
 
@@ -63,13 +62,8 @@ const ViewAvailability = () => {
     const handleDateClick = (date) => {
         const formattedDate = format(date, 'yyyy-MM-dd');
         const existingAvailability = schedule.find(item => item.date === formattedDate);
-        if (existingAvailability) {
-            setAvailability(existingAvailability.availability);
-            setIsEditing(true);
-        } else {
-            setAvailability(true);
-            setIsEditing(false);
-        }
+        setAvailability(existingAvailability ? existingAvailability.availability : true);
+        setIsEditing(true);
         setSelectedDate(date);
     };
 
@@ -137,24 +131,17 @@ const ViewAvailability = () => {
 
     if (!driverId) {
         return (
-            <Layout>
-                <div className="bg-red-100 text-red-700 p-4 rounded-md">
-                    Please login to view your availability
-                </div>
-            </Layout>
+            <div className="bg-red-100 text-red-700 p-4 rounded-md">
+                Please login to view your availability
+            </div>
         );
     }
 
     return (
-        <Layout>
+        <>
             <Notification message={notification.message} type={notification.type} />
             
             <div className="max-w-7xl mx-auto">
-                <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">My Availability Schedule</h1>
-                    <p className="text-gray-600">Manage your availability and view your upcoming schedule</p>
-                </div>
-
                 {loading && (
                     <div className="flex justify-center items-center py-8">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -177,6 +164,16 @@ const ViewAvailability = () => {
                             tileClassName={tileClassName}
                             className="mx-auto border-0"
                         />
+                        <div className="mt-4 flex gap-4 text-sm text-gray-600">
+                            <div className="flex items-center">
+                                <div className="w-4 h-4 bg-green-200 rounded mr-2"></div>
+                                <span>Available</span>
+                            </div>
+                            <div className="flex items-center">
+                                <div className="w-4 h-4 bg-red-200 rounded mr-2"></div>
+                                <span>Not Available</span>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Availability Details */}
@@ -185,45 +182,43 @@ const ViewAvailability = () => {
                             Availability for {format(selectedDate, 'MMMM dd, yyyy')}
                         </h2>
 
-                        {isEditing ? (
-                            <div className="space-y-4">
-                                <div className="flex items-center space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <input
-                                            type="radio"
-                                            className="form-radio text-green-500"
-                                            checked={availability}
-                                            onChange={() => setAvailability(true)}
-                                        />
-                                        <span className="ml-2">Available</span>
-                                    </label>
-                                    
-                                    <label className="inline-flex items-center">
-                                        <input
-                                            type="radio"
-                                            className="form-radio text-red-500"
-                                            checked={!availability}
-                                            onChange={() => setAvailability(false)}
-                                        />
-                                        <span className="ml-2">Not Available</span>
-                                    </label>
-                                </div>
-
+                        <div className="space-y-6">
+                            <div className="flex flex-col gap-4">
                                 <button
-                                    onClick={handleUpdateAvailability}
-                                    disabled={updateLoading}
-                                    className={`w-full bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 transition-colors ${
-                                        updateLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                    onClick={() => setAvailability(true)}
+                                    className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                                        availability 
+                                            ? 'border-green-500 bg-green-50 text-green-700' 
+                                            : 'border-gray-200 hover:border-green-500 hover:bg-green-50'
                                     }`}
                                 >
-                                    {updateLoading ? 'Updating...' : 'Update Availability'}
+                                    <div className={`w-4 h-4 rounded-full ${availability ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                                    <span className="font-medium">Available</span>
+                                </button>
+                                
+                                <button
+                                    onClick={() => setAvailability(false)}
+                                    className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                                        !availability 
+                                            ? 'border-red-500 bg-red-50 text-red-700' 
+                                            : 'border-gray-200 hover:border-red-500 hover:bg-red-50'
+                                    }`}
+                                >
+                                    <div className={`w-4 h-4 rounded-full ${!availability ? 'bg-red-500' : 'bg-gray-200'}`}></div>
+                                    <span className="font-medium">Not Available</span>
                                 </button>
                             </div>
-                        ) : (
-                            <div className="text-gray-600">
-                                No availability set for this date. Click on a date to set availability.
-                            </div>
-                        )}
+
+                            <button
+                                onClick={handleUpdateAvailability}
+                                disabled={updateLoading}
+                                className={`w-full bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 transition-colors ${
+                                    updateLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                            >
+                                {updateLoading ? 'Updating...' : 'Update Availability'}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -257,7 +252,7 @@ const ViewAvailability = () => {
                     </div>
                 </div>
             </div>
-        </Layout>
+        </>
     );
 };
 

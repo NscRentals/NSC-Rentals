@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const Navigation = () => {
     const navigate = useNavigate();
-    const isLoggedIn = localStorage.getItem('driverId') || localStorage.getItem('userId');
+    const isLoggedIn = localStorage.getItem('driverId');
     const isAdmin = localStorage.getItem('userRole') === 'admin';
+    const driverId = localStorage.getItem('driverId');
 
     const handleLogout = () => {
         localStorage.clear();
@@ -39,11 +40,9 @@ const Navigation = () => {
                                             </Link>
                                         </>
                                     ) : (
-                                        <>
-                                            <Link to="/user" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
-                                                User Dashboard
-                                            </Link>
-                                        </>
+                                        <Link to={`/dashboard/${driverId}`} className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                                            Driver Dashboard
+                                        </Link>
                                     )}
                                 </>
                             )}
