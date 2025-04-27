@@ -251,8 +251,11 @@ export default function UserDashboard() {
         </nav>
       </aside>
       
+      {/* Separator Line */}
+      <div className="fixed left-[380px] top-[104px] h-[calc(100vh-124px)] w-px bg-gray-200"></div>
+      
       {/* Main Content */}
-      <main className="w-[calc(100vw-400px)] flex-1 p-10">
+      <div className="flex-1 ml-[380px] p-8 bg-white">
         <Routes>
           <Route path="/myAccount" element={
             <div>
@@ -604,7 +607,7 @@ export default function UserDashboard() {
             </div>
           } />
         </Routes>
-      </main>
+      </div>
     </div>
   );
 }

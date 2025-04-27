@@ -3,6 +3,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import HomePage from './pages/home/homePage';
 import LoginPage from './pages/login/login';
+import {Toaster} from "react-hot-toast";
+import AdminDashboard from './pages/admin/adminDashboard';
+import TechDashboard from './pages/technician/techDashboard';
+import DriverDashboard from './pages/driver/driverDashboard';
+import RegisterPage from './pages/login/registrationPage';
+import Layout from './components/Layout';
+import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import AdminPage from './pages/admin/adminDashboard';
 
@@ -22,6 +29,22 @@ import AvailableDrivers from './components/driver/AvailableDrivers';
 
 function App() {
   return (
+    <AuthProvider>
+      <BrowserRouter path ="/*">
+        <Toaster/>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/user/*" element={<UserDashboard/>} />
+            <Route path="/*" element={<HomePage/>} />
+            <Route path="/login" element={<LoginPage/>} />
+            <Route path="/admin/*" element={<AdminDashboard/>}/>
+            <Route path="/Tech" element={<TechDashboard/>} />
+            <Route path="/Driver" element={<DriverDashboard/>} />
+            <Route path="/user/add" element={<RegisterPage/>} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Navigation />

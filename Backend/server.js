@@ -8,6 +8,9 @@ import identityRouter from "./routes/identityFormRoutes.js";
 import blogRouter from "./routes/blogRoutes.js";
 
 import cors from "cors";
+import path from "path"
+import { fileURLToPath } from 'url'; 
+
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
@@ -17,6 +20,14 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(cors());
 dotenv.config();
+
+// Get the current directory (equivalent of __dirname)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/uploads/profile_pictures', express.static(path.join(__dirname, 'uploads', 'profile_pictures')));
+app.use('/uploads/identity_forms', express.static(path.join(__dirname, 'uploads', 'identity_forms')));
+
+
 
 let mongoURL = process.env.MONGO_URL;
 
@@ -33,6 +44,13 @@ app.listen(4000, () => {
 app.use((req, res, next) => {
     let token = req.header("Authorization");
 
+    if(token!=null) {
+
+        token = token.replace("Bearer ","");
+        jwt.verify(token, process.env.JWT_SECRET,(err,decoded)=>{
+            
+            if(!err){
+                req.user = decoded ;
     if (token != null) {
         token = token.replace("Bearer ", "");
         jwt.verify(token, process.env.JWT_password, (err, decoded) => {
