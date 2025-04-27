@@ -27,9 +27,7 @@ const __dirname = path.dirname(__filename);
 app.use('/uploads/profile_pictures', express.static(path.join(__dirname, 'uploads', 'profile_pictures')));
 app.use('/uploads/identity_forms', express.static(path.join(__dirname, 'uploads', 'identity_forms')));
 
-
-
-let mongoURL = process.env.MONGO_URL;
+let mongoURL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/NSC-Rentals";
 
 mongoose.connect(mongoURL);
 let connection = mongoose.connection;
@@ -44,22 +42,14 @@ app.listen(4000, () => {
 app.use((req, res, next) => {
     let token = req.header("Authorization");
 
-    if(token!=null) {
-
-        token = token.replace("Bearer ","");
-        jwt.verify(token, process.env.JWT_SECRET,(err,decoded)=>{
-            
-            if(!err){
-                req.user = decoded ;
-    if (token != null) {
+    if (token) {
         token = token.replace("Bearer ", "");
-        jwt.verify(token, process.env.JWT_password, (err, decoded) => {
+        jwt.verify(token, process.env.JWT_SECRET || "your-secret-key", (err, decoded) => {
             if (!err) {
                 req.user = decoded;
             }
         });
     }
-
     next();
 });
 
