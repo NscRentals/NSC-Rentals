@@ -1,10 +1,10 @@
 import express from "express";
 import { saveBlogPost, getBlogPosts, verifyBlogPost } from "../controllers/blogPostController.js";
-import blogUpload from "../middlewares/multerBlog.js";
+import identityUpload from "../middlewares/multerIdentity.js";
 
 const blogRouter = express.Router();
 
-blogRouter.post("/", blogUpload, saveBlogPost);
+blogRouter.post("/", identityUpload, saveBlogPost);
 blogRouter.get("/", getBlogPosts);
 blogRouter.put("/", verifyBlogPost);
 

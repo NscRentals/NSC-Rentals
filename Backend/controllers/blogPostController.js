@@ -1,4 +1,4 @@
-import BlogPost from "../models/BlogPost.js";
+import  BlogPost from "../models/blogPost.js";
 
 // Function to save blog post
 export async function saveBlogPost(req, res) {

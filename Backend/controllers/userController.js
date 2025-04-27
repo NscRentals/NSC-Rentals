@@ -82,6 +82,7 @@ export async function loginUser(req, res) {
             firstName: role === "admin" || role === "Customer" ? user.firstName : null,
             //same
             lastName: role === "admin" || role === "Customer" ? user.lastName : null,
+            address:  role === "Customer" ? user.address.street : null,
             name: role === "driver" || role === "technician" ? user.name : null,
             email: user.email,
             phone: user.phone || "",

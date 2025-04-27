@@ -1,6 +1,7 @@
 import IdentityForm from "../models/identityForm.js";
 
 export async function identityFormSave(req, res) {
+    console.log("DEBUG: req.user in identityFormSave:", req.user);
     // Multer middleware will have already handled the file upload, so no need to call identityUpload here
 
     if (!req.files || !req.files.img1 || !req.files.img2) {
@@ -19,7 +20,7 @@ export async function identityFormSave(req, res) {
     data.fullName = req.user.firstName + " " + req.user.lastName;
     data.email = req.user.email;
     data.phone = req.user.phone;
-    data.address = req.body.address || ""; 
+    data.address = req.user.address || ""; 
     data.type = req.body.type || "NIC";
     data.img1 = req.files.img1[0].filename;
     data.img2 = req.files.img2[0].filename;
@@ -52,7 +53,7 @@ export async function getForms(req,res){
 
     if(user=='admin'){
 
-        const forms = await IdentityForm.find();
+        const forms = await IdentityForm.find({ isVerified: false });
         res.json(forms);
     }else { 
 
@@ -95,5 +96,43 @@ export async function approveUser(req, res) {
     } catch (error) {
         console.error("Error approving identity form:", error);
         res.status(500).json({ message: "An error occurred!" });
+    }
+}
+
+export async function rejectUser(req, res) {
+    try {
+        if (req.user.type !== 'admin') {
+            return res.status(403).json({ message: "You are not allowed to perform this task!" });
+        }
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "Email is required!" });
+        }
+        const updatedForm = await IdentityForm.findOneAndUpdate(
+            { email }, { isReject: true }, { new: true }
+        );
+        if (!updatedForm) {
+            return res.status(404).json({ message: "Identity form not found!" });
+        }
+        res.json({ message: "Identity form rejected successfully!", form: updatedForm });
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred!" });
+    }
+}
+
+export async function getUserForm(req, res) {
+    try {
+        if (!req.user || !req.user.email) {
+            return res.status(400).json({ message: "User authentication required!" });
+        }
+
+        const form = await IdentityForm.findOne({ email: req.user.email });
+        if (!form) {
+            return res.json(null);
+        }
+        res.json(form);
+    } catch (error) {
+        console.error("Error fetching user form:", error);
+        res.status(500).json({ message: "An error occurred while fetching your form!" });
     }
 }

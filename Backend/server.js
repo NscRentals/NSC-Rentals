@@ -22,6 +22,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/uploads/profile_pictures', express.static(path.join(__dirname, 'uploads', 'profile_pictures')));
+app.use('/uploads/identity_forms', express.static(path.join(__dirname, 'uploads', 'identity_forms')));
 
 
 

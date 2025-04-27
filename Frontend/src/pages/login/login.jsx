@@ -3,11 +3,13 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { RxCross1 } from "react-icons/rx";
+import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     async function handleOnSubmit(e) {
         e.preventDefault();
@@ -18,26 +20,23 @@ export default function LoginPage() {
                 password
             });
 
-            toast.success("Login Successful");
-
             const { user, token } = response.data;
 
             if (token) {
-                localStorage.setItem("token", token);
-            }
-
-            const role = user.type;
-
-            if (role === "Customer") {
-                navigate("/");
-            } else if (role === "admin") {
-                navigate("/admin");
-            } else if (role === "driver") {
-                navigate("/Driver");
-            } else if (role === "technician") {
-                navigate("/Tech");
+                login(token);
+                
+                // Navigate based on user type without page reload
+                if (user.type === "Customer") {
+                    navigate("/");
+                } else if (user.type === "admin") {
+                    navigate("/admin");
+                } else if (user.type === "driver") {
+                    navigate("/Driver");
+                } else if (user.type === "technician") {
+                    navigate("/Tech");
+                }
             } else {
-                toast.error("Invalid user role");
+                toast.error("Login failed - No token received");
             }
 
         } catch (error) {
@@ -51,7 +50,10 @@ export default function LoginPage() {
             {/* Fixed Header with blur */}
             <div className="w-full h-[83px] flex items-center fixed top-0 left-0 z-10 px-6 shadow-md backdrop-blur-3xl bg-white/60 border-b border-gray-200">
                 <h1 className="text-2xl font-bold">User Authorization</h1>
-                <RxCross1 className="ml-auto text-4xl cursor-pointer" />
+                <RxCross1 
+                    className="ml-auto text-4xl cursor-pointer" 
+                    onClick={() => navigate('/')}
+                />
             </div>
 
             {/* Scrollable Section */}
@@ -84,6 +86,7 @@ export default function LoginPage() {
                             className="w-full mb-5 h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            required
                         />
                     </div>
 
@@ -96,6 +99,7 @@ export default function LoginPage() {
                             className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
                     </div>
 
