@@ -200,7 +200,7 @@ const VehicleSchema = new mongoose.Schema({
     // Current availability status of the vehicle
     availabilityStatus: { 
         type: String, 
-        enum: ['Available', 'Booked', 'Under Maintenance'], 
+        enum: ['Available', 'Not Available', 'Pending', 'Booked', 'Under Maintenance'], 
         default: 'Available' 
     },
 
@@ -222,7 +222,7 @@ const VehicleSchema = new mongoose.Schema({
         ref: 'User',
     },
 
-    // store an owner’s requested changes until approved
+    // store an owner's requested changes until approved
     pendingUpdate: {
         type: mongoose.Schema.Types.Mixed,
         default: null,
@@ -232,6 +232,11 @@ const VehicleSchema = new mongoose.Schema({
         type: String,
         enum: ['Pending', 'Approved', 'Rejected'],
         default: 'Pending'
+    },
+
+    rejectionReason: {
+        type: String,
+        default: null
     },
     
 },    

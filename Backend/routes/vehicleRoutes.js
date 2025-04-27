@@ -6,6 +6,8 @@ import {
   getDeletedVehicles,
   getVehicles,
   approvePendingVehicleUpdate,
+  getPendingVehicles,
+  handleVehicleApproval,
 } from "../controllers/vehicleController.js";
 
 import { verifyToken } from "../middlewares/authMiddleware.js";
@@ -22,7 +24,14 @@ vehicleRouter.post("/", addVehicle);
 vehicleRouter.put("/:id", updateVehicle);
 
 // Approve pending vehicle update (Admin only)
-vehicleRouter.put("/approve/:id", approvePendingVehicleUpdate);
+vehicleRouter.put("/update-approve/:id", approvePendingVehicleUpdate);
+
+
+// Get pending vehicles (Admin only)
+vehicleRouter.get("/pending", getPendingVehicles);
+
+// Approve or reject a vehicle (Admin only)
+vehicleRouter.put("/handle-approval/:id", handleVehicleApproval);
 
 // "Soft" delete a vehicle (Admin or owner-with-reason)
 vehicleRouter.delete("/:id", deleteVehicle);
