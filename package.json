@@ -97,7 +97,7 @@
     "mquery": "^5.0.0",
     "ms": "^2.0.0",
     "negotiator": "^0.6.3",
-    "node": "^20.19.0",
+    "node": "^20.19.1",
     "node-addon-api": "^5.1.0",
     "node-fetch": "^2.7.0",
     "nopt": "^5.0.0",
@@ -149,8 +149,8 @@
     "yallist": "^4.0.0"
   },
   "scripts": {
-    "start" : "vite",
-    "dev" : "vite",
+    "start": "vite",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -166,6 +166,8 @@
     "url": "https://github.com/NscRentals/NSC-Rentals/issues"
   },
   "homepage": "https://github.com/NscRentals/NSC-Rentals#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "vite": "^6.3.3"
+  },
   "description": ""
 }

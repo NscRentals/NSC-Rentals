@@ -27,26 +27,23 @@ const DriverRegister = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:4000/api/driver/register', formData);
-      setMessage(response.data.success);
-      setDriverID(response.data.driverID);
-      setFormData({
-        DriverName: '',
-        DriverPhone: '',
-        DriverAdd: '',
-        DriverEmail: '',
-        DLNo: '',
-        NICNo: '',
-        DriverPW: ''
-      });
-      setTimeout(() => navigate('/drivers'), 2000);
+
+      if (response.status === 200) {
+        setMessage(response.data.error);
+        alert(response.data.success);
+    
+      } else {
+        setMessage(response.data.error);
+        alert(response.data.error); 
+      };
     } catch (error) {
       setMessage(error.response?.data?.error || 'An error occurred');
+      alert(error.response?.data?.error || 'An error occurred');
     }
   };
 
-  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 px-4 p-4"> 
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 px-4 p-4">
       <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-2xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-4 p-4">Driver Registration</h2>
         <p className="text-center text-gray-600 mb-6">Fill out the form carefully to register the driver</p>
@@ -144,17 +141,13 @@ const DriverRegister = () => {
           <button
             type="submit"
             className="p-4 w-full bg-green-600 text-white py-3 rounded-lg font-semibold shadow-md hover:shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300"
-            >
+          >
             Register Driver
           </button>
         </form>
       </div>
     </div>
   );
-
-
 };
-
-
 
 export default DriverRegister;

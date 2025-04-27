@@ -1,42 +1,119 @@
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
-import dotenv from "dotenv";
-import profileUpload from "../middlewares/multerProfile.js";
-import fs from "fs";
-import path from "path";
+import DriverAvailability from '../models/driveravailability.js';
+import driver from '../models/DriverModel.js';
 
-import express from 'express';
+// Set driver availability
+export const setAvailability = async (req, res) => {
+    try {
+        const { driverId, date, availability } = req.body;
 
+        // Check if driver exists
+        const driverExists = await driver.findById(driverId);
+        if (!driverExists) {
+            return res.status(404).json({ error: 'Driver not found' });
+        }
 
-const router = express.Router();
-const DriverAvailability = require("../models/driveravailability");  
+        // Check if availability record already exists for this date
+        let availabilityRecord = await DriverAvailability.findOne({
+            driverId,
+            date
+        });
 
-// POST route to save availability
-router.post("/driveravailability", async (req, res) => {
-  const { driverId, date, availability } = req.body;
+        if (availabilityRecord) {
+            // Update existing record
+            availabilityRecord.availability = availability;
+            await availabilityRecord.save();
+        } else {
+            // Create new record
+            availabilityRecord = new DriverAvailability({
+                driverId,
+                date,
+                availability
+            });
+            await availabilityRecord.save();
+        }
 
-  try {
-    // Check if availability already exists for the driver on this date
-    let existingAvailability = await DriverAvailability.findOne({ driverId, date });
-
-    if (existingAvailability) {
-      existingAvailability.availability = availability;  // Update existing record
-      await existingAvailability.save();
-    } else {
-      // Create a new availability record
-      const newAvailability = new DriverAvailability({
-        driverId,
-        date,
-        availability,
-      });
-      await newAvailability.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Availability updated successfully',
+            data: availabilityRecord
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
     }
+};
 
-    res.status(200).json({ message: "Availability updated successfully" });
-  } catch (error) {
-    console.error("Error saving availability:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// Get driver availability for a specific date
+export const getAvailability = async (req, res) => {
+    try {
+        const { date } = req.params;
+        const availabilityRecords = await DriverAvailability.find({ date })
+            .populate('driverId', 'DriverName DriverPhone DriverEmail');
 
-module.exports = router;
+        return res.status(200).json({
+            success: true,
+            data: availabilityRecords
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// Get all available drivers for a specific date
+export const getAvailableDrivers = async (req, res) => {
+    try {
+        const { date } = req.params;
+        const availableDrivers = await DriverAvailability.find({
+            date,
+            availability: true
+        }).populate('driverId', 'DriverName DriverPhone DriverEmail');
+
+        return res.status(200).json({
+            success: true,
+            data: availableDrivers
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
+// Get driver's availability schedule
+export const getDriverSchedule = async (req, res) => {
+    try {
+        const { driverId } = req.params;
+        console.log('Fetching schedule for driver:', driverId);
+
+        // Validate driverId
+        if (!driverId) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Driver ID is required' 
+            });
+        }
+
+        // Check if driver exists
+        const driverExists = await driver.findById(driverId);
+        if (!driverExists) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Driver not found' 
+            });
+        }
+
+        // Get schedule
+        const schedule = await DriverAvailability.find({ driverId })
+            .sort({ date: 1 });
+
+        console.log('Found schedule:', schedule);
+
+        return res.status(200).json({
+            success: true,
+            data: schedule
+        });
+    } catch (error) {
+        console.error('Error fetching schedule:', error);
+        return res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+}; 

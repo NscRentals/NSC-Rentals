@@ -25,7 +25,6 @@ const driverSchema = new mongoose.Schema({
         required: true
     },
 
-   
 
     DriverEmail:{
 
@@ -52,15 +51,7 @@ const driverSchema = new mongoose.Schema({
     }
 
 
-
-    
-
 });
-
-
-
-
-
 
 
 driverSchema.pre("save", async function (next) {

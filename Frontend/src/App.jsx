@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import UserDashboard from './pages/user/userDashboard';
 import HomePage from './pages/home/homePage';
@@ -9,34 +10,38 @@ import AdminPage from './pages/admin/adminDashboard';
 import DriverRegister from './components/driver/driverRegistration';
 import AllDrivers from './components/driver/allDrivers';
 import DriverProfile from './components/driver/driverProfile';
-import DriverDashboard from './components/driver/driverDash';    
 import DriverProfileUpdate from './components/driver/driverProfileupdate';
+import Navigation from './components/Navigation';
 
 import './index.css';
 
-
-
 import Home from './pages/home/homePage';
-
+import DriverAvailability from './components/driver/DriverAvailability';
+import ViewAvailability from './components/driver/ViewAvailability';
+import AvailableDrivers from './components/driver/AvailableDrivers';
 
 function App() {
   return (
-    <BrowserRouter path ="/*">
-      <Toaster/>
-      <Routes>
-        <Route path="/" element={<Home/>} />  
-        <Route path="/user/*" element={<UserDashboard/>} />
-        <Route path="/*" element={<HomePage/>} />
-        <Route path="/login" element ={<LoginPage></LoginPage>}></Route>
-        <Route path="/admin/" element={<AdminPage/>}/>
-        <Route path="/register" element={<DriverRegister />} />
-              <Route path="/drivers" element={<AllDrivers />} />
-              <Route path="/dashboard/:id" element={< DriverDashboard />} />   
-              <Route path="/driverprofile/:id" element={<DriverProfile />} />     
-              <Route path ="/driverprofile/update/:id" element={<DriverProfileUpdate />} /> 
-           
-      </Routes>
-    </BrowserRouter>
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        {/* <Navigation /> */}
+        <Toaster/>
+        <Routes>
+          <Route path="/" element={<Home/>} />  
+          <Route path="/user/*" element={<UserDashboard/>} />
+          <Route path="/*" element={<HomePage/>} />
+          <Route path="/login" element={<LoginPage/>} />
+          <Route path="/admin/" element={<AdminPage/>}/>
+          <Route path="/register" element={<DriverRegister />} />
+          <Route path="/drivers" element={<AllDrivers />} />
+          <Route path="/driverprofile/:id" element={<DriverProfile />} />     
+          <Route path="/driverprofile/update/:id" element={<DriverProfileUpdate />} /> 
+          <Route path="/driver/availability" element={<DriverAvailability />} />
+          <Route path="/driver/availability/view" element={<ViewAvailability />} />
+          <Route path="/admin/drivers/available" element={<AvailableDrivers />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
