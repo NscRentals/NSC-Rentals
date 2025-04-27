@@ -219,11 +219,11 @@ const DriverDashboard = () => {
 
   const renderProfileContent = () => {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-6 font-sans">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Driver Profile</h1>
-            <p className="text-gray-600 mt-2">Manage your personal information</p>
+            <h1 className="text-3xl font-bold text-gray-900 font-sans">Driver Profile</h1>
+            <p className="text-gray-600 mt-2 font-sans">Manage your personal information</p>
           </div>
           <div className="flex flex-col items-center">
             <div className="relative">
@@ -259,45 +259,45 @@ const DriverDashboard = () => {
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-500">Name</label>
+                    <label className="text-sm font-medium text-gray-500 font-sans">Name</label>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <FaUser className="text-gray-400" />
-                      <span className="text-gray-900">{driver?.DriverName}</span>
+                      <span className="text-gray-900 font-sans">{driver?.DriverName}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-500">Email</label>
+                    <label className="text-sm font-medium text-gray-500 font-sans">Email</label>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <FaEnvelope className="text-gray-400" />
-                      <span className="text-gray-900">{driver?.DriverEmail}</span>
+                      <span className="text-gray-900 font-sans">{driver?.DriverEmail}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-500">Phone</label>
+                    <label className="text-sm font-medium text-gray-500 font-sans">Phone</label>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <FaPhone className="text-gray-400" />
-                      <span className="text-gray-900">{driver?.DriverPhone}</span>
+                      <span className="text-gray-900 font-sans">{driver?.DriverPhone}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-500">Address</label>
+                    <label className="text-sm font-medium text-gray-500 font-sans">Address</label>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <FaMapMarkerAlt className="text-gray-400" />
-                      <span className="text-gray-900">{driver?.DriverAdd}</span>
+                      <span className="text-gray-900 font-sans">{driver?.DriverAdd}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-500">License No</label>
+                    <label className="text-sm font-medium text-gray-500 font-sans">License No</label>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <FaIdCard className="text-gray-400" />
-                      <span className="text-gray-900">{driver?.DLNo}</span>
+                      <span className="text-gray-900 font-sans">{driver?.DLNo}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-500">NIC No</label>
+                    <label className="text-sm font-medium text-gray-500 font-sans">NIC No</label>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <FaIdBadge className="text-gray-400" />
-                      <span className="text-gray-900">{driver?.NICNo}</span>
+                      <span className="text-gray-900 font-sans">{driver?.NICNo}</span>
                     </div>
                   </div>
                 </div>
@@ -306,14 +306,14 @@ const DriverDashboard = () => {
                 <div className="flex justify-between">
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-sans"
                   >
                     <FaEdit className="w-4 h-4" />
                     Edit Profile
                   </button>
                   <button
                     onClick={handleDeleteAccount}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-sans"
                   >
                     <FaTrash className="w-4 h-4" />
                     Delete Account
@@ -325,7 +325,7 @@ const DriverDashboard = () => {
             <form onSubmit={handleProfileUpdate} className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-500">Name</label>
+                  <label className="text-sm font-medium text-gray-500 font-sans">Name</label>
                   <div className="relative">
                     <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
@@ -333,12 +333,12 @@ const DriverDashboard = () => {
                       name="DriverName"
                       value={driver?.DriverName || ''}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <label className="text-sm font-medium text-gray-500 font-sans">Email</label>
                   <div className="relative">
                     <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
@@ -346,12 +346,12 @@ const DriverDashboard = () => {
                       name="DriverEmail"
                       value={driver?.DriverEmail || ''}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-500">Phone</label>
+                  <label className="text-sm font-medium text-gray-500 font-sans">Phone</label>
                   <div className="relative">
                     <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
@@ -359,12 +359,12 @@ const DriverDashboard = () => {
                       name="DriverPhone"
                       value={driver?.DriverPhone || ''}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-500">Address</label>
+                  <label className="text-sm font-medium text-gray-500 font-sans">Address</label>
                   <div className="relative">
                     <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
@@ -372,12 +372,12 @@ const DriverDashboard = () => {
                       name="DriverAdd"
                       value={driver?.DriverAdd || ''}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-500">License No</label>
+                  <label className="text-sm font-medium text-gray-500 font-sans">License No</label>
                   <div className="relative">
                     <FaIdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
@@ -385,12 +385,12 @@ const DriverDashboard = () => {
                       name="DLNo"
                       value={driver?.DLNo || ''}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-500">NIC No</label>
+                  <label className="text-sm font-medium text-gray-500 font-sans">NIC No</label>
                   <div className="relative">
                     <FaIdBadge className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                     <input
@@ -398,7 +398,7 @@ const DriverDashboard = () => {
                       name="NICNo"
                       value={driver?.NICNo || ''}
                       onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-sans"
                     />
                   </div>
                 </div>
@@ -407,13 +407,13 @@ const DriverDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-sans"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-sans"
                 >
                   Save Changes
                 </button>
@@ -426,24 +426,22 @@ const DriverDashboard = () => {
   };
 
   const renderReservationsContent = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto font-sans">
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Assigned Reservations</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6 font-sans">Assigned Reservations</h1>
         <div className="space-y-4">
-          {/* Add your reservations content here */}
-          <p className="text-gray-600">No reservations assigned yet.</p>
+          <p className="text-gray-600 font-sans">No reservations assigned yet.</p>
         </div>
       </div>
     </div>
   );
 
   const renderSalaryContent = () => (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto font-sans">
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Salary Details</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6 font-sans">Salary Details</h1>
         <div className="space-y-4">
-          {/* Add your salary content here */}
-          <p className="text-gray-600">No salary information available.</p>
+          <p className="text-gray-600 font-sans">No salary information available.</p>
         </div>
       </div>
     </div>
@@ -451,7 +449,7 @@ const DriverDashboard = () => {
 
   const renderAvailabilityContent = () => {
     return (
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto font-sans">
         <ViewAvailability />
       </div>
     );
@@ -461,15 +459,15 @@ const DriverDashboard = () => {
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Welcome, {driver?.DriverName}</h1>
-          <p className="text-gray-600">Manage your profile and availability</p>
+          <h1 className="text-2xl font-bold text-gray-800 font-sans">Welcome, {driver?.DriverName}</h1>
+          <p className="text-gray-600 font-sans">Manage your profile and availability</p>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">Current Status:</span>
+          <span className="text-sm text-gray-600 font-sans">Current Status:</span>
           <button
             onClick={handleAvailabilityToggle}
             disabled={availabilityLoading}
-            className={`px-4 py-2 rounded-full font-medium transition-colors ${
+            className={`px-4 py-2 rounded-full font-medium font-sans transition-colors ${
               currentAvailability
                 ? 'bg-green-100 text-green-800 hover:bg-green-200'
                 : 'bg-red-100 text-red-800 hover:bg-red-200'
@@ -483,23 +481,23 @@ const DriverDashboard = () => {
   );
 
   const renderUpcomingSchedule = () => (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">Upcoming Schedule</h2>
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6 font-sans">
+      <h2 className="text-xl font-semibold text-gray-700 mb-4 font-sans">Upcoming Schedule</h2>
       {upcomingSchedule.length > 0 ? (
         <div className="space-y-3">
           {upcomingSchedule.map((schedule, index) => (
             <div
               key={index}
-              className={`p-3 rounded-lg ${
+              className={`p-3 rounded-lg font-sans ${
                 schedule.availability ? 'bg-green-50' : 'bg-red-50'
               }`}
             >
               <div className="flex justify-between items-center">
-                <span className="font-medium">
+                <span className="font-medium font-sans">
                   {format(new Date(schedule.date), 'MMMM dd, yyyy')}
                 </span>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm ${
+                  className={`px-3 py-1 rounded-full text-sm font-sans ${
                     schedule.availability
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
@@ -512,21 +510,21 @@ const DriverDashboard = () => {
           ))}
         </div>
       ) : (
-        <p className="text-gray-600">No upcoming schedule found</p>
+        <p className="text-gray-600 font-sans">No upcoming schedule found</p>
       )}
     </div>
   );
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen font-sans">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 font-sans">
       <DriverHeader />
       
       <div className="flex pt-16">
@@ -545,14 +543,14 @@ const DriverDashboard = () => {
                     <FaUserCircle className="w-full h-full text-gray-400" />
                   )}
                 </div>
-                <h2 className="text-xl font-semibold">{driver?.DriverName}</h2>
+                <h2 className="text-xl font-semibold font-sans">{driver?.DriverName}</h2>
               </div>
             </div>
 
             <nav className="space-y-2">
               <button
                 onClick={() => setActiveTab('profile')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
                   activeTab === 'profile' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
                 }`}
               >
@@ -562,7 +560,7 @@ const DriverDashboard = () => {
 
               <button
                 onClick={() => setActiveTab('reservations')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
                   activeTab === 'reservations' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
                 }`}
               >
@@ -572,7 +570,7 @@ const DriverDashboard = () => {
 
               <button
                 onClick={() => setActiveTab('salary')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
                   activeTab === 'salary' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
                 }`}
               >
@@ -582,7 +580,7 @@ const DriverDashboard = () => {
 
               <button
                 onClick={() => setActiveTab('availability')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg ${
+                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
                   activeTab === 'availability' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
                 }`}
               >
@@ -604,6 +602,7 @@ const DriverDashboard = () => {
             </div>
           ) : (
             <>
+              {renderDashboardHeader()}
               {activeTab === 'profile' && renderProfileContent()}
               {activeTab === 'reservations' && renderReservationsContent()}
               {activeTab === 'salary' && renderSalaryContent()}
