@@ -109,7 +109,7 @@ export async function rejectUser(req, res) {
             return res.status(400).json({ message: "Email is required!" });
         }
         const updatedForm = await IdentityForm.findOneAndUpdate(
-            { email }, { isReject: true }, { new: true }
+            { email }, { isRejected: true }, { new: true }
         );
         if (!updatedForm) {
             return res.status(404).json({ message: "Identity form not found!" });
@@ -134,5 +134,23 @@ export async function getUserForm(req, res) {
     } catch (error) {
         console.error("Error fetching user form:", error);
         res.status(500).json({ message: "An error occurred while fetching your form!" });
+    }
+}
+
+export async function deleteUserForm(req, res) {
+    try {
+        if (!req.user || !req.user.email) {
+            return res.status(400).json({ message: "User authentication required!" });
+        }
+
+        const deletedForm = await IdentityForm.findOneAndDelete({ email: req.user.email });
+        if (!deletedForm) {
+            return res.status(404).json({ message: "No identity form found for this user." });
+        }
+
+        res.json({ message: "Identity form deleted successfully!" });
+    } catch (error) {
+        console.error("Error deleting identity form:", error);
+        res.status(500).json({ message: "An error occurred while deleting the identity form." });
     }
 }

@@ -1,9 +1,9 @@
-import  BlogPost from "../models/blogPost.js";
+import BlogPost from "../models/blogPost.js";
 
 // Function to save blog post
 export async function saveBlogPost(req, res) {
-    if (!req.files || !req.files.img1 || !req.files.img2) {
-        return res.status(400).json({ message: "At least img1 and img2 are required!" });
+    if (!req.file) {
+        return res.status(400).json({ message: "Image is required!" });
     }
 
     if (!req.user || !req.user.email || !req.user.name) {
@@ -18,9 +18,7 @@ export async function saveBlogPost(req, res) {
         name: req.user.name,
         email: req.user.email,
         caption: req.body.caption,
-        img1: req.files.img1[0].filename,
-        img2: req.files.img2[0].filename,
-        img3: req.files.img3 ? req.files.img3[0].filename : null,
+        image: req.file.filename,
         isVerified: false
     };
 
@@ -28,7 +26,6 @@ export async function saveBlogPost(req, res) {
         const newBlogPost = new BlogPost(data);
         await newBlogPost.save();
         res.json({ message: "Blog post submitted successfully!", blog: newBlogPost });
-
     } catch (error) {
         console.error("Error saving blog post:", error);
         res.status(500).json({ message: "Submission failed!" });
@@ -64,7 +61,6 @@ export async function verifyBlogPost(req, res) {
         await blog.save();
 
         res.json({ message: "Blog post verified successfully!" });
-
     } catch (error) {
         console.error("Error verifying blog post:", error);
         res.status(500).json({ message: "Verification failed!" });

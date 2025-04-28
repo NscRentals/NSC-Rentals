@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 export default function General() {
     const [user, setUser] = useState(null);
     const [verificationStatus, setVerificationStatus] = useState("not verified");
+    const [formObj, setFormObj] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,9 +21,11 @@ export default function General() {
                 headers: { Authorization: `Bearer ${token}` }
             })
             .then(res => {
-                console.log("Form response:", res.data);
+                setFormObj(res.data);
                 if (res.data === null) {
                     setVerificationStatus("not verified");
+                } else if (res.data.isRejected) {
+                    setVerificationStatus("rejected");
                 } else if (res.data.isVerified) {
                     setVerificationStatus("verified");
                 } else {
@@ -35,6 +39,19 @@ export default function General() {
         })
         .catch(error => console.error("Error fetching user details:", error));
     }, []);
+
+    const handleRetryVerification = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            await axios.delete("http://localhost:4000/api/forms/user", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            toast.success("You can now re-submit your verification form.");
+            navigate("/user/general/verify");
+        } catch (error) {
+            toast.error("Failed to reset verification. Please try again.");
+        }
+    };
 
     if (!user) return <p className="text-2xl font-semibold text-gray-700">Loading...</p>;
 
@@ -124,13 +141,25 @@ export default function General() {
                     {verificationStatus === "verified" && (
                         <p className="text-[28px] font-extralight text-green-600">verified</p>
                     )}
-                    <button 
-                        className="text-[28px] font-extralight text-gray-700 hover:text-black transition-colors mt-3"
-                        onClick={() => navigate("/user/general/verify")}
-                        disabled={verificationStatus === "pending" || verificationStatus === "verified"}
-                    >
-                        Verify your account
-                    </button>
+                    {verificationStatus === "rejected" && (
+                        <p className="text-[28px] font-extralight text-orange-500">verification rejected</p>
+                    )}
+                    {verificationStatus === "rejected" ? (
+                        <button 
+                            className="text-[28px] font-extralight text-gray-700 hover:text-black transition-colors mt-3"
+                            onClick={handleRetryVerification}
+                        >
+                            Re-try verification
+                        </button>
+                    ) : (
+                        <button 
+                            className="text-[28px] font-extralight text-gray-700 hover:text-black transition-colors mt-3"
+                            onClick={() => navigate("/user/general/verify")}
+                            disabled={verificationStatus === "pending" || verificationStatus === "verified"}
+                        >
+                            Verify your account
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
