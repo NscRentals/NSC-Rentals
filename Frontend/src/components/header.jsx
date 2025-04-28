@@ -16,7 +16,7 @@ export default function Header() {
       </div>
 
       {/* Center: Navigation Items */}
-      <nav className="flex items-center space-x-8">
+      <nav className="flex items-center space-x-8 mx-auto">
         <Link 
           to="/cars" 
           className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
@@ -36,6 +36,13 @@ export default function Header() {
           className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
         >
           Contact
+          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+        </Link>
+        <Link 
+          to="/blog" 
+          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+        >
+          Blog
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
         </Link>
         <Link 
