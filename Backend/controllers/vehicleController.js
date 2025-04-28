@@ -5,6 +5,8 @@ import { isItAdmin, isItCustomer } from "./userController.js";
 export async function addVehicle (req, res) {
 
     try {     
+        // Custom admin check to handle case sensitivity
+        const isAdmin = req.user && (req.user.type.toLowerCase() === "admin");
         
         // If images were uploaded, include their paths:
         /*if (req.files && req.files.length > 0) {
@@ -15,7 +17,7 @@ export async function addVehicle (req, res) {
         const newVehicle = new Vehicle(data);
 
         // Set ownership and approval status
-        if(isItAdmin(req)) {
+        if(isAdmin) {
             newVehicle.ownerType = "Company";  
             newVehicle.approvalStatus = "Approved"; // company vehicles auto-approved
             newVehicle.availabilityStatus = "Available"; // company vehicles are immediately available
@@ -30,7 +32,7 @@ export async function addVehicle (req, res) {
 
         await newVehicle.save();
         
-        if(isItAdmin(req)) {
+        if(isAdmin) {
             res.json({
                 message: "Vehicle added successfully",
             });
@@ -66,7 +68,8 @@ export async function addVehicle (req, res) {
 // Get all pending vehicles (Admin only)
 export async function getPendingVehicles(req, res) {
     try {
-        if (!isItAdmin(req)) {
+        const isAdmin = req.user && (req.user.type.toLowerCase() === "admin");
+        if (!isAdmin) {
             return res.status(403).json({ 
                 message: 'Only administrators can view pending vehicles'
             });
@@ -112,7 +115,8 @@ export async function handleVehicleApproval(req, res) {
         const cleanAction = action?.toLowerCase().trim();
         
         // Check if user is admin
-        if (!isItAdmin(req)) {
+        const isAdmin = req.user && (req.user.type.toLowerCase() === "admin");
+        if (!isAdmin) {
             return res.status(403).json({ 
                 message: 'Only administrators can approve/reject vehicles'
             });
@@ -311,35 +315,71 @@ export async function updateVehicle(req, res) {
 }
   
 export async function approvePendingVehicleUpdate(req, res) {
-    const vehicle = await Vehicle.findById(req.params.id);
-    if (!isItAdmin(req)) return res.status(403).json({ message: 'Admins only' });
-    if (!vehicle?.pendingUpdate || vehicle.approvalStatus !== 'Pending') {
-      return res.status(400).json({ message: 'No pending update' });
+    try {
+        const vehicle = await Vehicle.findById(req.params.id);
+        const isAdmin = req.user && (req.user.type.toLowerCase() === "admin");
+        
+        if (!isAdmin) {
+            return res.status(403).json({ message: 'Admins only' });
+        }
+        
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehicle not found' });
+        }
+
+        const { action, rejectionReason } = req.body;
+        if (!['approve','reject'].includes(action)) {
+            return res.status(400).json({ message: 'Must be approve or reject' });
+        }
+
+        if (action === 'approve') {
+            // Apply pending updates if they exist
+            if (vehicle.pendingUpdate) {
+                Object.assign(vehicle, vehicle.pendingUpdate);
+            }
+            vehicle.approvalStatus = 'Approved';
+            vehicle.availabilityStatus = 'Available';
+            vehicle.pendingUpdate = null;
+            vehicle.rejectionReason = null;
+        } else {
+            if (!rejectionReason) {
+                return res.status(400).json({ message: 'Rejection reason required' });
+            }
+            vehicle.rejectionReason = rejectionReason;
+            vehicle.approvalStatus = 'Rejected';
+            vehicle.availabilityStatus = 'Not Available';
+            vehicle.pendingUpdate = null;
+        }
+
+        await vehicle.save();
+
+        // Log the update for debugging
+        console.log('Vehicle update processed:', {
+            id: vehicle._id,
+            action,
+            approvalStatus: vehicle.approvalStatus,
+            availabilityStatus: vehicle.availabilityStatus
+        });
+
+        return res.status(200).json({
+            message: `Vehicle update ${action}d successfully`,
+            vehicle: {
+                id: vehicle._id,
+                make: vehicle.make,
+                model: vehicle.model,
+                approvalStatus: vehicle.approvalStatus,
+                availabilityStatus: vehicle.availabilityStatus,
+                rejectionReason: vehicle.rejectionReason
+            }
+        });
+    } catch (error) {
+        console.error('Error approving vehicle update:', error);
+        return res.status(500).json({ 
+            message: 'Failed to process vehicle update approval',
+            error: error.message 
+        });
     }
-  
-    const { action, rejectionReason } = req.body;
-    if (!['approve','reject'].includes(action)) {
-      return res.status(400).json({ message: 'Must be approve or reject' });
-    }
-  
-    if (action === 'approve') {
-      Object.assign(vehicle, vehicle.pendingUpdate);
-      vehicle.approvalStatus = 'Approved';
-    } else {
-      if (!rejectionReason) {
-        return res.status(400).json({ message: 'Rejection reason required' });
-      }
-      vehicle.rejectionReason   = rejectionReason;
-      vehicle.approvalStatus    = 'Rejected';
-    }
-  
-    vehicle.pendingUpdate = null;
-    await vehicle.save();
-    return res.status(200).json({
-      message: `Vehicle update ${action}d successfully`,
-      vehicle
-    });
-  }
+}
   
 
 
