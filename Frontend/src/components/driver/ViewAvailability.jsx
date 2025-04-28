@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Notification from '../Notification';
+import { FaDownload } from 'react-icons/fa';
 
 const API_BASE_URL = "http://localhost:4000/api";
 
@@ -129,6 +130,41 @@ const ViewAvailability = () => {
         return "";
     };
 
+    const downloadAvailabilityCSV = () => {
+        if (schedule.length === 0) {
+            setNotification({
+                message: 'No availability data to download',
+                type: 'error'
+            });
+            return;
+        }
+
+        // Create CSV content
+        const headers = ['Date', 'Availability Status'];
+        const csvContent = [
+            headers.join(','),
+            ...schedule.map(item => [
+                format(new Date(item.date), 'yyyy-MM-dd'),
+                item.availability ? 'Available' : 'Not Available'
+            ].join(','))
+        ].join('\n');
+
+        // Create and download file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `availability_schedule_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setNotification({
+            message: 'Availability schedule downloaded successfully',
+            type: 'success'
+        });
+    };
+
     if (!driverId) {
         return (
             <div className="bg-red-100 text-red-700 p-4 rounded-md">
@@ -224,7 +260,16 @@ const ViewAvailability = () => {
 
                 {/* Schedule List */}
                 <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-700 mb-4">Upcoming Schedule</h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-gray-700">Upcoming Schedule</h2>
+                        <button
+                            onClick={downloadAvailabilityCSV}
+                            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
+                        >
+                            <FaDownload />
+                            <span>Download Schedule</span>
+                        </button>
+                    </div>
                     <div className="space-y-2">
                         {schedule.length === 0 ? (
                             <p className="text-gray-500">No availability set for upcoming dates.</p>
