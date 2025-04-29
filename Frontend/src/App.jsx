@@ -1,33 +1,60 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import UserDashboard from './pages/user/userDashboard';
+import './index.css';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthContext';
+
+// Page imports
 import HomePage from './pages/home/homePage';
 import LoginPage from './pages/login/login';
-import {Toaster} from "react-hot-toast";
 import AdminDashboard from './pages/admin/adminDashboard';
 import TechDashboard from './pages/technician/techDashboard';
-import DriverDashboard from './pages/driver/driverDashboard';
 import RegisterPage from './pages/login/registrationPage';
+import ContactPage from './pages/home/contact';
+import About from './pages/about/About';
+import Careers from './pages/careers/Careers';
+
+// Component imports
 import Layout from './components/Layout';
-import { AuthProvider } from './context/AuthContext';
+import DriverDashboard from './components/driver/driverDash';
+import DriverRegister from './components/driver/driverRegistration';
+import AllDrivers from './components/driver/allDrivers';
+import DriverProfile from './components/driver/driverProfile';
+import DriverProfileUpdate from './components/driver/driverProfileupdate';
+import DriverAvailability from './components/driver/DriverAvailability';
+import ViewAvailability from './components/driver/ViewAvailability';
+import AvailableDrivers from './components/driver/AvailableDrivers';
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter path ="/*">
-        <Toaster/>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/user/*" element={<UserDashboard/>} />
-            <Route path="/*" element={<HomePage/>} />
-            <Route path="/login" element={<LoginPage/>} />
-            <Route path="/admin/*" element={<AdminDashboard/>}/>
-            <Route path="/Tech" element={<TechDashboard/>} />
-            <Route path="/Driver" element={<DriverDashboard/>} />
-            <Route path="/user/add" element={<RegisterPage/>} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Toaster/>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<HomePage/>} />
+              <Route path="/contact" element={<ContactPage/>} />
+              <Route path="/about" element={<About/>} />
+              <Route path="/careers" element={<Careers/>} />
+              <Route path="/login" element={<LoginPage/>} />
+              <Route path="/admin/*" element={<AdminDashboard/>}/>
+              <Route path="/Tech" element={<TechDashboard/>} />
+              <Route path="/register" element={<DriverRegister />} />
+              <Route path="/drivers" element={<AllDrivers />} />
+              <Route path="/driverprofile/:id" element={<DriverProfile />} />     
+              <Route path="/driverprofile/update/:id" element={<DriverProfileUpdate />} /> 
+              <Route path="/driver/availability" element={<DriverAvailability />} />
+              <Route path="/driver/availability/view" element={<ViewAvailability />} />
+              <Route path="/admin/drivers/available" element={<AvailableDrivers />} />
+              <Route path="/dashboard/:id" element={<DriverDashboard />} />
+              <Route path="/user/add" element={<RegisterPage/>} />
+              <Route path="*" element={<HomePage/>} />
+            </Route>
+          </Routes>
+        </div>
+      </Router>
     </AuthProvider>
   );
 }
