@@ -18,10 +18,10 @@ export default function Header() {
       {/* Center: Navigation Items */}
       <nav className="flex items-center space-x-8 mx-auto">
         <Link 
-          to="/cars" 
+          to="/" 
           className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
         >
-          Cars
+          Home
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
         </Link>
         <Link 
@@ -32,25 +32,18 @@ export default function Header() {
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
         </Link>
         <Link 
+          to="/careers" 
+          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+        >
+          Careers
+          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+        </Link>
+        <Link 
           to="/contact" 
           className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
         >
           Contact
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
-        </Link>
-        <Link 
-          to="/blog" 
-          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
-        >
-          Blog
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
-        </Link>
-        <Link 
-          to="/register" 
-          className="flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-600 transition-colors duration-200"
-        >
-          <FaCar className="text-xl" />
-          <span>Driver Registration</span>
         </Link>
       </nav>
 

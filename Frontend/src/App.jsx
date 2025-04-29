@@ -12,10 +12,11 @@ import AdminDashboard from './pages/admin/adminDashboard';
 import TechDashboard from './pages/technician/techDashboard';
 import RegisterPage from './pages/login/registrationPage';
 import ContactPage from './pages/home/contact';
+import About from './pages/about/About';
+import Careers from './pages/careers/Careers';
 
 // Component imports
 import Layout from './components/Layout';
-import Navigation from './components/Navigation';
 import DriverDashboard from './components/driver/driverDash';
 import DriverRegister from './components/driver/driverRegistration';
 import AllDrivers from './components/driver/allDrivers';
@@ -30,12 +31,13 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="min-h-screen bg-gray-50">
-          <Navigation />
           <Toaster/>
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage/>} />
               <Route path="/contact" element={<ContactPage/>} />
+              <Route path="/about" element={<About/>} />
+              <Route path="/careers" element={<Careers/>} />
               <Route path="/login" element={<LoginPage/>} />
               <Route path="/admin/*" element={<AdminDashboard/>}/>
               <Route path="/Tech" element={<TechDashboard/>} />

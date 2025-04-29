@@ -27,6 +27,15 @@ const Navigation = () => {
                             <Link to="/" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
                                 Home
                             </Link>
+                            <Link to="/about" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                                About
+                            </Link>
+                            <Link to="/careers" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                                Careers
+                            </Link>
+                            <Link to="/contact" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                                Contact
+                            </Link>
                             
                             {isLoggedIn && (
                                 <>
@@ -63,9 +72,6 @@ const Navigation = () => {
                             <div className="flex space-x-4">
                                 <Link to="/login" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
                                     Login
-                                </Link>
-                                <Link to="/register" className="bg-blue-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-600">
-                                    Register as Driver
                                 </Link>
                             </div>
                         )}
