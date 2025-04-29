@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaCar } from "react-icons/fa";
 import Logo from "./Logo"; // Make sure this path is correct
 import { useAuth } from "../context/AuthContext";
 
@@ -19,9 +19,11 @@ export default function Header() {
       <nav className="flex items-center space-x-8 mx-auto">
         <Link 
           to="/vehicles" 
+          to="/" 
           className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
         >
           Vehicles
+          Home
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
         </Link>
 
@@ -57,6 +59,26 @@ export default function Header() {
           </Link>
         )}
         
+          to="/about" 
+          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+        >
+          About
+          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+        </Link>
+        <Link 
+          to="/careers" 
+          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+        >
+          Careers
+          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+        </Link>
+        <Link 
+          to="/contact" 
+          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+        >
+          Contact
+          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+        </Link>
       </nav>
 
       {/* Right side: User related elements */}
