@@ -5,6 +5,7 @@ import VehicleUpdateRequests from "./VehicleUpdateRequests";
 import AdminVehicleApprovals from "./AdminVehicleApprovals";
 import SparePartsInventory from "./SparePartsInventory";
 import VerifyReservation from "./verifyReservation";
+import DecorationsPage from "../decorations/admin/DecorationsPage";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -90,6 +91,15 @@ export default function AdminDashboard() {
           </div>
           <div className="w-fit">
             <Link 
+              to="/admin/decorations" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              Decorations
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${isActive('/admin/decorations') ? 'w-full' : 'w-0'}`}></span>
+            </Link>
+          </div>
+          <div className="w-fit">
+            <Link 
               to="/admin/reports" 
               className="block text-[26px] font-medium text-black relative group"
             >
@@ -124,6 +134,7 @@ export default function AdminDashboard() {
           <Route path="vehicle-updates" element={<VehicleUpdateRequests />} />
           <Route path="vehicle-approvals" element={<AdminVehicleApprovals />} />
           <Route path="spare-parts" element={<SparePartsInventory />} />
+          <Route path="decorations" element={<DecorationsPage />} />
           <Route path="reports" element={<h1>Reports Content</h1>} />
         </Routes>
       </div>

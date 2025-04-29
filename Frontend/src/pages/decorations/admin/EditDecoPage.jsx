@@ -11,6 +11,7 @@ export default class EditDeco extends Component {
       price: "",
       description: "",
       images: "",
+      errors: {}
     };
   }
 
@@ -36,112 +37,162 @@ export default class EditDeco extends Component {
   }
 
   handleInputChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Special handling for price field
+    if (name === "price") {
+      // Only allow numbers and decimal point
+      if (value === "" || /^\d*\.?\d*$/.test(value)) {
+        this.setState({ [name]: value, errors: { ...this.state.errors, [name]: "" } });
+      }
+    } else {
+      this.setState({ [name]: value, errors: { ...this.state.errors, [name]: "" } });
+    }
+  };
+
+  validateForm = () => {
+    const errors = {};
+    const { type, price, description, images } = this.state;
+
+    if (!type) errors.type = "Type is required";
+    if (!price) errors.price = "Price is required";
+    if (price) {
+      const numericValue = parseFloat(price);
+      if (isNaN(numericValue)) {
+        errors.price = "Please enter a valid number";
+      } else if (numericValue <= 0) {
+        errors.price = "Price must be greater than 0";
+      }
+    }
+    if (!description) errors.description = "Description is required";
+    if (!images) errors.images = "Image URL is required";
+
+    this.setState({ errors });
+    return Object.keys(errors).length === 0;
   };
 
   handleSubmit = (e) => {
     e.preventDefault();
     const id = window.location.pathname.split("/")[2];
 
-    const updatedDeco = {
-      dId: this.state.dId,
-      type: this.state.type,
-      price: this.state.price,
-      description: this.state.description,
-      images: this.state.images,
-    };
+    if (this.validateForm()) {
+      const updatedDeco = {
+        dId: this.state.dId,
+        type: this.state.type,
+        price: this.state.price,
+        description: this.state.description,
+        images: this.state.images,
+      };
 
-    axios
-      .put(`http://localhost:4000/api/deco/update/${id}`, updatedDeco)
-      .then((res) => {
-        if (res.data.success) {
-          alert("Decoration Updated Successfully!");
-          window.location.href = "/deco"; // Redirect back to decorations list
-        }
-      })
-      .catch((error) => {
-        console.error("Error updating decoration:", error);
-      });
+      axios
+        .put(`http://localhost:4000/api/deco/update/${id}`, updatedDeco)
+        .then((res) => {
+          if (res.data.success) {
+            alert("Decoration Updated Successfully!");
+            window.location.href = "/deco";
+          }
+        })
+        .catch((error) => {
+          console.error("Error updating decoration:", error);
+        });
+    }
   };
 
   render() {
+    const { errors } = this.state;
+
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-        <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-lg">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Edit Decoration</h2>
-          <form onSubmit={this.handleSubmit} className="space-y-4">
-            {/* Decoration ID (Disabled) */}
-            <div>
-              <label className="block text-gray-700 font-medium">Decoration ID</label>
-              <input
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg bg-gray-200 text-gray-700 cursor-not-allowed"
-                name="dId"
-                value={this.state.dId}
-                disabled
-              />
-            </div>
+      <div className="min-h-screen bg-white p-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Edit Decoration</h2>
+            
+            <form onSubmit={this.handleSubmit} className="space-y-6">
+              {/* Decoration ID (Disabled) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Decoration ID</label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+                  name="dId"
+                  value={this.state.dId}
+                  disabled
+                />
+              </div>
 
-            {/* Type */}
-            <div>
-              <label className="block text-gray-700 font-medium">Type</label>
-              <input
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                name="type"
-                value={this.state.type}
-                onChange={this.handleInputChange}
-                required
-              />
-            </div>
+              {/* Type Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <input
+                  type="text"
+                  className={`w-full px-4 py-2 border ${errors.type ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-mygreen focus:border-transparent`}
+                  name="type"
+                  value={this.state.type}
+                  onChange={this.handleInputChange}
+                  placeholder="Enter decoration type"
+                  required
+                />
+                {errors.type && <p className="mt-1 text-sm text-red-500">{errors.type}</p>}
+              </div>
 
-            {/* Price */}
-            <div>
-              <label className="block text-gray-700 font-medium">Price (LKR)</label>
-              <input
-                type="number"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                name="price"
-                value={this.state.price}
-                onChange={this.handleInputChange}
-                required
-              />
-            </div>
+              {/* Price Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price (LKR)</label>
+                <input
+                  type="text"
+                  pattern="[0-9]*[.]?[0-9]*"
+                  inputMode="decimal"
+                  className={`w-full px-4 py-2 border ${errors.price ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-mygreen focus:border-transparent`}
+                  name="price"
+                  value={this.state.price}
+                  onChange={this.handleInputChange}
+                  placeholder="Enter price"
+                  required
+                />
+                {errors.price && <p className="mt-1 text-sm text-red-500">{errors.price}</p>}
+              </div>
 
-            {/* Description */}
-            <div>
-              <label className="block text-gray-700 font-medium">Description</label>
-              <textarea
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                name="description"
-                value={this.state.description}
-                onChange={this.handleInputChange}
-                rows="3"
-                required
-              />
-            </div>
+              {/* Description Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea
+                  className={`w-full px-4 py-2 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-mygreen focus:border-transparent`}
+                  name="description"
+                  value={this.state.description}
+                  onChange={this.handleInputChange}
+                  placeholder="Enter decoration description"
+                  rows="4"
+                  required
+                />
+                {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
+              </div>
 
-            {/* Image URL */}
-            <div>
-              <label className="block text-gray-700 font-medium">Image URL</label>
-              <input
-                type="text"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                name="images"
-                value={this.state.images}
-                onChange={this.handleInputChange}
-                required
-              />
-            </div>
+              {/* Image URL Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                <input
+                  type="text"
+                  className={`w-full px-4 py-2 border ${errors.images ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-mygreen focus:border-transparent`}
+                  name="images"
+                  value={this.state.images}
+                  onChange={this.handleInputChange}
+                  placeholder="Enter image URL"
+                  required
+                />
+                {errors.images && <p className="mt-1 text-sm text-red-500">{errors.images}</p>}
+              </div>
 
-            {/* Update Button */}
-            <button
-              type="submit"
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition"
-            >
-              Update Decoration
-            </button>
-          </form>
+              {/* Update Button */}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-mygreen text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+                >
+                  Update Decoration
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     );

@@ -1,11 +1,27 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaCar } from "react-icons/fa";
 import Logo from "./Logo"; // Make sure this path is correct
 import { useAuth } from "../context/AuthContext";
+import { useState } from 'react';
 
 export default function Header() {
   const { isLoggedIn, userProfile } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleReservationClick = () => {
+    setShowPopup(true);
+  };
+
+  const handleProceedToVehicles = () => {
+    setShowPopup(false);
+    navigate('/vehicles');
+  };
+
+  const handleClosePopup = () => {
+    setShowPopup(false);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] h-[84px] px-10 flex items-center justify-between">
@@ -74,7 +90,7 @@ export default function Header() {
           }`}></span>
         </Link>
         <Link 
-          to="/resForm" 
+          onClick={handleReservationClick}
           className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${
             location.pathname === '/resForm' ? 'text-black' : ''
           }`}
@@ -170,6 +186,32 @@ export default function Header() {
           </>
         )}
       </div>
+
+      {/* Popup Box */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Let's First Select a Vehicle</h2>
+            <p className="text-gray-600 mb-6">
+              To make a reservation, you'll need to select a vehicle from our fleet first.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={handleClosePopup}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProceedToVehicles}
+                className="px-4 py-2 bg-mygreen text-white rounded hover:bg-green-600"
+              >
+                Proceed to Vehicles
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -31,6 +31,7 @@ const ReservationForm = () => {
   const [showForm, setShowForm] = useState(false);
   const [showDecorationModal, setShowDecorationModal] = useState(false);
   const [availableDecorations, setAvailableDecorations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const { id } = useParams();
   const [drivers, setDrivers] = useState([]);
   const [message, setMessage] = useState(null);
@@ -46,14 +47,23 @@ const ReservationForm = () => {
       return;
     }
 
+    console.log("Location state:", location.state);
+    console.log("Vehicle details:", location.state?.vehicleDetails);
+
     if (location.state?.vehicleDetails) {
-      console.log("Vehicle Details:", location.state.vehicleDetails);
+      console.log("Setting vehicle details:", {
+        model: location.state.vehicleDetails.model,
+        registrationNumber: location.state.vehicleDetails.registrationNumber
+      });
+      
       setFormData(prev => ({
         ...prev,
-        vehicleNum: location.state.vehicleDetails.registrationNumber,
+        vehicleNum: location.state.vehicleDetails.model,
         model: location.state.vehicleDetails.model,
         registrationNumber: location.state.vehicleDetails.registrationNumber
       }));
+    } else {
+      console.warn("No vehicle details found in location state");
     }
 
     // Check if returning from decorations page with selected decorations
@@ -185,7 +195,7 @@ const ReservationForm = () => {
       setFormData((prev) => ({
         ...prev,
         wantedtime: value,
-        amount: time * 100,
+        amount: time * 500,
       }));
     } else if (name === "reservationType") {
       setFormData((prev) => ({
@@ -196,6 +206,32 @@ const ReservationForm = () => {
       }));
     } else if (type === "checkbox") {
       setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else if (name === "wanteddate") {
+      // Get tomorrow's date
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      // Convert selected date to Date object
+      const selectedDate = new Date(value);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      // Only update if selected date is tomorrow or later
+      if (selectedDate >= tomorrow) {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        // Clear date error if it exists
+        if (errors.wanteddate) {
+          setErrors(prev => ({ ...prev, wanteddate: null }));
+        }
+      } else {
+        // Set error for invalid date
+        setErrors(prev => ({ 
+          ...prev, 
+          wanteddate: "Please select a date from tomorrow onwards" 
+        }));
+        // Keep the previous valid date if it exists
+        setFormData(prev => ({ ...prev, wanteddate: prev.wanteddate }));
+      }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -231,10 +267,12 @@ const ReservationForm = () => {
     try {
         const token = localStorage.getItem("token");
         if (!token) {
-            console.log("No token found");
+            console.log("No token found in localStorage");
             navigate('/login');
             return;
         }
+
+        console.log("Token found:", token);
 
         const userId = localStorage.getItem("userId");
         if (!userId) {
@@ -283,7 +321,9 @@ const ReservationForm = () => {
             }
         );
 
+        console.log("Response status:", response.status);
         const result = await response.json();
+        console.log("Response data:", result);
 
         if (!response.ok) {
             console.error("Server error response:", result);
@@ -334,6 +374,11 @@ const ReservationForm = () => {
     }
   };
 
+  const filteredDecorations = availableDecorations.filter(decoration => 
+    decoration.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    decoration.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div
       style={{
@@ -347,7 +392,15 @@ const ReservationForm = () => {
         marginTop: "-50px",
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
+      <h2 style={{ 
+        textAlign: "center", 
+        marginBottom: "30px",
+        fontSize: "42px",
+        fontWeight: "800",
+        color: "#333",
+        textTransform: "uppercase",
+        letterSpacing: "1px"
+      }}>
         Reservation Form
       </h2>
       <Notification message={notification.message} type={notification.type} />
@@ -490,7 +543,7 @@ const ReservationForm = () => {
         <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
           <div style={{ flex: 1 }}>
             <label style={{ display: "block", marginBottom: "5px" }}>
-              Vehicle Number:
+              Vehicle Name:
             </label>
             <input
               type="text"
@@ -530,33 +583,13 @@ const ReservationForm = () => {
                   name="needsDriver"
                   value="false"
                   checked={formData.needsDriver === false}
-                  onChange={() => setFormData(prev => ({ ...prev, needsDriver: false, driverID: "" }))}
+                  onChange={() => setFormData(prev => ({ ...prev, needsDriver: false }))}
                   className="mr-2"
                 />
                 No, I don't need a driver
               </label>
             </div>
           </div>
-
-          {formData.needsDriver && (
-            <div>
-              <label className="block text-gray-700 mb-2">Select Driver:</label>
-              <select
-                name="driverID"
-                value={formData.driverID}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-              >
-                <option value="">Select a driver</option>
-                {drivers.map((driver) => (
-                  <option key={driver._id} value={driver._id}>
-                    {driver.firstName} {driver.lastName}
-                  </option>
-                ))}
-              </select>
-              {errors.driverID && <p className="text-red-500 text-sm">{errors.driverID}</p>}
-            </div>
-          )}
         </div>
 
         {/* Decoration Requirement Section - Only for Wedding */}
@@ -602,25 +635,25 @@ const ReservationForm = () => {
 
             {/* Selected Decorations Summary on Main Form */}
             {formData.wantsDecoration && formData.decorations.length > 0 && (
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-gray-700">Selected Decorations</h3>
+              <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">Selected Decorations</h3>
                   <button
                     onClick={() => setShowDecorationModal(true)}
-                    className="text-blue-500 hover:text-blue-700 text-sm"
+                    className="text-mygreen hover:text-green-700 text-sm font-medium"
                   >
                     Edit Decorations
                   </button>
                 </div>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {formData.decorations.map((decoration) => (
-                    <li key={decoration._id} className="flex justify-between items-center">
-                      <span className="text-gray-600">{decoration.type}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-700">LKR {decoration.price}</span>
+                    <li key={decoration._id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-700">{decoration.type}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium text-gray-800">LKR {decoration.price}</span>
                         <button
                           onClick={() => handleRemoveDecoration(decoration._id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50"
                         >
                           ×
                         </button>
@@ -628,8 +661,9 @@ const ReservationForm = () => {
                     </li>
                   ))}
                 </ul>
-                <div className="mt-2 font-semibold text-gray-800">
-                  Total Decoration Cost: LKR {formData.decorations.reduce((sum, d) => sum + d.price, 0)}
+                <div className="mt-4 pt-3 border-t border-gray-200">
+                  <span className="font-semibold text-gray-800">Total Decoration Cost: </span>
+                  <span className="font-bold text-mygreen">LKR {formData.decorations.reduce((sum, d) => sum + d.price, 0)}</span>
                 </div>
               </div>
             )}
@@ -646,15 +680,20 @@ const ReservationForm = () => {
               name="wanteddate"
               value={formData.wanteddate}
               onChange={handleChange}
+              min={(() => {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                return tomorrow.toISOString().split('T')[0];
+              })()}
               style={{
                 width: "100%",
                 padding: "10px",
                 borderRadius: "6px",
-                border: "1px solid #ccc",
+                border: errors.wanteddate ? "1px solid #dc3545" : "1px solid #ccc",
               }}
             />
             {errors.wanteddate && (
-              <div style={{ color: "red", fontSize: "12px" }}>
+              <div style={{ color: "#dc3545", fontSize: "12px", marginTop: "4px" }}>
                 {errors.wanteddate}
               </div>
             )}
@@ -772,24 +811,35 @@ const ReservationForm = () => {
       {showDecorationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Available Decorations</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Available Decorations</h2>
               <button
                 onClick={() => setShowDecorationModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
               >
                 ×
               </button>
             </div>
 
+            {/* Search Input */}
+            <div className="mb-6">
+              <input
+                type="text"
+                placeholder="Search decorations by type or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-mygreen focus:border-transparent"
+              />
+            </div>
+
             {/* Selected Decorations Summary */}
             {formData.decorations.length > 0 && (
-              <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold">Selected Decorations</h3>
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-800">Selected Decorations</h3>
                   <button
                     onClick={handleClearDecorations}
-                    className="text-red-500 hover:text-red-700 text-sm"
+                    className="text-red-500 hover:text-red-700 text-sm font-medium"
                   >
                     Clear All
                   </button>
@@ -818,22 +868,28 @@ const ReservationForm = () => {
 
             {/* Available Decorations Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {availableDecorations.map((decoration) => (
-                <div
-                  key={decoration._id}
-                  className="bg-white p-4 rounded-lg shadow border"
-                >
-                  <h3 className="font-semibold">{decoration.type}</h3>
-                  <p className="text-sm text-gray-600">{decoration.description}</p>
-                  <p className="text-blue-600 font-semibold mt-2">LKR {decoration.price}</p>
-                  <button
-                    onClick={() => handleAddDecoration(decoration)}
-                    className="mt-2 w-full bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600"
+              {filteredDecorations.length > 0 ? (
+                filteredDecorations.map((decoration) => (
+                  <div
+                    key={decoration._id}
+                    className="bg-white p-4 rounded-lg shadow border"
                   >
-                    Add
-                  </button>
+                    <h3 className="font-semibold">{decoration.type}</h3>
+                    <p className="text-sm text-gray-600">{decoration.description}</p>
+                    <p className="text-blue-600 font-semibold mt-2">LKR {decoration.price}</p>
+                    <button
+                      onClick={() => handleAddDecoration(decoration)}
+                      className="mt-2 w-full bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600"
+                    >
+                      Add
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-4 text-gray-500">
+                  No decorations found matching your search.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

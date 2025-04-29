@@ -7,7 +7,6 @@ const AdminReservations = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('pending'); // Default to pending tab
   const { userProfile, isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -28,7 +27,7 @@ const AdminReservations = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/reservation', {
+      const response = await fetch('http://localhost:4000/api/reservation', {
         headers: { 
           'Authorization': `Bearer ${token}` 
         }
@@ -109,17 +108,9 @@ const AdminReservations = () => {
     }
   };
 
-  const filteredReservations = reservations.filter(reservation => {
-    switch (activeTab) {
-      case 'approved':
-        return reservation.status === 'approved';
-      case 'rejected':
-        return reservation.status === 'rejected';
-      case 'pending':
-      default:
-        return !reservation.status || reservation.status === 'pending';
-    }
-  });
+  const pendingReservations = reservations.filter(res => !res.status || res.status === 'pending');
+  const approvedReservations = reservations.filter(res => res.status === 'approved');
+  const rejectedReservations = reservations.filter(res => res.status === 'rejected');
 
   if (loading) return (
     <div className="p-8">
@@ -138,49 +129,12 @@ const AdminReservations = () => {
     </div>
   );
 
-  return (
-    <div className="p-8">
-      <h1 className="text-[38px] font-bold mb-8">All Reservations</h1>
-      
-      {/* Tabs */}
-      <div className="mb-6 border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`${
-              activeTab === 'pending'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Pending
-          </button>
-          <button
-            onClick={() => setActiveTab('approved')}
-            className={`${
-              activeTab === 'approved'
-                ? 'border-green-500 text-green-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Approved
-          </button>
-          <button
-            onClick={() => setActiveTab('rejected')}
-            className={`${
-              activeTab === 'rejected'
-                ? 'border-red-500 text-red-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Rejected
-          </button>
-        </nav>
-      </div>
-      
-      {filteredReservations.length === 0 ? (
+  const ReservationTable = ({ reservations, title, status }) => (
+    <div className="mb-12 border border-gray-200 rounded-lg p-6 bg-gray-50">
+      <h2 className="text-2xl font-bold mb-4">{title}</h2>
+      {reservations.length === 0 ? (
         <div className="text-center text-gray-500 text-lg">
-          No {activeTab} reservations found
+          No {status} reservations found
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -212,15 +166,12 @@ const AdminReservations = () => {
                   Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredReservations.map((reservation) => (
+              {reservations.map((reservation) => (
                 <tr key={reservation._id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {reservation.rId}
@@ -246,33 +197,22 @@ const AdminReservations = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     LKR {reservation.price}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      reservation.status === 'approved' 
-                        ? 'bg-green-100 text-green-800'
-                        : reservation.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {reservation.status || 'Pending'}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    {reservation.status !== 'approved' && (
-                      <button
-                        onClick={() => handleStatusChange(reservation._id, 'approved')}
-                        className="text-green-600 hover:text-green-900"
-                      >
-                        Approve
-                      </button>
-                    )}
-                    {reservation.status !== 'rejected' && (
-                      <button
-                        onClick={() => handleStatusChange(reservation._id, 'rejected')}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Reject
-                      </button>
+                    {status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleStatusChange(reservation._id, 'approved')}
+                          className="text-green-600 hover:text-green-900"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleStatusChange(reservation._id, 'rejected')}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Reject
+                        </button>
+                      </>
                     )}
                     <button
                       onClick={() => handleDelete(reservation._id)}
@@ -287,6 +227,30 @@ const AdminReservations = () => {
           </table>
         </div>
       )}
+    </div>
+  );
+
+  return (
+    <div className="p-8">
+      <h1 className="text-[38px] font-bold mb-8">All Reservations</h1>
+      
+      <ReservationTable 
+        reservations={pendingReservations} 
+        title="Pending Reservations" 
+        status="pending" 
+      />
+      
+      <ReservationTable 
+        reservations={approvedReservations} 
+        title="Approved Reservations" 
+        status="approved" 
+      />
+      
+      <ReservationTable 
+        reservations={rejectedReservations} 
+        title="Rejected Reservations" 
+        status="rejected" 
+      />
     </div>
   );
 };

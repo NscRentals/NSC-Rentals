@@ -207,7 +207,14 @@ const VehicleDetails = () => {
                   )}
                   {vehicle.availabilityStatus === 'Available' && !isAdmin && vehicle.owner !== userProfile?._id && (
                     <button
-                      onClick={() => navigate(`/reservation/${vehicle._id}`)}
+                      onClick={() => navigate(`/reservation/${vehicle._id}`, { 
+                        state: { 
+                          vehicleDetails: {
+                            model: vehicle.model,
+                            registrationNumber: vehicle.registrationNumber
+                          }
+                        }
+                      })}
                       className="px-6 py-2 bg-mygreen text-white rounded-full hover:bg-opacity-90 flex items-center gap-2"
                     >
                       Rent Vehicle

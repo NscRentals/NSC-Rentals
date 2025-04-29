@@ -12,12 +12,7 @@ export default function VerifyReservation() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log('VerifyReservation component mounted');
-        console.log('User profile:', userProfile);
-        console.log('Is logged in:', isLoggedIn);
-        
         if (!isLoggedIn || userProfile?.type !== 'admin') {
-            console.log('User not authorized, redirecting to login');
             navigate('/login');
             return;
         }
@@ -27,24 +22,17 @@ export default function VerifyReservation() {
     const fetchUnverifiedReservations = async () => {
         try {
             const token = localStorage.getItem('token');
-            console.log('Fetching unverified reservations...');
-            
             if (!token) {
-                console.log('No token found, redirecting to login');
                 toast.error('Please log in to view reservations');
                 navigate('/login');
                 return;
             }
 
-            console.log('Making API call to fetch unverified reservations');
             const response = await axios.get('http://localhost:4000/api/reservation/unverified', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
-            console.log('API Response:', response.data);
             const unverifiedReservations = response.data.reservations || [];
-            console.log('Number of unverified reservations:', unverifiedReservations.length);
-            
             setReservations(unverifiedReservations);
             setLoading(false);
 
@@ -53,9 +41,6 @@ export default function VerifyReservation() {
             }
         } catch (err) {
             console.error('Error fetching reservations:', err);
-            console.error('Error response:', err.response?.data);
-            console.error('Error status:', err.response?.status);
-            
             if (err.response?.status === 401) {
                 toast.error('Session expired. Please log in again.');
                 logout();
@@ -71,21 +56,17 @@ export default function VerifyReservation() {
     const handleApprove = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            console.log('Approving reservation:', id);
-            
             const response = await axios.post(
                 `http://localhost:4000/api/reservation/${id}/verify`,
                 { action: 'approve' },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            console.log('Approve response:', response.data);
             toast.success('Reservation approved successfully');
-            
-            // Remove the approved reservation from the list
-            setReservations(prev => prev.filter(res => res._id !== id));
+            setReservations(prev => prev.map(res => 
+                res._id === id ? { ...res, status: 'approved' } : res
+            ));
         } catch (err) {
-            console.error('Error approving reservation:', err);
             if (err.response?.status === 401) {
                 toast.error('Session expired. Please log in again.');
                 logout();
@@ -99,21 +80,17 @@ export default function VerifyReservation() {
     const handleReject = async (id) => {
         try {
             const token = localStorage.getItem('token');
-            console.log('Rejecting reservation:', id);
-            
             const response = await axios.post(
                 `http://localhost:4000/api/reservation/${id}/verify`,
                 { action: 'reject' },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            console.log('Reject response:', response.data);
             toast.success('Reservation rejected successfully');
-            
-            // Remove the rejected reservation from the list
-            setReservations(prev => prev.filter(res => res._id !== id));
+            setReservations(prev => prev.map(res => 
+                res._id === id ? { ...res, status: 'rejected' } : res
+            ));
         } catch (err) {
-            console.error('Error rejecting reservation:', err);
             if (err.response?.status === 401) {
                 toast.error('Session expired. Please log in again.');
                 logout();
@@ -124,8 +101,22 @@ export default function VerifyReservation() {
         }
     };
 
-    if (loading) return <div className="p-8">Loading reservations...</div>;
-    if (error) return <div className="p-8 text-red-500">{error}</div>;
+    if (loading) return (
+        <div className="p-8">
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+            </div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="p-8">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong className="font-bold">Error: </strong>
+                <span className="block sm:inline">{error}</span>
+            </div>
+        </div>
+    );
 
     return (
         <div className="p-8">
@@ -136,7 +127,7 @@ export default function VerifyReservation() {
                     No pending reservations to verify
                 </div>
             ) : (
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="bg-white rounded-lg shadow-md overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
@@ -165,17 +156,20 @@ export default function VerifyReservation() {
                                     Price
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {reservations.map((reservation) => (
-                                <tr key={reservation._id}>
+                                <tr key={reservation._id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {reservation.rId}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {reservation.name}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -194,21 +188,36 @@ export default function VerifyReservation() {
                                         {new Date(reservation.endDate).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        ${reservation.price}
+                                        LKR {reservation.price}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                            reservation.status === 'approved' 
+                                                ? 'bg-green-100 text-green-800'
+                                                : reservation.status === 'rejected'
+                                                ? 'bg-red-100 text-red-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                        }`}>
+                                            {reservation.status || 'Pending'}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button
-                                            className="text-green-600 hover:text-green-900 mr-4"
-                                            onClick={() => handleApprove(reservation._id)}
-                                        >
-                                            Approve
-                                        </button>
-                                        <button
-                                            className="text-red-600 hover:text-red-900"
-                                            onClick={() => handleReject(reservation._id)}
-                                        >
-                                            Reject
-                                        </button>
+                                        {!reservation.status && (
+                                            <>
+                                                <button
+                                                    onClick={() => handleApprove(reservation._id)}
+                                                    className="text-green-600 hover:text-green-900 mr-4"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => handleReject(reservation._id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

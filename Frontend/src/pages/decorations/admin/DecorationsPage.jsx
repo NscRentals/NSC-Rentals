@@ -44,61 +44,69 @@ const DecorationsPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Decorations List</h2>
+    <div className="min-h-screen bg-white p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-800">Decorations Management</h2>
+          <button
+            onClick={handleAddDecorationClick}
+            className="bg-mygreen text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+          >
+            Add New Decoration
+          </button>
+        </div>
 
-      {/* Decorations Table */}
-      <div className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6">
-        {decorations.length > 0 ? (
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2 text-left text-xs text-gray-500">ID</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Type</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Price</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Description</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Image URL</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {decorations.map((deco) => (
-                <tr key={deco.dId} className="border-t">
-                  <td className="border border-gray-300 px-4 py-2 text-xs text-gray-500">{deco.dId}</td>
-                  <td className="border border-gray-300 px-4 py-2 font-semibold">{deco.type}</td>
-                  <td className="border border-gray-300 px-4 py-2">LKR {deco.price}</td>
-                  <td className="border border-gray-300 px-4 py-2">{deco.description}</td>
-                  <td className="border border-gray-300 px-4 py-2 text-blue-500 break-all">{deco.images}</td>
-                  <td className="border border-gray-300 px-4 py-2 flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(deco._id)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(deco._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="text-center text-gray-600">No decorations available.</p>
-        )}
+        {/* Decorations Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          {decorations.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image URL</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {decorations.map((deco) => (
+                    <tr key={deco.dId} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{deco.dId}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{deco.type}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">LKR {deco.price}</td>
+                      <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{deco.description}</td>
+                      <td className="px-6 py-4 text-sm text-blue-500 break-all max-w-xs truncate">{deco.images}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => handleEdit(deco._id)}
+                            className="text-mygreen hover:text-green-700"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(deco._id)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No decorations available.</p>
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Add Decoration Button (Bottom) */}
-      <button
-        onClick={handleAddDecorationClick}
-        className="mt-6 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
-      >
-        Add Decoration
-      </button>
     </div>
   );
 };

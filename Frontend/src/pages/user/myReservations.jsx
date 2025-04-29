@@ -9,6 +9,14 @@ const MyReservations = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const calculateTotalCost = (reservation) => {
+    const basePrice = parseFloat(reservation.price) || 0;
+    const decorationCost = reservation.decorations?.reduce((total, dec) => {
+      return total + (parseFloat(dec.price) || 0);
+    }, 0) || 0;
+    return basePrice + decorationCost;
+  };
+
   useEffect(() => {
     const fetchUserAndReservations = async () => {
       try {
@@ -133,10 +141,30 @@ const MyReservations = () => {
                     <p className="text-gray-600">
                       Service: {reservation.service}
                     </p>
+                    {reservation.decorations && reservation.decorations.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-gray-600 font-medium">Decorations:</p>
+                        <ul className="list-disc list-inside text-gray-600">
+                          {reservation.decorations.map((dec, index) => (
+                            <li key={index}>
+                              {dec.type} - LKR {dec.price}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                   <div className="text-right">
+                    <div className="mb-2">
+                      <p className="text-sm text-gray-600">Base Price: LKR {reservation.price}</p>
+                      {reservation.decorations && reservation.decorations.length > 0 && (
+                        <p className="text-sm text-gray-600">
+                          Decorations: LKR {reservation.decorations.reduce((sum, d) => sum + parseFloat(d.price), 0)}
+                        </p>
+                      )}
+                    </div>
                     <p className="text-lg font-semibold">
-                      ${reservation.price}
+                      Total: LKR {calculateTotalCost(reservation)}
                     </p>
                     <span className={`px-3 py-1 rounded-full text-sm ${
                       reservation.isVerified ? 'bg-green-100 text-green-800' :

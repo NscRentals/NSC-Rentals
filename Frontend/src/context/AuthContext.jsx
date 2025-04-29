@@ -80,8 +80,9 @@ export const AuthProvider = ({ children }) => {
         id: null, 
         type: null 
       });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const login = async (token) => {
