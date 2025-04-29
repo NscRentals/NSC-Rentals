@@ -88,25 +88,31 @@ export default function General() {
                 {/* Name Section */}
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-3">Name</h2>
-                    <p className="text-[28px] font-extralight">{`${user.firstName} ${user.lastName}`}</p>
+                    <p className="text-[28px] font-extralight">{`${user.firstName || ""} ${user.lastName || ""}`.trim() || "Not set"}</p>
                 </div>
 
                 {/* Email Section */}
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-3">Email</h2>
-                    <p className="text-[28px] font-extralight">{user.email}</p>
+                    <p className="text-[28px] font-extralight">{user.email || "Not set"}</p>
                 </div>
 
                 {/* Phone Section */}
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-3">Phone</h2>
-                    <p className="text-[28px] font-extralight">{user.phone}</p>
+                    <p className="text-[28px] font-extralight">{user.phone || "Not set"}</p>
                 </div>
 
                 {/* Address Section */}
                 <div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-3">Address</h2>
-                    <p className="text-[28px] font-extralight">{`${user.address.street}, ${user.address.city}, ${user.address.country}`}</p>
+                    <p className="text-[28px] font-extralight">
+                      {user.address
+                        ? typeof user.address === "object"
+                          ? `${user.address.street || ""}${user.address.city ? ", " + user.address.city : ""}${user.address.country ? ", " + user.address.country : ""}`.replace(/^, |, $/g, "") || "Not set"
+                          : user.address
+                        : "Not set"}
+                    </p>
                 </div>
 
                 {/* Edit Details Link */}

@@ -537,8 +537,8 @@ export async function getUserVehicles(req, res) {
         
         console.log('Fetching vehicles for user:', userId);
 
-        // Find all vehicles owned by this user
-        const vehicles = await Vehicle.find({ owner: userId }).sort({ createdAt: -1 });
+        // Find all vehicles owned by this user and approved
+        const vehicles = await Vehicle.find({ owner: userId, approvalStatus: "Approved" }).sort({ createdAt: -1 });
 
         console.log('Found vehicles:', vehicles.length);
         

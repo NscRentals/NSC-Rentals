@@ -29,7 +29,7 @@ export default function HomePage() {
           <button
             className="mt-auto w-fit px-14 py-6 bg-black text-white text-3xl rounded-full font-light shadow hover:bg-gray-900 transition-all"
             style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 300 }}
-            onClick={() => navigate('/vehicles')}
+            onClick={() => navigate('/reservation/vehicles')}
           >
             Rent a car
           </button>

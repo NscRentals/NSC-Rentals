@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const AcceptedRequests = () => {
   const navigate = useNavigate();
+  const { userProfile, isLoggedIn, logout } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [spareParts, setSpareParts] = useState([]);
@@ -16,21 +18,50 @@ const AcceptedRequests = () => {
   });
 
   useEffect(() => {
+    // Check if user is a technician
+    if (!isLoggedIn) {
+      toast.error('Please log in to access this page');
+      navigate('/login');
+      return;
+    }
+
+    if (userProfile?.type?.toLowerCase() !== 'technician') {
+      toast.error('Only technicians can access this page');
+      navigate('/');
+      return;
+    }
+
     fetchAcceptedRequests();
     fetchSpareParts();
-  }, []);
+  }, [isLoggedIn, userProfile, navigate]);
 
   const fetchSpareParts = async () => {
     try {
-      const token = localStorage.getItem('token');      const response = await axios.get(
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to view spare parts');
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.get(
         'http://localhost:4000/api/maintenance',
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
       setSpareParts(response.data);
     } catch (error) {
-      toast.error('Failed to load spare parts');
+      console.error('Error fetching spare parts:', error);
+      if (error.response?.status === 403) {
+        toast.error('You do not have permission to view spare parts');
+        navigate('/');
+      } else {
+        toast.error('Failed to load spare parts');
+      }
     }
   };
 
@@ -118,10 +149,22 @@ const AcceptedRequests = () => {
         return;
       }
 
+      // Verify token contains technician role
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      if (tokenData.type?.toLowerCase() !== 'technician') {
+        toast.error('Invalid user role. Only technicians can access this page.');
+        logout();
+        navigate('/login');
+        return;
+      }
+
       const response = await axios.get(
         'http://localhost:4000/api/damage-requests/my-assigned',
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -129,7 +172,16 @@ const AcceptedRequests = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching accepted requests:', error);
-      toast.error('Failed to load accepted requests');
+      if (error.response?.status === 403) {
+        toast.error('You do not have permission to view assigned requests');
+        navigate('/');
+      } else if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout();
+        navigate('/login');
+      } else {
+        toast.error('Failed to load accepted requests');
+      }
       setLoading(false);
     }
   };

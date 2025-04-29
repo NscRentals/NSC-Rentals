@@ -185,6 +185,9 @@ export async function acceptDamageRequest(req, res) {
 
     // Update vehicle status
     const vehicle = dr.vehicle;
+    if (!vehicle) {
+      return res.status(500).json({ message: 'Vehicle not found for this request.' });
+    }
     vehicle.availabilityStatus = 'Under Maintenance';
     await vehicle.save();
 

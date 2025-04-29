@@ -3,7 +3,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { RxCross1 } from "react-icons/rx";
-import { FaUser, FaCar } from "react-icons/fa";
+import { FaUser, FaCar, FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 
 const API_BASE_URL = "http://localhost:4000/api";
@@ -12,6 +12,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isDriver, setIsDriver] = useState(false);
+    const [isTechnician, setIsTechnician] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const { login } = useAuth();
@@ -20,7 +21,14 @@ export default function LoginPage() {
         e.preventDefault();
 
         try {
-            const endpoint = isDriver ? `${API_BASE_URL}/driver/login` : `${API_BASE_URL}/users/login`;
+            let endpoint;
+            if (isDriver) {
+                endpoint = `${API_BASE_URL}/driver/login`;
+            } else if (isTechnician) {
+                endpoint = `${API_BASE_URL}/technician/login`;
+            } else {
+                endpoint = `${API_BASE_URL}/users/login`;
+            }
             const response = await axios.post(endpoint, {
                 email,
                 password
@@ -36,35 +44,18 @@ export default function LoginPage() {
                 const userType = user.type.toLowerCase();
                 const from = location.state?.from?.pathname;
 
-                // Use timeout to ensure state is updated
                 setTimeout(() => {
                     if (from) {
                         navigate(from, { replace: true });
-                    } else if (userType === "customer") {
-                        navigate("/", { replace: true });
-                    } else if (userType === "admin") {
-                        navigate("/admin", { replace: true });
                     } else if (userType === "driver") {
-                        navigate("/Driver", { replace: true });
+                        localStorage.setItem('driverId', user.id);
+                        navigate(`/dashboard/${user.id}`);
                     } else if (userType === "technician") {
                         navigate("/technician/dashboard", { replace: true });
                     } else {
-                        navigate("/", { replace: true });
+                        navigate("/user/general", { replace: true });
                     }
                 }, 100);
-                if (isDriver) {
-                    localStorage.setItem('driverId', driverId);
-                    navigate(`/dashboard/${driverId}`);
-                } else {
-                    // Navigate based on user type without page reload
-                    if (user.type === "Customer") {
-                        navigate("/");
-                    } else if (user.type === "admin") {
-                        navigate("/admin");
-                    } else if (user.type === "technician") {
-                        navigate("/Tech");
-                    }
-                }
             } else {
                 toast.error("Login failed - No token received");
             }
@@ -98,10 +89,10 @@ export default function LoginPage() {
                     <div className="w-full max-w-[500px] flex gap-4 mb-8">
                         <button
                             type="button"
-                            onClick={() => setIsDriver(false)}
+                            onClick={() => { setIsDriver(false); setIsTechnician(false); }}
                             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-lg font-medium transition-all duration-200 ${
-                                !isDriver 
-                                    ? 'bg-black text-white' 
+                                !isDriver && !isTechnician
+                                    ? 'bg-black text-white'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                         >
@@ -110,15 +101,27 @@ export default function LoginPage() {
                         </button>
                         <button
                             type="button"
-                            onClick={() => setIsDriver(true)}
+                            onClick={() => { setIsDriver(true); setIsTechnician(false); }}
                             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-lg font-medium transition-all duration-200 ${
-                                isDriver 
-                                    ? 'bg-black text-white' 
+                                isDriver
+                                    ? 'bg-black text-white'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                         >
                             <FaCar />
                             <span>Driver Login</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setIsTechnician(true); setIsDriver(false); }}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-lg font-medium transition-all duration-200 ${
+                                isTechnician
+                                    ? 'bg-black text-white'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                        >
+                            <FaUserCircle />
+                            <span>Technician Login</span>
                         </button>
                     </div>
 
@@ -132,7 +135,9 @@ export default function LoginPage() {
                         <p className="text-xl">
                             {isDriver 
                                 ? "Login with your driver account credentials to access the driver dashboard."
-                                : "Don't see your previous login choice? Please use reset password to update your login information."
+                                : isTechnician
+                                    ? "Login with your technician account credentials to access the technician dashboard."
+                                    : "Don't see your previous login choice? Please use reset password to update your login information."
                             }
                         </p>
                     </div>
@@ -181,7 +186,7 @@ export default function LoginPage() {
                         <button
                             type="button"
                             className="border border-mygreen text-green-900 hover:bg-green-100 w-full py-4 text-2xl rounded-full"
-                            onClick={() => navigate(isDriver ? "/register" : "/user/add")}
+                            onClick={() => navigate(isDriver ? "/register" : isTechnician ? "/technician/signup" : "/user/add")}
                         >
                             Create Account
                         </button>
@@ -189,7 +194,7 @@ export default function LoginPage() {
                 </form>
 
                 {/* Right Side - Social Logins */}
-                {!isDriver && (
+                {!isDriver && !isTechnician && (
                     <div className="w-[calc(100vw-830px)] min-h-full bg-white flex items-center justify-center">
                         <div className="text-left">
                             <h2 className="text-4xl font-bold mb-12">Or continue with...</h2>

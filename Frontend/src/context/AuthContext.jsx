@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
         id: null, 
         type: null 
       });
+      localStorage.removeItem('userId');
       setIsLoading(false);
       return;
     }
@@ -47,14 +48,19 @@ export const AuthProvider = ({ children }) => {
       
       if (response.data) {
         setIsLoggedIn(true);
+        const userId = response.data._id;
         setUserProfile({
           name: response.data.firstName || response.data.name || 'User',
           profilePicture: response.data.profilePicture,
-          id: response.data._id,
+          id: userId,
           type: response.data.type?.toLowerCase()
         });
+        
+        // Store userId in localStorage
+        localStorage.setItem('userId', userId);
       } else {
         localStorage.removeItem('token');
+        localStorage.removeItem('userId');
         setIsLoggedIn(false);
         setUserProfile({ 
           name: "", 
@@ -66,6 +72,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error checking login status:', error);
       localStorage.removeItem('token');
+      localStorage.removeItem('userId');
       setIsLoggedIn(false);
       setUserProfile({ 
         name: "", 
@@ -80,10 +87,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (token) => {
     localStorage.setItem('token', token);
     await checkLoginStatus();
+    
+    // Store userId in localStorage if available
+    if (userProfile.id) {
+      localStorage.setItem('userId', userProfile.id);
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     setIsLoggedIn(false);
     setUserProfile({ 
       name: "", 
