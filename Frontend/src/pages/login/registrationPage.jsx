@@ -6,7 +6,7 @@ import { RxCross1 } from "react-icons/rx";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 
-export default function RegisterPage() {
+const RegisterPage = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -55,10 +55,7 @@ export default function RegisterPage() {
 
         try {
             // First, register the user
-            await axios.post("http://localhost:4000/api/users/", {
-                ...formData,
-                type: "customer" // Use lowercase for consistency
-            });
+            await axios.post("http://localhost:4000/api/users/", formData);
 
             // If registration is successful, attempt to log in
             const response = await axios.post("http://localhost:4000/api/users/login", {
@@ -72,7 +69,7 @@ export default function RegisterPage() {
                 // Use the login function from AuthContext
                 login(token);
                 toast.success(`Welcome ${formData.firstName}!`);
-                navigate("/"); // Navigate to home page after registration
+                navigate("/user/dashboard"); // Navigate to user dashboard after registration
             }
         } catch (error) {
             console.error("Error:", error);
@@ -294,5 +291,7 @@ export default function RegisterPage() {
             </div>
         </div>
     );
-}
+};
+
+export default RegisterPage;
 

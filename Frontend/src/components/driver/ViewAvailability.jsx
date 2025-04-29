@@ -5,6 +5,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import Notification from '../Notification';
 import { FaDownload } from 'react-icons/fa';
+import jsPDF from 'jspdf';
 
 const API_BASE_URL = "http://localhost:4000/api";
 
@@ -130,7 +131,7 @@ const ViewAvailability = () => {
         return "";
     };
 
-    const downloadAvailabilityCSV = () => {
+    const downloadAvailabilityPDF = () => {
         if (schedule.length === 0) {
             setNotification({
                 message: 'No availability data to download',
@@ -139,25 +140,56 @@ const ViewAvailability = () => {
             return;
         }
 
-        // Create CSV content
-        const headers = ['Date', 'Availability Status'];
-        const csvContent = [
-            headers.join(','),
-            ...schedule.map(item => [
-                format(new Date(item.date), 'yyyy-MM-dd'),
-                item.availability ? 'Available' : 'Not Available'
-            ].join(','))
-        ].join('\n');
-
-        // Create and download file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `availability_schedule_${format(new Date(), 'yyyy-MM-dd')}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Create PDF
+        const doc = new jsPDF();
+        
+        // Add header
+        doc.setFontSize(24);
+        doc.setTextColor(0, 0, 0);
+        doc.text("NSC Rentals", 105, 20, { align: "center" });
+        
+        // Add title
+        doc.setFontSize(18);
+        doc.text("Driver Availability Schedule", 105, 30, { align: "center" });
+        
+        // Add line
+        doc.setDrawColor(0, 0, 0);
+        doc.line(20, 35, 190, 35);
+        
+        // Add driver information
+        doc.setFontSize(14);
+        doc.text("Driver Information", 20, 45);
+        doc.setFontSize(12);
+        doc.text(`Driver ID: ${driverId}`, 20, 55);
+        
+        // Add schedule
+        doc.setFontSize(14);
+        doc.text("Availability Schedule", 20, 70);
+        
+        let yPosition = 80;
+        const sortedSchedule = [...schedule].sort((a, b) => new Date(a.date) - new Date(b.date));
+        
+        sortedSchedule.forEach((item, index) => {
+            if (yPosition > 270) {
+                doc.addPage();
+                yPosition = 20;
+            }
+            
+            const date = format(new Date(item.date), 'MMMM dd, yyyy');
+            const status = item.availability ? 'Available' : 'Not Available';
+            
+            doc.setFontSize(12);
+            doc.text(`${date}: ${status}`, 20, yPosition);
+            yPosition += 10;
+        });
+        
+        // Add footer
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Generated on: " + format(new Date(), 'MMMM dd, yyyy'), 105, 280, { align: "center" });
+        
+        // Save the PDF
+        doc.save(`Driver-Availability-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
 
         setNotification({
             message: 'Availability schedule downloaded successfully',
@@ -263,7 +295,7 @@ const ViewAvailability = () => {
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold text-gray-700">Upcoming Schedule</h2>
                         <button
-                            onClick={downloadAvailabilityCSV}
+                            onClick={downloadAvailabilityPDF}
                             className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
                         >
                             <FaDownload />

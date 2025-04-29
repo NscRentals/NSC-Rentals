@@ -152,24 +152,66 @@ const ReservationForm = () => {
           type: "success",
         });
 
+        // Create a more professional PDF
         const doc = new jsPDF();
+        
+        // Add header
+        doc.setFontSize(24);
+        doc.setTextColor(0, 0, 0);
+        doc.text("NSC Rentals", 105, 20, { align: "center" });
+        
+        // Add title
         doc.setFontSize(18);
-        doc.text("Reservation Confirmation", 20, 20);
-
+        doc.text("Reservation Confirmation", 105, 30, { align: "center" });
+        
+        // Add line
+        doc.setDrawColor(0, 0, 0);
+        doc.line(20, 35, 190, 35);
+        
+        // Add reservation details
         doc.setFontSize(12);
-        doc.text(`Name: ${formData.name}`, 20, 40);
-        doc.text(`Email: ${formData.email}`, 20, 50);
-        doc.text(`Phone Number: ${formData.phonenumber}`, 20, 60);
-        doc.text(`Service: ${formData.service}`, 20, 70);
-        doc.text(`Vehicle Number: ${formData.vehicleNum}`, 20, 80);
-        doc.text(`Driver ID: ${formData.driverID}`, 20, 90);
-        doc.text(`Pick-up: ${formData.locationpick}`, 20, 100);
-        doc.text(`Drop-off: ${formData.locationdrop}`, 20, 110);
-        doc.text(`Date: ${formData.wanteddate}`, 20, 120);
-        doc.text(`Wanted Time: ${formData.wantedtime} hours`, 20, 130);
-        doc.text(`Total Amount: Rs. ${formData.amount}`, 20, 140);
-
-        doc.save("Reservation-Details.pdf");
+        doc.setTextColor(0, 0, 0);
+        
+        // Customer Information
+        doc.setFontSize(14);
+        doc.text("Customer Information", 20, 45);
+        doc.setFontSize(12);
+        doc.text(`Name: ${formData.name}`, 20, 55);
+        doc.text(`Email: ${formData.email}`, 20, 60);
+        doc.text(`Phone: ${formData.phonenumber}`, 20, 65);
+        doc.text(`Address: ${formData.address}`, 20, 70);
+        
+        // Reservation Details
+        doc.setFontSize(14);
+        doc.text("Reservation Details", 20, 85);
+        doc.setFontSize(12);
+        doc.text(`Service Type: ${formData.service}`, 20, 95);
+        doc.text(`Vehicle Number: ${formData.vehicleNum}`, 20, 100);
+        doc.text(`Driver ID: ${formData.driverID}`, 20, 105);
+        
+        // Location Details
+        doc.setFontSize(14);
+        doc.text("Location Details", 20, 120);
+        doc.setFontSize(12);
+        doc.text(`Pick-up Location: ${formData.locationpick}`, 20, 130);
+        doc.text(`Drop-off Location: ${formData.locationdrop}`, 20, 135);
+        
+        // Time and Amount
+        doc.setFontSize(14);
+        doc.text("Time and Amount", 20, 150);
+        doc.setFontSize(12);
+        doc.text(`Date: ${formData.wanteddate}`, 20, 160);
+        doc.text(`Duration: ${formData.wantedtime} hours`, 20, 165);
+        doc.text(`Total Amount: Rs. ${formData.amount}`, 20, 170);
+        
+        // Add footer
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Thank you for choosing NSC Rentals!", 105, 280, { align: "center" });
+        doc.text("For any queries, please contact our customer service.", 105, 285, { align: "center" });
+        
+        // Save the PDF
+        doc.save(`Reservation-${formData.name}-${formData.wanteddate}.pdf`);
         navigate("/reservation/viewReservations");
       } else {
         console.error("Reservation error:", result);

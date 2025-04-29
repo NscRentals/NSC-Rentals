@@ -17,6 +17,6 @@ router.get('/reservations/:id', reservationFindOne);  // Get a specific reservat
 router.put('/reservations/:id', reservationUpdate);  // Update a reservation by ID
 router.delete('/reservations/:id', reservationDelete);  // Delete a reservation by ID
 router.get('/reservations/user/:userid', reservationFindUserId);  // Get reservations for a specific user
-router.get('/reservations/driver/:driverid', reservationFindDriverId);  // Get reservations for a specific driver
+router.get('/reservations/driver/:driverID', reservationFindDriverId);  // Get reservations for a specific driver
 
 export default router;

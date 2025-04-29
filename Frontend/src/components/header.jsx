@@ -4,7 +4,7 @@ import Logo from "./Logo"; // Make sure this path is correct
 import { useAuth } from "../context/AuthContext";
 
 export default function Header() {
-  const { isLoggedIn, userProfile } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
 
   return (
@@ -19,110 +19,92 @@ export default function Header() {
       {/* Center: Navigation Items */}
       <nav className="flex items-center space-x-8 mx-auto">
         <Link 
-          to="/" 
-          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${
-            location.pathname === '/' ? 'text-black' : ''
-          }`}
-        >
-          Home
-          <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${
-            location.pathname === '/' ? 'w-full' : 'w-0 group-hover:w-full'
-          }`}></span>
-        </Link>
-        <Link 
           to="/vehicles" 
-          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${
+          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 no-underline ${
             location.pathname === '/vehicles' ? 'text-black' : ''
           }`}
         >
           Vehicles
-          <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${
-            location.pathname === '/vehicles' ? 'w-full' : 'w-0 group-hover:w-full'
-          }`}></span>
+        </Link>
+        <Link 
+          to="/rentals" 
+          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 no-underline ${
+            location.pathname === '/rentals' ? 'text-black' : ''
+          }`}
+        >
+          Rentals
         </Link>
         <Link 
           to="/about" 
-          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${
+          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 no-underline ${
             location.pathname === '/about' ? 'text-black' : ''
           }`}
         >
           About
-          <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${
-            location.pathname === '/about' ? 'w-full' : 'w-0 group-hover:w-full'
-          }`}></span>
         </Link>
         <Link 
           to="/careers" 
-          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${
+          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 no-underline ${
             location.pathname === '/careers' ? 'text-black' : ''
           }`}
         >
           Careers
-          <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${
-            location.pathname === '/careers' ? 'w-full' : 'w-0 group-hover:w-full'
-          }`}></span>
         </Link>
         <Link 
           to="/contact" 
-          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${
+          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 no-underline ${
             location.pathname === '/contact' ? 'text-black' : ''
           }`}
         >
           Contact
-          <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${
-            location.pathname === '/contact' ? 'w-full' : 'w-0 group-hover:w-full'
-          }`}></span>
         </Link>
         
-        {isLoggedIn && userProfile?.type === 'Admin' && (
+        {user?.type === 'Admin' && (
           <Link 
             to="/admin/vehicle-approvals" 
-            className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${
+            className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 no-underline ${
               location.pathname === '/admin/vehicle-approvals' ? 'text-black' : ''
             }`}
           >
             Approvals
-            <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${
-              location.pathname === '/admin/vehicle-approvals' ? 'w-full' : 'w-0 group-hover:w-full'
-            }`}></span>
           </Link>
         )}
       </nav>
 
       {/* Right side: User related elements */}
       <div className="flex items-center space-x-6">
-        {isLoggedIn ? (
+        {user ? (
           <div className="flex items-center space-x-4">
-            {userProfile?.type === 'Admin' && (
+            {user.type === 'Admin' && (
               <Link 
                 to="/admin" 
-                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200"
+                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200 no-underline"
               >
                 Admin Panel
               </Link>
             )}
-            {userProfile?.type === 'Driver' && (
+            {user.type === 'Driver' && (
               <Link 
                 to="/Driver" 
-                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200"
+                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200 no-underline"
               >
                 Driver Panel
               </Link>
             )}
-            {userProfile?.type === 'Technician' && (
+            {user.type === 'Technician' && (
               <Link 
                 to="/Tech" 
-                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200"
+                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200 no-underline"
               >
                 Tech Panel
               </Link>
             )}
-            <Link to="/user/general" replace className="group">
+            <Link to="/user/general" className="group no-underline">
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                {userProfile?.profilePicture ? (
+                {user.profilePicture ? (
                   <img 
-                    src={`http://localhost:4000/uploads/profile_pictures/${userProfile.profilePicture}`}
-                    alt={userProfile?.firstName || 'Profile'} 
+                    src={`http://localhost:4000/uploads/profile_pictures/${user.profilePicture}`}
+                    alt={user.firstName || 'Profile'} 
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const fallback = e.target.parentElement?.querySelector('.fallback');
@@ -135,7 +117,7 @@ export default function Header() {
                 ) : (
                   <div className="fallback w-full h-full bg-gray-800 flex items-center justify-center">
                     <span className="text-xl text-white">
-                      {userProfile?.firstName ? userProfile.firstName[0].toUpperCase() : 'U'}
+                      {user.firstName ? user.firstName[0].toUpperCase() : 'U'}
                     </span>
                   </div>
                 )}
@@ -146,13 +128,13 @@ export default function Header() {
           <>
             <Link 
               to="/login" 
-              className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200"
+              className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 no-underline"
             >
               Sign in
             </Link>
             <Link 
               to="/user/add" 
-              className="bg-black text-white text-xl px-6 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200"
+              className="bg-black text-white text-xl px-6 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200 no-underline"
             >
               Sign up
             </Link>

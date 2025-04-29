@@ -18,11 +18,11 @@ import {
 
 const driverRouter = express.Router();
 
-// Driver availability routes (must come before /:id route)
+// Driver availability routes (must be first)
 driverRouter.post('/availability', setAvailability);
-driverRouter.get('/availability/:date', getAvailability);
-driverRouter.get('/availability/available/:date', getAvailableDrivers);
 driverRouter.get('/availability/schedule/:driverId', getDriverSchedule);
+driverRouter.get('/availability/available/:date', getAvailableDrivers);
+driverRouter.get('/availability/:date', getAvailability);
 
 // Driver management routes
 driverRouter.post('/add', driverAdd);
@@ -31,6 +31,8 @@ driverRouter.put('/update/:id', driverUpdate);
 driverRouter.delete('/delete/:id', driverDelete);
 driverRouter.post('/register', driverRegister);
 driverRouter.post("/login", driverLogin);
+
+// This route should be last as it's the most generic
 driverRouter.get('/:id', driverFindOne);
 
 export default driverRouter;

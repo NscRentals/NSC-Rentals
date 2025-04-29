@@ -57,6 +57,11 @@ const reservationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ['pending', 'trip started', 'completed', 'cancelled'],
+      default: 'pending'
+    }
   },
   {
     timestamps: true, // This will add createdAt and updatedAt fields

@@ -13,57 +13,53 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [isDriver, setIsDriver] = useState(false);
     const [isTechnician, setIsTechnician] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const navigate = useNavigate();
     const location = useLocation();
     const { login } = useAuth();
 
     const handleOnSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError("");
 
         try {
-            let endpoint;
-            if (isDriver) {
-                endpoint = `${API_BASE_URL}/driver/login`;
-            } else if (isTechnician) {
-                endpoint = `${API_BASE_URL}/technician/login`;
-            } else {
-                endpoint = `${API_BASE_URL}/users/login`;
-            }
-            const response = await axios.post(endpoint, {
-                email,
-                password
-            });
+            // Set the user type in localStorage before attempting login
+            localStorage.setItem('userType', isDriver ? 'driver' : isTechnician ? 'technician' : 'user');
+            
+            const result = await login(email, password);
+            console.log("Login result:", result);
 
-            const { user, token, driverId } = response.data;
-
-            if (token) {
-                toast.success("Login Successful");
-                await login(token); // Wait for login to complete
-                
-                // After login is complete, navigate based on user type
-                const userType = user.type.toLowerCase();
-                const from = location.state?.from?.pathname;
-
-                setTimeout(() => {
-                    if (from) {
-                        navigate(from, { replace: true });
-                    } else if (userType === "driver") {
-                        localStorage.setItem('driverId', user.id);
-                        navigate(`/dashboard/${user.id}`);
-                    } else if (userType === "technician") {
-                        navigate("/technician/dashboard", { replace: true });
-                    } else {
-                        navigate("/user/general", { replace: true });
+            if (result.success) {
+                toast.success("Login successful!");
+                if (result.userType === 'driver') {
+                    navigate('/driver');
+                } else {
+                    switch (result.userType) {
+                        case 'admin':
+                            navigate('/admin');
+                            break;
+                        case 'technician':
+                            navigate('/technician');
+                            break;
+                        default:
+                            navigate('/user/general');
                     }
-                }, 100);
+                }
             } else {
-                toast.error("Login failed - No token received");
+                toast.error(result.error || "Login failed. Please check your credentials.");
+                setError(result.error || "Login failed. Please check your credentials.");
             }
         } catch (error) {
-            console.error(error);
-            toast.error(error.response?.data?.error || "Invalid email or password");
+            console.error("Login error:", error);
+            const errorMessage = error.response?.data?.error || "An unexpected error occurred. Please try again.";
+            toast.error(errorMessage);
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div>
@@ -84,6 +80,13 @@ export default function LoginPage() {
                     className="w-[830px] min-h-full bg-white flex flex-col justify-center items-center px-10 border-r border-gray-300"
                 >
                     <h1 className="text-5xl font-bold mb-12 w-full text-left ml-[260px]">Log In</h1>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="w-full max-w-[500px] mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl">
+                            {error}
+                        </div>
+                    )}
 
                     {/* Login Type Toggle */}
                     <div className="w-full max-w-[500px] flex gap-4 mb-8">

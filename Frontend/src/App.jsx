@@ -10,7 +10,6 @@ import HomePage from './pages/home/homePage';
 import LoginPage from './pages/login/login';
 import AdminDashboard from './pages/admin/adminDashboard';
 import TechDashboard from './pages/technician/techDashboard';
-import RegisterPage from './pages/login/registrationPage';
 import ContactPage from './pages/home/contact';
 import About from './pages/about/About';
 import Careers from './pages/careers/Careers';
@@ -48,56 +47,56 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <div className="min-h-screen bg-gray-50">
-          <Toaster/>
+          <Toaster position="top-right" />
           <Routes>
             <Route element={<Layout />}>
-              <Route path="/" element={<HomePage/>} />
-              <Route path="/contact" element={<ContactPage/>} />
-              <Route path="/about" element={<About/>} />
-              <Route path="/careers" element={<Careers/>} />
-              <Route path="/login" element={<LoginPage/>} />
-              <Route path="/user/add" element={<RegisterPage/>} />
+              {/* Public Routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<DriverRegister />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/careers" element={<Careers />} />
               
-              {/* Customer Routes */}
-              <Route path="/user/*" element={<UserDashboard/>} />
+              {/* Vehicle Routes */}
+              <Route path="/vehicles" element={<VehicleList />} />
+              <Route path="/vehicles/add" element={<AddVehicle />} />
+              <Route path="/vehicles/:id" element={<VehicleDetails />} />
+              <Route path="/vehicles/:id/edit" element={<EditVehicle />} />
+              <Route path="/my-vehicles" element={<MyVehicles />} />
+              
+              {/* Reservation Routes */}
+              <Route path="/reservations" element={<AllvehicleView />} />
+              <Route path="/reservations/new" element={<ReservationForm />} />
+              <Route path="/user/reservations" element={<UserViewReservation />} />
+              
+              {/* Damage Request Routes */}
+              <Route path="/damage/new" element={<CreateDamageRequest />} />
+              <Route path="/user/damage-requests" element={<UserDamageRequests />} />
               
               {/* Admin Routes */}
-              <Route path="/admin/*" element={<AdminDashboard/>} />
-              <Route path="/admin/vehicle-approvals" element={<AdminVehicleApprovals/>} />
-              <Route path="/admin/vehicle-list" element={<AdminVehicleList/>} />
-              <Route path="/admin/spare-parts" element={<SparePartsInventory/>} />
-              <Route path="/admin/vehicle-updates" element={<VehicleUpdateRequests/>} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/vehicle-approvals" element={<AdminVehicleApprovals />} />
+              <Route path="/admin/vehicles" element={<AdminVehicleList />} />
+              <Route path="/admin/spare-parts" element={<SparePartsInventory />} />
+              <Route path="/admin/vehicle-updates" element={<VehicleUpdateRequests />} />
               
               {/* Technician Routes */}
-              <Route path="/technician/dashboard/*" element={<TechnicianDashboard/>} />
-              <Route path="/technician/signup" element={<TechnicianSignUp/>} />
-              <Route path="/Tech" element={<TechDashboard/>} />
+              <Route path="/technician" element={<TechnicianDashboard />} />
+              <Route path="/technician/signup" element={<TechnicianSignUp />} />
+              
+              {/* User Routes */}
+              <Route path="/user/*" element={<UserDashboard />} />
               
               {/* Driver Routes */}
-              <Route path="/Driver" element={<DriverDashboard/>} />
-              <Route path="/register" element={<DriverRegister />} />
-              <Route path="/drivers" element={<AllDrivers />} />
-              <Route path="/driverprofile/:id" element={<DriverProfile />} />     
-              <Route path="/driverprofile/update/:id" element={<DriverProfileUpdate />} /> 
+              <Route path="/driver" element={<DriverDashboard />} />
+              <Route path="/driver/register" element={<DriverRegister />} />
+              <Route path="/driver/all" element={<AllDrivers />} />
+              <Route path="/driver/profile/:id" element={<DriverProfile />} />
+              <Route path="/driver/profile/:id/update" element={<DriverProfileUpdate />} />
               <Route path="/driver/availability" element={<DriverAvailability />} />
               <Route path="/driver/availability/view" element={<ViewAvailability />} />
-              <Route path="/admin/drivers/available" element={<AvailableDrivers />} />
-              <Route path="/dashboard/:id" element={<DriverDashboard />} />
-
-              {/* Vehicle Routes */}
-              <Route path="/vehicles" element={<VehicleList/>} />
-              <Route path="/vehicles/add" element={<AddVehicle/>} />
-              <Route path="/vehicles/:id" element={<VehicleDetails/>} />
-              <Route path="/vehicles/edit/:id" element={<EditVehicle/>} />
-
-              {/* Reservation Routes */}
-              <Route path="/reservation/vehicles" element={<AllvehicleView/>} />
-              <Route path="/reservation/:id" element={<ReservationForm/>} />
-              <Route path="/reservation/viewReservations" element={<UserViewReservation/>} />
-
-              {/* Damage Request Routes */}
-              <Route path="/damage-request/new/:vehicleId" element={<CreateDamageRequest/>} />
-              <Route path="/my-damage-requests" element={<UserDamageRequests/>} />
+              <Route path="/driver/available" element={<AvailableDrivers />} />
             </Route>
           </Routes>
         </div>

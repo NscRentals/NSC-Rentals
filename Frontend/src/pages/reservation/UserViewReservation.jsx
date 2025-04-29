@@ -15,30 +15,44 @@ const ViewReservations = () => {
     const fetchReservations = async () => {
       try {
         const token = localStorage.getItem("token");
+        const userId = localStorage.getItem("userId");
+        
         if (!token) {
           navigate('/login');
           return;
         }
 
+        if (!userId) {
+          setError("User ID not found. Please log in again.");
+          setLoading(false);
+          return;
+        }
+
+        console.log('Fetching reservations for user:', userId);
         const response = await fetch(
-          `http://localhost:4000/api/reservation/reservations/user/${localStorage.getItem("userId")}`,
+          `http://localhost:4000/api/reservation/reservations/user/${userId}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           }
         );
+        
         const result = await response.json();
+        console.log('Reservations response:', result);
+
         if (response.ok) {
-          if (result.reservation && result.reservation.length > 0) {
+          if (result.success && result.reservation) {
             setReservations(result.reservation);
           } else {
+            setReservations([]);
             setError("No reservations found for this user");
           }
         } else {
-          setError("Failed to fetch reservations");
+          setError(result.message || "Failed to fetch reservations");
         }
       } catch (error) {
+        console.error('Error fetching reservations:', error);
         setError("An error occurred while fetching reservations");
       } finally {
         setLoading(false);
@@ -54,10 +68,14 @@ const ViewReservations = () => {
     );
     if (confirmDelete) {
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(
           `http://localhost:4000/api/reservation/reservations/${reservationId}`,
           {
             method: "DELETE",
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
           }
         );
         const result = await response.json();
@@ -71,6 +89,7 @@ const ViewReservations = () => {
           setError(result.message || "Failed to delete reservation");
         }
       } catch (error) {
+        console.error('Error deleting reservation:', error);
         setError("An error occurred while deleting the reservation");
       }
     }
@@ -84,11 +103,15 @@ const ViewReservations = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem("token");
       const response = await fetch(
         `http://localhost:4000/api/reservation/reservations/${editingReservation._id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+          },
           body: JSON.stringify(editingReservation),
         }
       );
@@ -110,6 +133,7 @@ const ViewReservations = () => {
         setError(result.message || "Failed to update reservation");
       }
     } catch (error) {
+      console.error('Error updating reservation:', error);
       setError("An error occurred while updating the reservation");
     }
   };
@@ -138,322 +162,121 @@ const ViewReservations = () => {
     setEditingReservation(null);
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="flex justify-center items-center h-32">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center p-4">{error}</div>;
 
   return (
-    <div style={{ padding: "40px", marginTop: "-50px" }}>
+    <div className="p-8">
       <Notification message={notification.message} type={notification.type} />
 
-      <h2>All Reservations</h2>
+      <h2 className="text-2xl font-bold mb-6">My Reservations</h2>
       {reservations.length === 0 ? (
-        <div>No reservations found.</div>
+        <div className="text-gray-500 text-center py-4">No reservations found.</div>
       ) : (
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            marginTop: "20px",
-            boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: "#f5f5f5", textAlign: "left" }}>
-              {[
-                "Vehicle Number",
-                "Name",
-                "Email",
-                "Date",
-                "Service",
-                "Pickup Location",
-                "Drop-off Location",
-                "Wanted Time (hrs)",
-                "Amount (LKR)",
-                "Actions",
-              ].map((heading) => (
-                <th
-                  key={heading}
-                  style={{
-                    padding: "12px",
-                    borderBottom: "1px solid #ddd",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {heading}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {reservations.map((reservation, index) => (
-              <tr
-                key={reservation._id}
-                style={{
-                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#f9f9f9",
-                }}
-              >
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.vehicleNum}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.name}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.email}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.wanteddate}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.service}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.locationpick}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.locationdrop}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.wantedtime}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  {reservation.amount}
-                </td>
-                <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                  <span
-                    onClick={() => handleEdit(reservation)}
-                    style={{
-                      cursor: "pointer",
-                      marginRight: "10px",
-                      fontSize: "18px",
-                      color: "#2196f3",
-                    }}
-                    title="Edit"
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
+            <thead>
+              <tr className="bg-gray-50">
+                {[
+                  "Vehicle Number",
+                  "Name",
+                  "Email",
+                  "Date",
+                  "Service",
+                  "Pickup Location",
+                  "Drop-off Location",
+                  "Wanted Time (hrs)",
+                  "Amount (LKR)",
+                  "Actions",
+                ].map((heading) => (
+                  <th
+                    key={heading}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    ✏️
-                  </span>
-                  <span
-                    onClick={() => handleDelete(reservation._id)}
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "18px",
-                      color: "red",
-                    }}
-                    title="Delete"
-                  >
-                    🗑️
-                  </span>
-                </td>
+                    {heading}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {reservations.map((reservation) => (
+                <tr key={reservation._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.vehicleNum}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.wanteddate}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.service}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.locationpick}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.locationdrop}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.wantedtime}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.amount}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleEdit(reservation)}
+                      className="text-blue-600 hover:text-blue-800 mr-4"
+                      title="Edit"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDelete(reservation._id)}
+                      className="text-red-600 hover:text-red-800"
+                      title="Delete"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {/* Modal for Edit Form */}
+      {/* Edit Modal */}
       {isModalOpen && editingReservation && (
-        <div
-          style={{
-            position: "fixed",
-            top: "0",
-            left: "0",
-            right: "0",
-            bottom: "0",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "700px",
-              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-              marginTop: "80px",
-            }}
-          >
-            <button
-              onClick={handleCloseModal}
-              style={{
-                position: "relative",
-                float: "right",
-                background: "transparent",
-                border: "none",
-                fontSize: "18px",
-                color: "red",
-              }}
-            >
-              X
-            </button>
-            <h3 style={{ textAlign: "center", marginBottom: "20px" }}>
-              Edit Reservation
-            </h3>
-            <form onSubmit={handleUpdate}>
-              <div
-                style={{ marginBottom: "10px", display: "flex", gap: "20px" }}
-              >
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="name">Name:</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={editingReservation.name}
-                    onChange={handleChange}
-                    required
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                </div>
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="vehicleNum">Vehicle Number:</label>
-                  <input
-                    type="text"
-                    id="vehicleNum"
-                    name="vehicleNum"
-                    value={editingReservation.vehicleNum}
-                    onChange={handleChange}
-                    required
-                    disabled
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div
-                style={{ marginBottom: "10px", display: "flex", gap: "20px" }}
-              >
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="email">Email:</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={editingReservation.email}
-                    onChange={handleChange}
-                    required
-                    disabled
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                </div>
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="service">Service:</label>
-                  <select
-                    name="service"
-                    value={editingReservation.service}
-                    onChange={handleChange}
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  >
-                    <option value="Wedding">Wedding</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <div
-                style={{ marginBottom: "10px", display: "flex", gap: "20px" }}
-              >
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="locationpick">Pickup Location:</label>
-                  <input
-                    type="text"
-                    id="locationpick"
-                    name="locationpick"
-                    value={editingReservation.locationpick}
-                    onChange={handleChange}
-                    required
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                </div>
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="locationdrop">Drop-off Location:</label>
-                  <input
-                    type="text"
-                    id="locationdrop"
-                    name="locationdrop"
-                    value={editingReservation.locationdrop}
-                    onChange={handleChange}
-                    required
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div
-                style={{ marginBottom: "10px", display: "flex", gap: "20px" }}
-              >
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="wantedtime">Wanted Time (hrs):</label>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+          <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Edit Reservation</h3>
+              <form onSubmit={handleUpdate} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Wanted Time (hours)</label>
                   <input
                     type="number"
-                    id="wantedtime"
                     name="wantedtime"
                     value={editingReservation.wantedtime}
                     onChange={handleChange}
-                    required
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-
-                <div style={{ flex: 1, marginBottom: "10px" }}>
-                  <label htmlFor="amount">Amount (LKR):</label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Amount (LKR)</label>
                   <input
-                    type="number"
-                    id="amount"
+                    type="text"
                     name="amount"
                     value={editingReservation.amount}
-                    disabled
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
+                    readOnly
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
                   />
                 </div>
-              </div>
-
-              <button
-                type="submit"
-                style={{
-                  backgroundColor: "#4CAF50",
-                  color: "white",
-                  padding: "10px 20px",
-                  width: "100%",
-                }}
-              >
-                Update Reservation
-              </button>
-            </form>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

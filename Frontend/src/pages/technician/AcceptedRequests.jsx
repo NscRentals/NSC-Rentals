@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const AcceptedRequests = () => {
   const navigate = useNavigate();
-  const { userProfile, isLoggedIn, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [spareParts, setSpareParts] = useState([]);
@@ -19,13 +19,13 @@ const AcceptedRequests = () => {
 
   useEffect(() => {
     // Check if user is a technician
-    if (!isLoggedIn) {
+    if (!user) {
       toast.error('Please log in to access this page');
       navigate('/login');
       return;
     }
 
-    if (userProfile?.type?.toLowerCase() !== 'technician') {
+    if (user.type?.toLowerCase() !== 'technician') {
       toast.error('Only technicians can access this page');
       navigate('/');
       return;
@@ -33,7 +33,7 @@ const AcceptedRequests = () => {
 
     fetchAcceptedRequests();
     fetchSpareParts();
-  }, [isLoggedIn, userProfile, navigate]);
+  }, [user, navigate]);
 
   const fetchSpareParts = async () => {
     try {
@@ -114,6 +114,7 @@ const AcceptedRequests = () => {
   const calculateTotalCost = () => {
     return formData.usedParts.reduce((total, part) => total + (part.cost || 0), 0);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -145,15 +146,6 @@ const AcceptedRequests = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view requests');
-        navigate('/login');
-        return;
-      }
-
-      // Verify token contains technician role
-      const tokenData = JSON.parse(atob(token.split('.')[1]));
-      if (tokenData.type?.toLowerCase() !== 'technician') {
-        toast.error('Invalid user role. Only technicians can access this page.');
-        logout();
         navigate('/login');
         return;
       }

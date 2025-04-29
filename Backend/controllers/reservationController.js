@@ -95,11 +95,31 @@ export async function reservationUpdate(req, res) {
     wantedtime,
     amount,
     wanteddate,
+    status
   } = req.body;
   const reservationId = req.params.id;
 
   try {
-    // Validate required fields
+    // If only status is being updated, allow it without requiring other fields
+    if (Object.keys(req.body).length === 1 && req.body.status) {
+      const updatedReservation = await Reservation.findByIdAndUpdate(
+        reservationId,
+        { $set: { status } },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedReservation) {
+        return res.status(404).json({ error: "Reservation not found" });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Reservation status updated successfully",
+        reservation: updatedReservation,
+      });
+    }
+
+    // For full updates, validate required fields
     if (
       !vehicleNum ||
       !userId ||
@@ -131,6 +151,7 @@ export async function reservationUpdate(req, res) {
           wantedtime,
           amount,
           wanteddate,
+          status: status || 'pending'
         },
       },
       { new: true, runValidators: true }
@@ -141,7 +162,8 @@ export async function reservationUpdate(req, res) {
     }
 
     return res.status(200).json({
-      success: "Reservation updated successfully",
+      success: true,
+      message: "Reservation updated successfully",
       reservation: updatedReservation,
     });
   } catch (err) {
@@ -190,8 +212,15 @@ export async function reservationFindUserId(req, res) {
 
 export async function reservationFindDriverId(req, res) {
   try {
-    const reservations = await Reservation.find({ driverID: req.params.driverid });
+    console.log('Finding reservations for driver with ID:', req.params.driverID);
+    console.log('Request parameters:', req.params);
+    
+    const reservations = await Reservation.find({ driverID: req.params.driverID });
+    console.log('Found reservations:', reservations);
+    console.log('Number of reservations found:', reservations.length);
+    
     if (!reservations || reservations.length === 0) {
+      console.log('No reservations found for driver');
       return res
         .status(404)
         .json({ success: false, message: "No reservations found for this driver" });
@@ -199,6 +228,11 @@ export async function reservationFindDriverId(req, res) {
     return res.status(200).json({ success: true, reservations });
   } catch (error) {
     console.error("Error finding driver reservations:", error);
+    console.error("Error details:", {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     return res
       .status(500)
       .json({ success: false, message: "Server error", error: error.message });

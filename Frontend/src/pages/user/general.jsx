@@ -2,50 +2,55 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
 
 export default function General() {
     const [user, setUser] = useState(null);
     const [verificationStatus, setVerificationStatus] = useState("not verified");
     const [formObj, setFormObj] = useState(null);
     const navigate = useNavigate();
+    const { user: authUser, loading } = useAuth();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        axios.get("http://localhost:4000/api/users/me", {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(response => {
-            setUser(response.data);
-            // Check verification status using the new endpoint
-            axios.get("http://localhost:4000/api/forms/user", {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            .then(res => {
-                setFormObj(res.data);
-                if (res.data === null) {
+        if (!loading && !authUser) {
+            navigate('/login');
+            return;
+        }
+
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get("http://localhost:4000/api/users/me");
+                setUser(response.data);
+                
+                // Check verification status
+                const verificationResponse = await axios.get("http://localhost:4000/api/forms/user");
+                setFormObj(verificationResponse.data);
+                
+                if (verificationResponse.data === null) {
                     setVerificationStatus("not verified");
-                } else if (res.data.isRejected) {
+                } else if (verificationResponse.data.isRejected) {
                     setVerificationStatus("rejected");
-                } else if (res.data.isVerified) {
+                } else if (verificationResponse.data.isVerified) {
                     setVerificationStatus("verified");
                 } else {
                     setVerificationStatus("pending");
                 }
-            })
-            .catch(error => {
-                console.error("Error fetching verification status:", error);
-                setVerificationStatus("not verified");
-            });
-        })
-        .catch(error => console.error("Error fetching user details:", error));
-    }, []);
+            } catch (error) {
+                console.error("Error fetching user details:", error);
+                if (error.response?.status === 401) {
+                    navigate('/login');
+                }
+            }
+        };
+
+        if (authUser) {
+            fetchUserData();
+        }
+    }, [authUser, loading, navigate]);
 
     const handleRetryVerification = async () => {
         try {
-            const token = localStorage.getItem("token");
-            await axios.delete("http://localhost:4000/api/forms/user", {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await axios.delete("http://localhost:4000/api/forms/user");
             toast.success("You can now re-submit your verification form.");
             navigate("/user/general/verify");
         } catch (error) {
@@ -53,6 +58,7 @@ export default function General() {
         }
     };
 
+    if (loading) return <p className="text-2xl font-semibold text-gray-700">Loading...</p>;
     if (!user) return <p className="text-2xl font-semibold text-gray-700">Loading...</p>;
 
     return (

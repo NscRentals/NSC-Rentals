@@ -2,6 +2,7 @@ import driver from '../models/DriverModel.js';
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv";
+import User from '../models/user.js';
 
 
 dotenv.config();  
@@ -129,37 +130,55 @@ export async function driverLogin(req, res) {
           return res.status(400).json({ error: "Email and password are required" });
       }
 
+      // First try to find the driver
       const driverDoc = await driver.findOne({ DriverEmail: email });
       
       if (!driverDoc) {
-          console.log("Driver not found");
-          return res.status(404).json({ error: "Driver not found" });
-      }
-      
-      console.log("Found driver:", driverDoc.DriverName);
-      
-      // Compare passwords
-      const isPasswordCorrect = await bcrypt.compare(password, driverDoc.DriverPW);
-      console.log("Password comparison result:", isPasswordCorrect);
-      
-      if (isPasswordCorrect) {
-          const token = jwt.sign({
-              id: driverDoc._id,
-              name: driverDoc.DriverName,
-              email: driverDoc.DriverEmail,
-              phone: driverDoc.DriverPhone,
-              address: driverDoc.DriverAdd,
-              licenseNo: driverDoc.DLNo,
-              nicNo: driverDoc.NICNo,
-              type: 'driver'
-          }, process.env.JWT_SECRET || "your-secret-key");
+          console.log("Driver not found, checking user collection");
+          // If not found in driver collection, check user collection
+          const userDoc = await User.findOne({ email: email, type: "driver" });
           
-          console.log("Login successful, token generated");
-          return res.json({ 
-              success: true,
-              token, 
-              driverId: driverDoc._id,
-              user: {
+          if (!userDoc) {
+              console.log("User not found");
+              return res.status(404).json({ error: "Driver not found" });
+          }
+          
+          // Compare passwords for user
+          const isPasswordCorrect = await bcrypt.compare(password, userDoc.password);
+          console.log("Password comparison result:", isPasswordCorrect);
+          
+          if (isPasswordCorrect) {
+              const token = jwt.sign({
+                  id: userDoc._id,
+                  name: `${userDoc.firstName} ${userDoc.lastName}`,
+                  email: userDoc.email,
+                  phone: userDoc.phone,
+                  address: userDoc.address.street,
+                  type: 'driver'
+              }, process.env.JWT_SECRET || "your-secret-key");
+              
+              console.log("Login successful, token generated");
+              return res.json({ 
+                  success: true,
+                  token, 
+                  driverId: userDoc._id,
+                  user: {
+                      id: userDoc._id,
+                      name: `${userDoc.firstName} ${userDoc.lastName}`,
+                      email: userDoc.email,
+                      phone: userDoc.phone,
+                      address: userDoc.address.street,
+                      type: 'driver'
+                  }
+              });
+          }
+      } else {
+          // Compare passwords for driver
+          const isPasswordCorrect = await bcrypt.compare(password, driverDoc.DriverPW);
+          console.log("Password comparison result:", isPasswordCorrect);
+          
+          if (isPasswordCorrect) {
+              const token = jwt.sign({
                   id: driverDoc._id,
                   name: driverDoc.DriverName,
                   email: driverDoc.DriverEmail,
@@ -168,12 +187,29 @@ export async function driverLogin(req, res) {
                   licenseNo: driverDoc.DLNo,
                   nicNo: driverDoc.NICNo,
                   type: 'driver'
-              }
-          });
-      } else {
-          console.log("Password incorrect");
-          return res.status(401).json({ error: "Invalid password" });
+              }, process.env.JWT_SECRET || "your-secret-key");
+              
+              console.log("Login successful, token generated");
+              return res.json({ 
+                  success: true,
+                  token, 
+                  driverId: driverDoc._id,
+                  user: {
+                      id: driverDoc._id,
+                      name: driverDoc.DriverName,
+                      email: driverDoc.DriverEmail,
+                      phone: driverDoc.DriverPhone,
+                      address: driverDoc.DriverAdd,
+                      licenseNo: driverDoc.DLNo,
+                      nicNo: driverDoc.NICNo,
+                      type: 'driver'
+                  }
+              });
+          }
       }
+      
+      console.log("Password incorrect");
+      return res.status(401).json({ error: "Invalid password" });
   } catch (e) {
       console.error("Login error:", e);
       return res.status(500).json({ error: "Internal server error", details: e.message });
@@ -182,78 +218,94 @@ export async function driverLogin(req, res) {
 
 export async function driverRegister(req, res) {
     try {
-      const { DriverName, DriverPhone, DriverAdd, DriverEmail, DLNo, NICNo, DriverPW } = req.body;
-      
-      console.log("Registration attempt for:", DriverEmail);
+        const { DriverName, DriverPhone, DriverAdd, DriverEmail, DLNo, NICNo, DriverPW } = req.body;
+        
+        console.log("Registration attempt for:", DriverEmail);
+        console.log("Request body:", req.body);
 
-      // Check if the driver already exists
-      const existingDriver = await driver.findOne({ NICNo });
-      if (existingDriver) {
-        console.log("Driver with NIC already exists");
-        return res.status(400).json({ error: 'Driver with this NIC already exists.' });
-      }
-
-      // Check if the driver already exists
-      const existingDriver2 = await driver.findOne({ DriverEmail });
-      if (existingDriver2) {
-        console.log("Driver with email already exists");
-        return res.status(400).json({ error: 'Driver with this email already exists.' });
-      }
-
-      // Validate NIC number
-      if (NICNo.length !== 10) {
-        return res.status(400).json({ error: 'NIC number must be exactly 10 characters.' });
-      }
-
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(DriverEmail)) {
-        return res.status(400).json({ error: 'Invalid email format.' });
-      }
-
-      // Validate phone number
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phoneRegex.test(DriverPhone)) {
-        return res.status(400).json({ error: 'Phone number must be 10 digits.' });
-      }
-
-      // Hash password
-      console.log("Hashing password...");
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(DriverPW, salt);
-      console.log("Password hashed successfully");
-  
-      // Generate a unique Driver ID
-      const latestDriver = await driver.findOne().sort({ DriverID: -1 });
-      const newDriverID = latestDriver ? latestDriver.DriverID + 1 : 1001;
-
-      // Create and save the new driver
-      const newDriver = new driver({
-          DriverID: newDriverID,
-          DriverName,
-          DriverPhone,
-          DriverAdd,
-          DriverEmail,
-          DLNo,
-          NICNo,
-          DriverPW: hashedPassword
-      });
-  
-      console.log("Saving new driver...");
-      await newDriver.save();
-      console.log("Driver saved successfully");
-
-      return res.status(200).json({ 
-        success: 'Driver registered successfully!',
-        driver: {
-          DriverID: newDriver.DriverID,
-          DriverName: newDriver.DriverName,
-          DriverEmail: newDriver.DriverEmail
+        // Validate required fields
+        if (!DriverName || !DriverPhone || !DriverAdd || !DriverEmail || !DLNo || !NICNo || !DriverPW) {
+            console.log("Missing required fields");
+            return res.status(400).json({ error: 'All fields are required.' });
         }
-      });
+
+        // Check if the driver already exists by NIC
+        const existingDriver = await driver.findOne({ NICNo });
+        if (existingDriver) {
+            console.log("Driver with NIC already exists:", NICNo);
+            return res.status(400).json({ error: 'Driver with this NIC already exists.' });
+        }
+
+        // Check if the driver already exists by email
+        const existingDriver2 = await driver.findOne({ DriverEmail });
+        if (existingDriver2) {
+            console.log("Driver with email already exists:", DriverEmail);
+            return res.status(400).json({ error: 'Driver with this email already exists.' });
+        }
+
+        // Validate NIC number
+        if (NICNo.length !== 10) {
+            console.log("Invalid NIC length:", NICNo);
+            return res.status(400).json({ error: 'NIC number must be exactly 10 characters.' });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(DriverEmail)) {
+            console.log("Invalid email format:", DriverEmail);
+            return res.status(400).json({ error: 'Invalid email format.' });
+        }
+
+        // Validate phone number
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(DriverPhone)) {
+            console.log("Invalid phone format:", DriverPhone);
+            return res.status(400).json({ error: 'Phone number must be 10 digits.' });
+        }
+
+        // Hash password
+        console.log("Hashing password...");
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(DriverPW, salt);
+        console.log("Password hashed successfully");
+
+        // Create new driver document
+        const newDriver = new driver({
+            DriverName,
+            DriverPhone,
+            DriverAdd,
+            DriverEmail,
+            DLNo,
+            NICNo,
+            DriverPW: hashedPassword
+        });
+
+        console.log("Saving new driver...");
+        await newDriver.save();
+        console.log("Driver saved successfully");
+
+        return res.status(200).json({ 
+            success: true,
+            message: 'Driver registered successfully!',
+            driver: {
+                _id: newDriver._id,
+                DriverName: newDriver.DriverName,
+                DriverEmail: newDriver.DriverEmail,
+                type: "driver"
+            }
+        });
     } catch (err) {
-      console.error("Registration error:", err);
-      return res.status(500).json({ error: err.message });
+        console.error("Registration error:", err);
+        if (err.code === 11000) {
+            // Duplicate key error
+            return res.status(400).json({ 
+                error: 'A driver with this email, NIC, or license number already exists.' 
+            });
+        }
+        return res.status(500).json({ 
+            error: 'An error occurred during registration.',
+            details: err.message 
+        });
     }
 }
 

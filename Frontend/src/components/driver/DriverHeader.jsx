@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaUser, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 
 const DriverHeader = () => {
@@ -25,14 +25,6 @@ const DriverHeader = () => {
 
                     {/* Right side - Navigation */}
                     <nav className="flex items-center space-x-6">
-                        <button
-                            onClick={() => navigate('/')}
-                            className="flex items-center space-x-1 text-gray-600 hover:text-gray-800"
-                        >
-                            <FaHome className="text-lg" />
-                            <span>Website Home</span>
-                        </button>
-
                         <button
                             onClick={() => navigate(`/dashboard/${driverId}`)}
                             className="flex items-center space-x-1 text-gray-600 hover:text-gray-800"

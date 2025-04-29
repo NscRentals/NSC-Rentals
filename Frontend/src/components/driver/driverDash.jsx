@@ -7,14 +7,14 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { format } from "date-fns";
 import ViewAvailability from "./ViewAvailability";
-import DriverHeader from "./DriverHeader";
 import DriverReservations from './DriverReservations';
+import DriverSalary from './DriverSalary';
+import DriverHeader from './DriverHeader';
 
 const API_BASE_URL = "http://localhost:4000/api";
 
 const DriverDashboard = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,6 +30,7 @@ const DriverDashboard = () => {
   useEffect(() => {
     // Check if we have a valid driverId
     if (!driverId) {
+      console.log("No driver ID found in localStorage");
       setNotification({
         message: 'Please log in to access the dashboard',
         type: 'error'
@@ -38,48 +39,33 @@ const DriverDashboard = () => {
       return;
     }
 
-    // Check if the URL id matches the logged-in driver's id
-    if (id !== driverId) {
-      setNotification({
-        message: 'Unauthorized access',
-        type: 'error'
-      });
-      navigate(`/dashboard/${driverId}`);
-      return;
-    }
-
+    console.log("Loading dashboard for driver:", driverId);
     const loadDashboardData = async () => {
       try {
         setLoading(true);
         setError('');
 
-        // Fetch all data in parallel
-        const [driverResponse, availabilityResponse, scheduleResponse] = await Promise.all([
-          axios.get(`${API_BASE_URL}/driver/${id}`),
-          axios.get(`${API_BASE_URL}/driver/availability/schedule/${driverId}`),
-          axios.get(`${API_BASE_URL}/driver/availability/schedule/${driverId}`)
-        ]);
-
-        // Set driver data
-        setDriver(driverResponse.data.driverone);
-
-        // Set current availability
-        if (availabilityResponse.data.success) {
-          const today = format(new Date(), 'yyyy-MM-dd');
-          const todaySchedule = availabilityResponse.data.data.find(item => item.date === today);
-          setCurrentAvailability(todaySchedule ? todaySchedule.availability : true);
+        // Fetch driver data
+        const driverResponse = await axios.get(`${API_BASE_URL}/driver/${driverId}`);
+        console.log("Driver response:", driverResponse.data);
+        
+        if (driverResponse.data.success) {
+          setDriver(driverResponse.data.driverone);
+          
+          // Fetch availability data
+          const availabilityResponse = await axios.get(`${API_BASE_URL}/driver/availability/schedule/${driverId}`);
+          if (availabilityResponse.data.success) {
+            const today = new Date();
+            const upcoming = availabilityResponse.data.data
+              .filter(item => new Date(item.date) >= today)
+              .sort((a, b) => new Date(a.date) - new Date(b.date))
+              .slice(0, 5)
+              .map(item => ({ ...item, availability: true }));
+            setUpcomingSchedule(upcoming);
+          }
+        } else {
+          throw new Error('Failed to load driver data');
         }
-
-        // Set upcoming schedule
-        if (scheduleResponse.data.success) {
-          const today = new Date();
-          const upcoming = scheduleResponse.data.data
-            .filter(item => new Date(item.date) >= today)
-            .sort((a, b) => new Date(a.date) - new Date(b.date))
-            .slice(0, 5);
-          setUpcomingSchedule(upcoming);
-        }
-
       } catch (err) {
         console.error('Dashboard loading error:', err);
         setError(err.response?.data?.message || 'Failed to load dashboard data');
@@ -87,19 +73,22 @@ const DriverDashboard = () => {
           message: err.response?.data?.message || 'Failed to load dashboard data',
           type: 'error'
         });
+        if (err.response?.status === 401) {
+          navigate('/login');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     loadDashboardData();
-  }, [id, driverId, navigate]);
+  }, [driverId, navigate]);
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await axios.put(`http://localhost:4000/api/driver/update/${id}`, {
+      await axios.put(`http://localhost:4000/api/driver/update/${driverId}`, {
         DriverName: driver.DriverName,
         DriverPhone: driver.DriverPhone,
         DriverAdd: driver.DriverAdd,
@@ -139,7 +128,7 @@ const DriverDashboard = () => {
       const formData = new FormData();
       formData.append('profilePicture', file);
       
-      await axios.put(`http://localhost:4000/api/driver/pic/${id}`, formData, {
+      await axios.put(`http://localhost:4000/api/driver/pic/${driverId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -168,7 +157,7 @@ const DriverDashboard = () => {
 
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:4000/api/driver/delete/${id}`);
+      await axios.delete(`http://localhost:4000/api/driver/delete/${driverId}`);
       setNotification({
         message: 'Account deleted successfully',
         type: 'success'
@@ -434,12 +423,7 @@ const DriverDashboard = () => {
 
   const renderSalaryContent = () => (
     <div className="max-w-4xl mx-auto font-sans">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 font-sans">Salary Details</h1>
-        <div className="space-y-4">
-          <p className="text-gray-600 font-sans">No salary information available.</p>
-        </div>
-      </div>
+      <DriverSalary driverId={driverId} />
     </div>
   );
 
@@ -522,9 +506,8 @@ const DriverDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       <DriverHeader />
-      
-      <div className="flex pt-16">
-        <div className="w-64 bg-white shadow-lg min-h-screen fixed left-0 top-16">
+      <div className="flex">
+        <div className="w-64 bg-white shadow-lg min-h-screen fixed left-0 top-0">
           <div className="p-4">
             <div className="flex items-center justify-center mb-6">
               <div className="text-center">

@@ -3,6 +3,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { jsPDF } from "jspdf";
 
 const API_BASE_URL = "http://localhost:4000/api"; // Update this to match your backend URL
 
@@ -88,6 +89,59 @@ const DriverAvailability = () => {
     }
   };
 
+  const generateAvailabilityPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add header
+    doc.setFontSize(24);
+    doc.setTextColor(0, 0, 0);
+    doc.text("NSC Rentals", 105, 20, { align: "center" });
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text("Driver Availability Schedule", 105, 30, { align: "center" });
+    
+    // Add line
+    doc.setDrawColor(0, 0, 0);
+    doc.line(20, 35, 190, 35);
+    
+    // Add driver information
+    doc.setFontSize(14);
+    doc.text("Driver Information", 20, 45);
+    doc.setFontSize(12);
+    doc.text(`Driver ID: ${driverId}`, 20, 55);
+    
+    // Add schedule
+    doc.setFontSize(14);
+    doc.text("Availability Schedule", 20, 70);
+    
+    let yPosition = 80;
+    const sortedSchedule = [...schedule].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    sortedSchedule.forEach((item, index) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      const date = format(new Date(item.date), 'MMMM dd, yyyy');
+      const status = item.availability ? 'Available' : 'Not Available';
+      
+      doc.setFontSize(12);
+      doc.text(`${date}: ${status}`, 20, yPosition);
+      yPosition += 10;
+    });
+    
+    // Add footer
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Generated on: " + format(new Date(), 'MMMM dd, yyyy'), 105, 280, { align: "center" });
+    
+    // Save the PDF with a specific filename
+    const filename = `Driver-Availability-${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+    doc.save(filename);
+  };
+
   const tileClassName = ({ date }) => {
     const formattedDate = format(date, "yyyy-MM-dd");
     const dateSchedule = schedule.find(item => item.date === formattedDate);
@@ -156,15 +210,25 @@ const DriverAvailability = () => {
             </label>
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors ${
-              isLoading ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            {isLoading ? 'Updating...' : 'Update Availability'}
-          </button>
+          <div className="flex space-x-4">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {isLoading ? 'Updating...' : 'Update Availability'}
+            </button>
+
+            <button
+              type="button"
+              onClick={generateAvailabilityPDF}
+              className="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition-colors"
+            >
+              Download Schedule PDF
+            </button>
+          </div>
         </form>
 
         {/* Messages */}

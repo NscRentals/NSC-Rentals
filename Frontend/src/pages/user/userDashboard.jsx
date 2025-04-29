@@ -6,6 +6,7 @@ import UpdateUserDetails from "./UpdateUserDetails";
 import DeleteAccount from "./DeleteAccount";
 import VerifyAccount from "./VerifyAccount";
 import MyVehicles from "../vehicles/MyVehicles";
+import UserViewReservation from "../reservation/UserViewReservation";
 import axios from 'axios';
 import Header from '../../components/header';
 
@@ -47,7 +48,7 @@ export default function UserDashboard() {
             </div>
             <div className="w-fit">
               <Link 
-                to="/user/notifications" 
+                to="/user/reservations" 
                 className="block text-[26px] font-medium text-black relative group"
               >
                 Reservations
@@ -115,6 +116,7 @@ export default function UserDashboard() {
             <Route path="general/delete" element={<DeleteAccount />} />
             <Route path="general/verify" element={<VerifyAccount />} />
             <Route path="drivers" element={<MyVehicles />} />
+            <Route path="reservations" element={<UserViewReservation />} />
           </Routes>
         </div>
       </div>
