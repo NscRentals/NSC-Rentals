@@ -23,6 +23,6 @@ const blogUpload = multer({
         const isValid = allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype);
         isValid ? cb(null, true) : cb(new Error("Only JPEG, JPG, and PNG allowed"));
     }
-}).single('image'); // Changed to single image upload
+}).fields([{ name: "img1", maxCount: 1 }, { name: "img2", maxCount: 1 }, { name: "img3", maxCount: 1 }]);
 
 export default blogUpload;

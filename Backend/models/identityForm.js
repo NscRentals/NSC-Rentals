@@ -49,18 +49,9 @@ const identityFormSchema = new mongoose.Schema({
         required : true,
         default : false
 
-    },
-    isRejected : {
-
-        type : Boolean,
-        required : true,
-        default : false
-
     }
 
 
-},{
-    timestamps: true // This will add createdAt and updatedAt fields
 })
 
 const IdentityForm = mongoose.model("IdentityForm",identityFormSchema);

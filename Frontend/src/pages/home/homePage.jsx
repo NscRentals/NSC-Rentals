@@ -29,7 +29,7 @@ export default function HomePage() {
           <button
             className="mt-auto w-fit px-14 py-6 bg-black text-white text-3xl rounded-full font-light shadow hover:bg-gray-900 transition-all"
             style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 300 }}
-            onClick={() => navigate('/cars')}
+            onClick={() => navigate('/vehicles')}
           >
             Rent a car
           </button>
@@ -56,7 +56,7 @@ export default function HomePage() {
             <button
               className="w-fit px-10 py-4 bg-white text-black text-xl rounded-full font-medium shadow hover:bg-gray-200 transition-all text-left"
               style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 400 }}
-              onClick={() => navigate('/user/add')}
+              onClick={() => navigate('/vehicles/add')}
             >
               List your vehicle
             </button>

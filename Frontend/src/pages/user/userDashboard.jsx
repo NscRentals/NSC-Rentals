@@ -248,6 +248,72 @@ export default function UserDashboard() {
             <FaTrash className="text-red-600" />
             <span className="text-red-600">Delete account</span>
           </button>
+      <aside className="w-[380px] bg-white pt-24 px-12 pb-12 fixed left-0 top-[84px] h-[calc(100vh-84px)] overflow-y-auto">
+        <h2 className="text-[38px] font-bold mb-24">My account</h2>
+        <nav className="space-y-12 mb-20">
+          <div className="w-fit">
+            <Link 
+              to="/user/general" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              General
+              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-black"></span>
+            </Link>
+          </div>
+          <div className="w-fit">
+            <Link 
+              to="/user/notifications" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              Reservations
+              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+            </Link>
+          </div>
+          <div className="w-fit">
+            <Link 
+              to="/user/clubs" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              Notifications
+              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+            </Link>
+          </div>
+          <div className="w-fit">
+            <Link 
+              to="/user/payment" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              Payments
+              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+            </Link>
+          </div>
+          <div className="w-fit">
+            <Link 
+              to="/user/referrals" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              Coupons
+              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+            </Link>
+          </div>
+          <div className="w-fit">
+            <Link 
+              to="/user/my-vehicles" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              My Vehicles
+              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+            </Link>
+          </div>
+          <div className="w-fit mt-24">
+            <button 
+              onClick={handleLogout}
+              className="block text-[26px] font-medium text-red-600 relative group"
+            >
+              Logout
+              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-red-600 transition-all duration-200 group-hover:w-full"></span>
+            </button>
+          </div>
         </nav>
       </aside>
       

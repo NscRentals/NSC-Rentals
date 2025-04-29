@@ -6,7 +6,9 @@ import driverRouter from "./routes/DriverRoutes.js";
 import identityRouter from "./routes/identityFormRoutes.js";
 //import blogPostRouter from "./routes/blogPostRoutes.js"; // Fixed import path
 import blogRouter from "./routes/blogRoutes.js";
-
+import vehicleRouter from "./routes/vehicleRoutes.js";
+import sparePartsInventoryRouter from "./routes/sparePartsInventoryRoutes.js";
+import damageRequestRouter from "./routes/damageRequestRoutes.js";
 import cors from "cors";
 import path from "path"
 import { fileURLToPath } from 'url'; 
@@ -26,6 +28,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use('/uploads/profile_pictures', express.static(path.join(__dirname, 'uploads', 'profile_pictures')));
 app.use('/uploads/identity_forms', express.static(path.join(__dirname, 'uploads', 'identity_forms')));
+app.use('/uploads/vehicles', express.static(path.join(__dirname, 'uploads', 'vehicles'))); // Add this line for vehicle images
+app.use('/uploads/damage', express.static(path.join(__dirname, 'uploads', 'damage'))); // Add this line for damage request images
 
 let mongoURL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/NSC-Rentals";
 
@@ -53,8 +57,10 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use("/api/users", userRouter);
-app.use("/api/driver", driverRouter);
-app.use("/api/forms", identityRouter);
-//app.use("/api/blogpost", blogPostRouter); // Added the route for blogPostRouter
-app.use("/api/blog", blogRouter);
+app.use("/api/users",userRouter)
+app.use("/api/driver",driverRouter)
+app.use("/api/forms",identityRouter)
+app.use("/api/blogpost",blogRouter)
+app.use("/api/vehicles",vehicleRouter)
+app.use("/api/maintenance",sparePartsInventoryRouter)
+app.use("/api/damage-requests",damageRequestRouter)

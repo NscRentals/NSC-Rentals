@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { RxCross1 } from "react-icons/rx";
 import { FaUser, FaCar } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
@@ -13,9 +13,10 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [isDriver, setIsDriver] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { login } = useAuth();
 
-    async function handleOnSubmit(e) {
+    const handleOnSubmit = async (e) => {
         e.preventDefault();
 
         try {
@@ -28,8 +29,29 @@ export default function LoginPage() {
             const { user, token, driverId } = response.data;
 
             if (token) {
-                login(token);
+                toast.success("Login Successful");
+                await login(token); // Wait for login to complete
                 
+                // After login is complete, navigate based on user type
+                const userType = user.type.toLowerCase();
+                const from = location.state?.from?.pathname;
+
+                // Use timeout to ensure state is updated
+                setTimeout(() => {
+                    if (from) {
+                        navigate(from, { replace: true });
+                    } else if (userType === "customer") {
+                        navigate("/", { replace: true });
+                    } else if (userType === "admin") {
+                        navigate("/admin", { replace: true });
+                    } else if (userType === "driver") {
+                        navigate("/Driver", { replace: true });
+                    } else if (userType === "technician") {
+                        navigate("/technician/dashboard", { replace: true });
+                    } else {
+                        navigate("/", { replace: true });
+                    }
+                }, 100);
                 if (isDriver) {
                     localStorage.setItem('driverId', driverId);
                     navigate(`/dashboard/${driverId}`);
@@ -46,10 +68,9 @@ export default function LoginPage() {
             } else {
                 toast.error("Login failed - No token received");
             }
-
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.error || "Login failed");
+            toast.error(error.response?.data?.error || "Invalid email or password");
         }
     }
 
