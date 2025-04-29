@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import profileUpload from "../middlewares/multerProfile.js";
 import fs from "fs";
 import path from "path";
+import driver from "../models/DriverModel.js";
+import Technician from "../models/technician.js";
 
 dotenv.config();  
 
@@ -41,45 +43,73 @@ export async function registerUser(req, res) {
 
 //user login for admins and customers
 
-export async function loginUser(req,res){
+export async function loginUser(req, res) {
+    const { email, password } = req.body;
 
-    const data = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+    }
 
-    try{
-    const user =  await User.findOne({ email : data.email});
-              
-        if (user== null){
-         res.status(404).json({ error : "User not found"});
+    try {
+        let user = await User.findOne({ email });
+        let role = null;
 
-            }else {
-                const isPasswordCorrect = bcrypt.compareSync(data.password,user.password);
-
-                if(isPasswordCorrect){
-
-                    const token = jwt.sign({
-
-                        firstName : user.firstName,
-                        lastName: user.lastName,
-                        email : user.email,
-                        phone : user.phone,
-                        type : user.type,
-                        profilePicture : user.profilePicture
-                        
-                    },process.env.JWT_password)
-
-                    res.json({ message: "Login successful" , token : token , user:user })
-                }else{
-                    
-                    res.status(401).json({ error: "Login failed"})
-                }
-            }
-
-        }catch(e){
-
-            res.status().json(e);
+        if (!user) {
+            user = await driver.findOne({ email });
+            if (user) role = "driver";
         }
-        
-    
+
+        if (!user) {
+            user = await Technician.findOne({ email });
+            if (user) role = "technician";
+        }
+
+        if (!user) {
+            console.log(`Login attempt failed: No user found with email ${email}`);
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        console.log(`Login attempt for user ${email} with role: ${role || user.type}`);
+
+        // Determine role if not already set (for User model)
+        if (!role) {
+            role = user.type; // "admin" or "customer"
+        }
+
+        // Validating the password
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        if (!isPasswordCorrect) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+
+        const tokenPayload = {
+            id: user._id,
+            //If the role is "admin" or "customer", use user.firstName.otherwise its null
+            firstName: role === "admin" || role === "customer" ? user.firstName : null,
+            //same
+            lastName: role === "admin" || role === "customer" ? user.lastName : null,
+            address:  role === "customer" ? user.address.street : null,
+            name: role === "driver" || role === "technician" ? user.name : null,
+            email: user.email,
+            phone: user.phone || "",
+            type: role.toLowerCase(), // Ensure consistent casing
+            profilePicture: role === "admin" || role === "customer" ? user.profilePicture || null : null,
+        };
+
+        // Generate JWT token
+        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+        res.json({
+            message: "Login successful",
+            token,
+            user: tokenPayload,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 }
 
 //admin registration(Authorization needed as admin)
@@ -151,13 +181,23 @@ export async function getAllUsers(req,res){
 
 //User to get their Details
 
-export async function getUserDetails(req,res){
+export async function getUserDetails(req, res) {
+    const { email, type } = req.user;
+    let user = null;
 
-    const email = req.user.email;
-    const user = await User.findOne({ email })
+    if (type === "driver") {
+        user = await driver.findOne({ email });
+    } else if (type === "technician") {
+        user = await Technician.findOne({ email });
+    } else {
+        user = await User.findOne({ email });
+    }
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
 
     res.json(user);
-    
 }
 
 
@@ -194,29 +234,29 @@ export async function changePassword(req, res) {
 
 //update user
 
-export async function updateUser(req, res){
-
-    try{
-
+export async function updateUser(req, res) {
+    try {
+        const { email, type } = req.user;
         const data = req.body;
-        const user = req.user;
-        const email = req.body.email;
 
-    if(user.email==req.body.email){
+        let result;
+        if (type === "driver") {
+            result = await driver.updateOne({ email }, data);
+        } else if (type === "technician") {
+            result = await Technician.updateOne({ email }, data);
+        } else {
+            result = await User.updateOne({ email }, data);
+        }
 
-        await User.updateOne({email:email},data);
-        res.json({ message : " update sucessful!"})
+        if (!result || result.matchedCount === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-    }else{
-
-        res.json({ message : "you are not authorized to perform this task!"})
+        res.json({ message: "Update successful!" });
+    } catch (e) {
+        console.error("Update user error:", e);
+        res.status(500).json({ message: "Update Failed!" });
     }
-
-}catch(e){
-
-    res.status(500).json({message :"Update Failed!"});
-}
-
 }
 
 

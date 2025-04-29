@@ -117,3 +117,66 @@ export async function deleteReservation(req, res) {
         });
     }
 }
+
+// Get unverified reservations
+export async function getUnverifiedReservations(req, res) {
+    try {
+        const reservations = await Reservation.find({ isVerified: false });
+
+        if (reservations.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No unverified reservations found!",
+                reservations: []
+            });
+        }
+        return res.status(200).json({ success: true, reservations });
+
+    } catch (err) {
+        return res.status(500).json({
+            error: err.message
+        });
+    }
+}
+
+// Verify a reservation
+export async function verifyReservation(req, res) {
+    try {
+        const { id } = req.params;
+        const { action } = req.body; // 'approve' or 'reject'
+
+        const reservation = await Reservation.findById(id);
+        if (!reservation) {
+            return res.status(404).json({
+                success: false,
+                message: "Reservation not found!"
+            });
+        }
+
+        if (action === 'approve') {
+            reservation.isVerified = true;
+            await reservation.save();
+            return res.status(200).json({
+                success: true,
+                message: "Reservation approved successfully!",
+                reservation
+            });
+        } else if (action === 'reject') {
+            await Reservation.findByIdAndDelete(id);
+            return res.status(200).json({
+                success: true,
+                message: "Reservation rejected and deleted successfully!"
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid action! Use 'approve' or 'reject'"
+            });
+        }
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+}

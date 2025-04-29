@@ -1,28 +1,33 @@
-import express from "express";
-import Reservation from "../models/reservations.js";
-import { 
-    addReservation, 
-    getReservations, 
-    getReservationById, 
-    updateReservation, 
-    deleteReservation 
-} from "../controllers/reservationsController.js";
+import express from 'express';
+import {
+    reservationAdd,
+    reservationFind,
+    reservationFindOne,
+    reservationUpdate,
+    reservationDelete,
+    reservationFindUserId,
+    reservationFindDriverId,
+    getUnverifiedReservations,
+    verifyReservation,
+    reservationFindByEmail
+} from '../controllers/reservationController.js';
+import { verifyToken } from '../middlewares/authMiddleware.js';
 
-const resRouter = express.Router();
+const router = express.Router();
 
-// Route to add a new reservation
-resRouter.post("/", addReservation);
+// Apply authentication middleware to all routes
+router.use(verifyToken);
 
-// Route to get all reservations
-resRouter.get("/", getReservations);
+// Reservation routes
+router.post('/', reservationAdd);  // Add a reservation
+router.get('/', reservationFind);  // Get all reservations
+router.get('/unverified', getUnverifiedReservations);
+router.get('/:id', reservationFindOne);  // Get a specific reservation by ID
+router.put('/:id', reservationUpdate);  // Update a reservation by ID
+router.delete('/:id', reservationDelete);  // Delete a reservation by ID
+router.get('/user/:userid', reservationFindUserId);  // Get reservations for a specific user
+router.get('/driver/:driverid', reservationFindDriverId);  // Get reservations for a specific driver
+router.post('/:id/verify', verifyReservation);
+router.get('/user/email/:email', reservationFindByEmail);
 
-// Route to get a reservation by ID
-resRouter.get("/:id", getReservationById);
-
-// Route to update a reservation
-resRouter.put("/:id", updateReservation);
-
-// Route to delete a reservation
-resRouter.delete("/:id", deleteReservation);
-
-export default resRouter;
+export default router;
