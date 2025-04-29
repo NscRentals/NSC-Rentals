@@ -18,39 +18,75 @@ export default function Header() {
       {/* Center: Navigation Items */}
       <nav className="flex items-center space-x-8 mx-auto">
         <Link 
-          to="/cars" 
+          to="/vehicles" 
           className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
         >
-          Cars
+          Vehicles
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
         </Link>
+
         <Link 
-          to="/about" 
-          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
-        >
-          About
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
-        </Link>
-        <Link 
-          to="/contact" 
-          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
-        >
-          Contact
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
-        </Link>
-        <Link 
-          to="/blog" 
-          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
-        >
-          Blog
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
-        </Link>
+                  to="/about" 
+                  className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+                >
+                  About
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+                </Link>
+                <Link 
+                  to="/contact" 
+                  className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+                >
+                  Contact
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+                </Link>
+                <Link 
+                  to="/blog" 
+                  className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+                >
+                  Blog
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+                </Link>
+              
+        {isLoggedIn && userProfile?.type === 'Admin' && (
+          <Link 
+            to="/admin/vehicle-approvals" 
+            className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+          >
+            Approvals
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+          </Link>
+        )}
+        
       </nav>
 
       {/* Right side: User related elements */}
       <div className="flex items-center space-x-6">
         {isLoggedIn ? (
           <div className="flex items-center space-x-4">
+            {userProfile?.type === 'Admin' && (
+              <Link 
+                to="/admin" 
+                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200"
+              >
+                Admin Panel
+              </Link>
+            )}
+            {userProfile?.type === 'Driver' && (
+              <Link 
+                to="/Driver" 
+                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200"
+              >
+                Driver Panel
+              </Link>
+            )}
+            {userProfile?.type === 'Technician' && (
+              <Link 
+                to="/Tech" 
+                className="bg-black text-white text-xl px-6 py-2 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200"
+              >
+                Tech Panel
+              </Link>
+            )}
             <Link to="/user/general" className="group">
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 hover:border-gray-300 transition-colors duration-200">
                 {userProfile?.profilePicture ? (
@@ -59,8 +95,11 @@ export default function Header() {
                     alt={userProfile?.firstName || 'Profile'} 
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.parentElement.querySelector('.fallback').style.display = 'flex';
-                      e.target.style.display = 'none';
+                      const fallback = e.target.parentElement?.querySelector('.fallback');
+                      if (fallback) {
+                        fallback.style.display = 'flex';
+                        e.target.style.display = 'none';
+                      }
                     }}
                   />
                 ) : (

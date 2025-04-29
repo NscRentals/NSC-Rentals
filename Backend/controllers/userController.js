@@ -46,6 +46,10 @@ export async function registerUser(req, res) {
 export async function loginUser(req, res) {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+    }
+
     try {
         let user = await User.findOne({ email });
         let role = null;
@@ -61,8 +65,11 @@ export async function loginUser(req, res) {
         }
 
         if (!user) {
+            console.log(`Login attempt failed: No user found with email ${email}`);
             return res.status(404).json({ error: "User not found" });
         }
+
+        console.log(`Login attempt for user ${email} with role: ${role || user.type}`);
 
         // Determine role if not already set (for User model)
         if (!role) {
@@ -70,7 +77,7 @@ export async function loginUser(req, res) {
         }
 
         // Validating the password
-        const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
@@ -79,15 +86,15 @@ export async function loginUser(req, res) {
         const tokenPayload = {
             id: user._id,
             //If the role is "admin" or "customer", use user.firstName.otherwise its null
-            firstName: role === "admin" || role === "Customer" ? user.firstName : null,
+            firstName: role === "admin" || role === "customer" ? user.firstName : null,
             //same
-            lastName: role === "admin" || role === "Customer" ? user.lastName : null,
-            address:  role === "Customer" ? user.address.street : null,
+            lastName: role === "admin" || role === "customer" ? user.lastName : null,
+            address:  role === "customer" ? user.address.street : null,
             name: role === "driver" || role === "technician" ? user.name : null,
             email: user.email,
             phone: user.phone || "",
-            type: role,
-            profilePicture: role === "admin" || role === "Customer" ? user.profilePicture || null : null,
+            type: role.toLowerCase(), // Ensure consistent casing
+            profilePicture: role === "admin" || role === "customer" ? user.profilePicture || null : null,
         };
 
         // Generate JWT token

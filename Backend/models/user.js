@@ -21,7 +21,7 @@ type : {
 
     type : String,
     required : true,
-    default : "Customer"
+    default : "customer"
 
 },
 

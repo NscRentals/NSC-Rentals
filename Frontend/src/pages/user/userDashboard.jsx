@@ -18,9 +18,9 @@ export default function UserDashboard() {
   return (
     <div className="flex min-h-[calc(100vh-84px)]">
       {/* Sidebar */}
-      <aside className="w-[380px] bg-white pt-24 px-12 pb-12 fixed left-0 top-[84px] h-[calc(100vh-84px)]">
+      <aside className="w-[380px] bg-white pt-24 px-12 pb-12 fixed left-0 top-[84px] h-[calc(100vh-84px)] overflow-y-auto">
         <h2 className="text-[38px] font-bold mb-24">My account</h2>
-        <nav className="space-y-12">
+        <nav className="space-y-12 mb-20">
           <div className="w-fit">
             <Link 
               to="/user/general" 
@@ -68,10 +68,10 @@ export default function UserDashboard() {
           </div>
           <div className="w-fit">
             <Link 
-              to="/user/drivers" 
+              to="/user/my-vehicles" 
               className="block text-[26px] font-medium text-black relative group"
             >
-              My vehicles
+              My Vehicles
               <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
             </Link>
           </div>
