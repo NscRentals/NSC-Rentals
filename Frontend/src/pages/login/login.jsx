@@ -3,11 +3,15 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { RxCross1 } from "react-icons/rx";
+import { FaUser, FaCar } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
+
+const API_BASE_URL = "http://localhost:4000/api";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [isDriver, setIsDriver] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const { login } = useAuth();
@@ -16,12 +20,13 @@ export default function LoginPage() {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://localhost:4000/api/users/login", {
+            const endpoint = isDriver ? `${API_BASE_URL}/driver/login` : `${API_BASE_URL}/users/login`;
+            const response = await axios.post(endpoint, {
                 email,
                 password
             });
 
-            const { user, token } = response.data;
+            const { user, token, driverId } = response.data;
 
             if (token) {
                 toast.success("Login Successful");
@@ -47,6 +52,19 @@ export default function LoginPage() {
                         navigate("/", { replace: true });
                     }
                 }, 100);
+                if (isDriver) {
+                    localStorage.setItem('driverId', driverId);
+                    navigate(`/dashboard/${driverId}`);
+                } else {
+                    // Navigate based on user type without page reload
+                    if (user.type === "Customer") {
+                        navigate("/");
+                    } else if (user.type === "admin") {
+                        navigate("/admin");
+                    } else if (user.type === "technician") {
+                        navigate("/Tech");
+                    }
+                }
             } else {
                 toast.error("Login failed - No token received");
             }
@@ -76,6 +94,34 @@ export default function LoginPage() {
                 >
                     <h1 className="text-5xl font-bold mb-12 w-full text-left ml-[260px]">Log In</h1>
 
+                    {/* Login Type Toggle */}
+                    <div className="w-full max-w-[500px] flex gap-4 mb-8">
+                        <button
+                            type="button"
+                            onClick={() => setIsDriver(false)}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-lg font-medium transition-all duration-200 ${
+                                !isDriver 
+                                    ? 'bg-black text-white' 
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                        >
+                            <FaUser />
+                            <span>User Login</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsDriver(true)}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-lg font-medium transition-all duration-200 ${
+                                isDriver 
+                                    ? 'bg-black text-white' 
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }`}
+                        >
+                            <FaCar />
+                            <span>Driver Login</span>
+                        </button>
+                    </div>
+
                     {/* Info Box */}
                     <div className="w-full max-w-[500px] flex items-start bg-mylightblue rounded-[20px] p-5 text-lg mb-8">
                         <img
@@ -84,7 +130,10 @@ export default function LoginPage() {
                             className="h-10 w-10 mr-4"
                         />
                         <p className="text-xl">
-                            Don't see your previous login choice? Please use reset password to update your login information.
+                            {isDriver 
+                                ? "Login with your driver account credentials to access the driver dashboard."
+                                : "Don't see your previous login choice? Please use reset password to update your login information."
+                            }
                         </p>
                     </div>
 
@@ -132,7 +181,7 @@ export default function LoginPage() {
                         <button
                             type="button"
                             className="border border-mygreen text-green-900 hover:bg-green-100 w-full py-4 text-2xl rounded-full"
-                            onClick={() => navigate("/user/add")}
+                            onClick={() => navigate(isDriver ? "/register" : "/user/add")}
                         >
                             Create Account
                         </button>
@@ -140,29 +189,31 @@ export default function LoginPage() {
                 </form>
 
                 {/* Right Side - Social Logins */}
-                <div className="w-[calc(100vw-830px)] min-h-full bg-white flex items-center justify-center">
-                    <div className="text-left">
-                        <h2 className="text-4xl font-bold mb-12">Or continue with...</h2>
+                {!isDriver && (
+                    <div className="w-[calc(100vw-830px)] min-h-full bg-white flex items-center justify-center">
+                        <div className="text-left">
+                            <h2 className="text-4xl font-bold mb-12">Or continue with...</h2>
 
-                        {/* Facebook */}
-                        <button className="w-[380px] flex items-center mb-9 gap-5 bg-[#4267B2] text-white text-2xl py-5 px-7 rounded-xl shadow-md">
-                            <img src="/icons/facebook.svg" alt="Facebook" className="h-9 w-9" />
-                            Continue with Facebook
-                        </button>
+                            {/* Facebook */}
+                            <button className="w-[380px] flex items-center mb-9 gap-5 bg-[#4267B2] text-white text-2xl py-5 px-7 rounded-xl shadow-md">
+                                <img src="/icons/facebook.svg" alt="Facebook" className="h-9 w-9" />
+                                Continue with Facebook
+                            </button>
 
-                        {/* Google */}
-                        <button className="w-[380px] flex items-center mb-9 gap-5 border border-gray-300 text-2xl py-5 px-7 rounded-xl">
-                            <img src="/icons/google.svg" alt="Google" className="h-9 w-9" />
-                            Continue with Google
-                        </button>
+                            {/* Google */}
+                            <button className="w-[380px] flex items-center mb-9 gap-5 border border-gray-300 text-2xl py-5 px-7 rounded-xl">
+                                <img src="/icons/google.svg" alt="Google" className="h-9 w-9" />
+                                Continue with Google
+                            </button>
 
-                        {/* Apple */}
-                        <button className="w-[380px] flex items-center gap-5 bg-black text-white text-2xl py-5 px-7 rounded-xl">
-                            <img src="/icons/apple.svg" alt="Apple" className="h-9 w-9" />
-                            Continue with Apple
-                        </button>
+                            {/* Apple */}
+                            <button className="w-[380px] flex items-center gap-5 bg-black text-white text-2xl py-5 px-7 rounded-xl">
+                                <img src="/icons/apple.svg" alt="Apple" className="h-9 w-9" />
+                                Continue with Apple
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
