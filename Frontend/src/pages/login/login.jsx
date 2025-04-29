@@ -29,7 +29,7 @@ export default function LoginPage() {
                 if (user.type === "Customer") {
                     navigate("/");
                 } else if (user.type === "admin") {
-                    navigate("/admin");
+                    navigate("/admin/dashboard");
                 } else if (user.type === "driver") {
                     navigate("/Driver");
                 } else if (user.type === "technician") {

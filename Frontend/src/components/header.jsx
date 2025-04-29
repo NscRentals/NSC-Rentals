@@ -53,7 +53,7 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <Link to="/user/general" className="group">
               <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200 hover:border-gray-300 transition-colors duration-200">
-                {userProfile?.profilePicture ? (
+                {userProfile?.profilePicture && userProfile.profilePicture !== "aaaaaa" ? (
                   <img 
                     src={`http://localhost:4000/uploads/profile_pictures/${userProfile.profilePicture}`}
                     alt={userProfile?.firstName || 'Profile'} 

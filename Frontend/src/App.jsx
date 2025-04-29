@@ -10,6 +10,8 @@ import DriverDashboard from './pages/driver/driverDashboard';
 import RegisterPage from './pages/login/registrationPage';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
+import AddBlog from './pages/user/addBlog';
+import Blog from './pages/home/blog';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
             <Route path="/Tech" element={<TechDashboard/>} />
             <Route path="/Driver" element={<DriverDashboard/>} />
             <Route path="/user/add" element={<RegisterPage/>} />
+            <Route path="/addBlog" element={<AddBlog />} />
+            <Route path="/blog" element={<Blog />} />
           </Route>
         </Routes>
       </BrowserRouter>

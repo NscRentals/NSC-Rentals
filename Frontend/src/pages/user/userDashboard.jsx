@@ -5,14 +5,25 @@ import ChangePassword from "./ChangePassword";
 import UpdateUserDetails from "./UpdateUserDetails";
 import DeleteAccount from "./DeleteAccount";
 import VerifyAccount from "./VerifyAccount";
+import axios from 'axios';
 
 export default function UserDashboard() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-    window.location.reload(); // This will refresh the page to update all components
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      // Log the logout activity
+      await axios.post('http://localhost:4000/api/activities/logout', {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error('Error logging logout:', error);
+    } finally {
+      localStorage.removeItem('token');
+      navigate('/');
+      window.location.reload(); // This will refresh the page to update all components
+    }
   };
 
   return (

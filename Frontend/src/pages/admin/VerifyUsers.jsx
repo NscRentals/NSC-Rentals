@@ -50,12 +50,12 @@ const VerifyUsers = () => {
 
   return (
     <div className="p-8">
-      <h2 className="text-2xl font-bold mb-8">User Verification Requests</h2>
-      <div className="space-y-8">
+      <h2 className="mb-10" style={{ fontSize: "2.8rem", fontWeight: "bold", letterSpacing: "-1px" }}>User Verification Requests</h2>
+      <div className="space-y-12">
         {forms.map(form => (
-          <div key={form._id} className="bg-[#F6F6F6] rounded-3xl p-10 flex flex-col gap-6 shadow-sm">
+          <div key={form._id} className="bg-[#F6F6F6] rounded-3xl flex flex-col gap-10 shadow-sm" style={{ padding: '48px 64px 36px 64px', maxWidth: '1200px', margin: '0 auto' }}>
             <div className="flex flex-row items-start">
-              <div className="flex flex-col gap-2 min-w-[220px]">
+              <div className="flex flex-col gap-4 min-w-[320px] text-xl">
                 <span className="font-bold">User ID :</span>
                 <span className="mb-2">{form._id}</span>
                 <span className="font-bold">Name :</span>
@@ -65,37 +65,37 @@ const VerifyUsers = () => {
                 <span className="font-bold">Address :</span>
                 <span className="mb-2">{form.address}</span>
               </div>
-              <div className="flex flex-row gap-3 ml-auto">
-                <div className="flex flex-col gap-2 min-w-[180px]">
-                  <span className="font-bold">Image</span>
+              <div className="flex flex-row gap-8 ml-auto">
+                <div className="flex flex-col gap-4 min-w-[260px]">
+                  <span className="font-bold text-lg">Image</span>
                   <img 
                     src={`http://localhost:4000/uploads/identity_forms/${form.img1}`} 
                     alt="Front" 
-                    className="w-32 h-32 object-contain border rounded-xl bg-white cursor-pointer"
+                    className="w-[220px] h-[220px] object-contain border-2 rounded-2xl bg-white cursor-pointer"
                     onClick={() => setPreviewImg(`http://localhost:4000/uploads/identity_forms/${form.img1}`)}
                   />
                 </div>
-                <div className="flex flex-col gap-2 min-w-[180px]">
-                  <span className="font-bold">Image</span>
+                <div className="flex flex-col gap-4 min-w-[260px]">
+                  <span className="font-bold text-lg">Image</span>
                   <img 
                     src={`http://localhost:4000/uploads/identity_forms/${form.img2}`} 
                     alt="Back" 
-                    className="w-32 h-32 object-contain border rounded-xl bg-white cursor-pointer"
+                    className="w-[220px] h-[220px] object-contain border-2 rounded-2xl bg-white cursor-pointer"
                     onClick={() => setPreviewImg(`http://localhost:4000/uploads/identity_forms/${form.img2}`)}
                   />
                 </div>
               </div>
             </div>
-            <div className="flex flex-row gap-6 mt-2 justify-end">
+            <div className="flex flex-row gap-10 mt-4 justify-end">
               <button
                 onClick={() => handleReject(form.email)}
-                className="px-10 py-3 bg-[#B94A48] text-white rounded-full text-lg font-semibold shadow-sm hover:bg-[#a03d3a]"
+                className="px-14 py-5 bg-[#B94A48] text-white rounded-full text-2xl font-semibold shadow-sm hover:bg-[#a03d3a]"
               >
                 Reject
               </button>
               <button
                 onClick={() => handleApprove(form.email)}
-                className="px-10 py-3 bg-[#4A7B3F] text-white rounded-full text-lg font-semibold shadow-sm hover:bg-[#38622e]"
+                className="px-14 py-5 bg-[#4A7B3F] text-white rounded-full text-2xl font-semibold shadow-sm hover:bg-[#38622e]"
               >
                 Approve
               </button>

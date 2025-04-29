@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import driver from "../models/DriverModel.js";
 import Technician from "../models/technician.js";
+import { logUserActivity } from "./userActivityController.js";
 
 dotenv.config();  
 
@@ -75,20 +76,28 @@ export async function loginUser(req, res) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
-
         const tokenPayload = {
             id: user._id,
-            //If the role is "admin" or "customer", use user.firstName.otherwise its null
             firstName: role === "admin" || role === "Customer" ? user.firstName : null,
-            //same
             lastName: role === "admin" || role === "Customer" ? user.lastName : null,
-            address:  role === "Customer" ? user.address.street : null,
+            address: role === "Customer" ? user.address.street : null,
             name: role === "driver" || role === "technician" ? user.name : null,
             email: user.email,
             phone: user.phone || "",
             type: role,
             profilePicture: role === "admin" || role === "Customer" ? user.profilePicture || null : null,
         };
+
+        // Log login activity
+        if (role === "admin" || role === "Customer") {
+            await logUserActivity(
+                user._id,
+                user.email,
+                user.firstName,
+                user.lastName,
+                'login'
+            );
+        }
 
         // Generate JWT token
         const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -216,30 +225,43 @@ export async function changePassword(req, res) {
 
 
 //update user
-
 export async function updateUser(req, res){
+    try {
+        const { firstName, lastName, phone, address } = req.body;
+        const email = req.user.email;
 
-    try{
+        // Validate required fields
+        if (!firstName || !lastName || !phone || !address) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
 
-        const data = req.body;
-        const user = req.user;
-        const email = req.body.email;
+        // Validate address fields
+        if (!address.street || !address.city || !address.state || !address.zipCode || !address.country) {
+            return res.status(400).json({ message: "Missing required address fields" });
+        }
 
-    if(user.email==req.body.email){
+        // Update only the allowed fields
+        const updateData = {
+            firstName,
+            lastName,
+            phone,
+            address
+        };
 
-        await User.updateOne({email:email},data);
-        res.json({ message : " update sucessful!"})
+        const result = await User.updateOne(
+            { email },
+            { $set: updateData }
+        );
 
-    }else{
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-        res.json({ message : "you are not authorized to perform this task!"})
+        res.json({ message: "Update successful!" });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ message: "Update failed!" });
     }
-
-}catch(e){
-
-    res.status(500).json({message :"Update Failed!"});
-}
-
 }
 
 

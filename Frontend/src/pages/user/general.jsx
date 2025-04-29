@@ -63,7 +63,7 @@ export default function General() {
                     onClick={() => navigate("/user/general/profile")} 
                     className="cursor-pointer"
                 >
-                    {user.profilePicture ? (
+                    {user.profilePicture && user.profilePicture !== "aaaaaa" ? (
                         <img 
                             src={`http://localhost:4000/uploads/profile_pictures/${user.profilePicture}`}
                             alt={user.firstName || 'Profile'} 

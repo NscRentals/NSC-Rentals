@@ -17,7 +17,7 @@ const blogStorage = multer.diskStorage({
 // Multer upload configuration
 const blogUpload = multer({
     storage: blogStorage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limit is 5MB
+    limits: { fileSize: 10 * 1024 * 1024 }, // Limit is now 10MB
     fileFilter: (req, file, cb) => {
         const allowed = /jpeg|jpg|png/;
         const isValid = allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype);
