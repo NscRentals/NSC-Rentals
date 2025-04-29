@@ -181,13 +181,23 @@ export async function getAllUsers(req,res){
 
 //User to get their Details
 
-export async function getUserDetails(req,res){
+export async function getUserDetails(req, res) {
+    const { email, type } = req.user;
+    let user = null;
 
-    const email = req.user.email;
-    const user = await User.findOne({ email })
+    if (type === "driver") {
+        user = await driver.findOne({ email });
+    } else if (type === "technician") {
+        user = await Technician.findOne({ email });
+    } else {
+        user = await User.findOne({ email });
+    }
+
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
 
     res.json(user);
-    
 }
 
 
@@ -224,29 +234,29 @@ export async function changePassword(req, res) {
 
 //update user
 
-export async function updateUser(req, res){
-
-    try{
-
+export async function updateUser(req, res) {
+    try {
+        const { email, type } = req.user;
         const data = req.body;
-        const user = req.user;
-        const email = req.body.email;
 
-    if(user.email==req.body.email){
+        let result;
+        if (type === "driver") {
+            result = await driver.updateOne({ email }, data);
+        } else if (type === "technician") {
+            result = await Technician.updateOne({ email }, data);
+        } else {
+            result = await User.updateOne({ email }, data);
+        }
 
-        await User.updateOne({email:email},data);
-        res.json({ message : " update sucessful!"})
+        if (!result || result.matchedCount === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-    }else{
-
-        res.json({ message : "you are not authorized to perform this task!"})
+        res.json({ message: "Update successful!" });
+    } catch (e) {
+        console.error("Update user error:", e);
+        res.status(500).json({ message: "Update Failed!" });
     }
-
-}catch(e){
-
-    res.status(500).json({message :"Update Failed!"});
-}
-
 }
 
 

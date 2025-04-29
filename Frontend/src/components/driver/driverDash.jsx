@@ -8,6 +8,7 @@ import "react-calendar/dist/Calendar.css";
 import { format } from "date-fns";
 import ViewAvailability from "./ViewAvailability";
 import DriverHeader from "./DriverHeader";
+import DriverReservations from './DriverReservations';
 
 const API_BASE_URL = "http://localhost:4000/api";
 
@@ -426,13 +427,8 @@ const DriverDashboard = () => {
   };
 
   const renderReservationsContent = () => (
-    <div className="max-w-4xl mx-auto font-sans">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 font-sans">Assigned Reservations</h1>
-        <div className="space-y-4">
-          <p className="text-gray-600 font-sans">No reservations assigned yet.</p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <DriverReservations driverId={driverId} />
     </div>
   );
 

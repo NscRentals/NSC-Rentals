@@ -4,12 +4,14 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal';
+import Notification from '../../components/Notification';
 
 function MyVehicles() {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [notification, setNotification] = useState({ message: '', type: '' });
   const { userProfile, isLoggedIn, logout, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -17,18 +19,27 @@ function MyVehicles() {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('Please log in to view your vehicles');
+        setNotification({
+          message: 'Please log in to view your vehicles',
+          type: 'error'
+        });
         navigate('/login');
         return;
       }
 
       const response = await axios.get('http://localhost:4000/api/vehicles/user/my-vehicles', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.data || !Array.isArray(response.data)) {
         console.error('Invalid response format:', response.data);
-        toast.error('Invalid data format received from server');
+        setNotification({
+          message: 'Invalid data format received from server',
+          type: 'error'
+        });
         return;
       }
 
@@ -37,11 +48,22 @@ function MyVehicles() {
     } catch (error) {
       console.error('Error fetching vehicles:', error.response || error);
       if (error.response?.status === 401) {
-        toast.error('Session expired. Please log in again.');
+        setNotification({
+          message: 'Session expired. Please log in again.',
+          type: 'error'
+        });
         logout();
         navigate('/login');
+      } else if (error.response?.status === 403) {
+        setNotification({
+          message: 'You do not have permission to view vehicles.',
+          type: 'error'
+        });
       } else {
-        toast.error('Failed to load vehicles: ' + (error.response?.data?.message || error.message));
+        setNotification({
+          message: 'Failed to load vehicles: ' + (error.response?.data?.message || error.message),
+          type: 'error'
+        });
       }
       setLoading(false);
     }
@@ -56,29 +78,115 @@ function MyVehicles() {
     fetchMyVehicles();
   }, [isLoggedIn, isLoading, navigate, fetchMyVehicles]);
 
+  const sendNotification = async (title, message) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      await axios.post('http://localhost:4000/api/notifications', {
+        title,
+        message,
+        type: 'vehicle'
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  };
+
   const handleDelete = async (id, reason) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('Please log in to perform this action');
+        setNotification({
+          message: 'Please log in to perform this action',
+          type: 'error'
+        });
         navigate('/login');
         return;
       }
 
-      await axios.delete(`http://localhost:4000/api/vehicles/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await axios.delete(`http://localhost:4000/api/vehicles/${id}`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         data: { reason }
       });
-      toast.success('Vehicle deleted successfully');
+
+      // Send notification for vehicle deletion
+      await sendNotification(
+        'Vehicle Deleted',
+        `Your vehicle has been deleted. Reason: ${reason}`
+      );
+
+      setNotification({
+        message: 'Vehicle deleted successfully',
+        type: 'success'
+      });
       fetchMyVehicles();
     } catch (error) {
       console.error('Error deleting vehicle:', error);
       if (error.response?.status === 401) {
-        toast.error('Session expired. Please log in again.');
+        setNotification({
+          message: 'Session expired. Please log in again.',
+          type: 'error'
+        });
         logout();
         navigate('/login');
+      } else if (error.response?.status === 403) {
+        setNotification({
+          message: 'You do not have permission to delete vehicles.',
+          type: 'error'
+        });
       } else {
-        toast.error('Failed to delete vehicle');
+        setNotification({
+          message: 'Failed to delete vehicle: ' + (error.response?.data?.message || error.message),
+          type: 'error'
+        });
+      }
+    }
+  };
+
+  const handleDamageReport = async (vehicleId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setNotification({
+          message: 'Please log in to perform this action',
+          type: 'error'
+        });
+        navigate('/login');
+        return;
+      }
+
+      // Send notification for damage report
+      await sendNotification(
+        'Damage Report Submitted',
+        `A damage report has been submitted for your vehicle. Please check the details.`
+      );
+
+      navigate(`/damage-request/new/${vehicleId}`);
+    } catch (error) {
+      console.error('Error reporting damage:', error);
+      if (error.response?.status === 401) {
+        setNotification({
+          message: 'Session expired. Please log in again.',
+          type: 'error'
+        });
+        logout();
+        navigate('/login');
+      } else if (error.response?.status === 403) {
+        setNotification({
+          message: 'You do not have permission to submit damage reports.',
+          type: 'error'
+        });
+      } else {
+        setNotification({
+          message: 'Failed to submit damage report: ' + (error.response?.data?.message || error.message),
+          type: 'error'
+        });
       }
     }
   };
@@ -106,6 +214,7 @@ function MyVehicles() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Notification message={notification.message} type={notification.type} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">My Vehicles</h1>
         <button 
@@ -176,7 +285,7 @@ function MyVehicles() {
                       </button>
                       {vehicle.availabilityStatus !== 'Under Maintenance' && (
                         <button
-                          onClick={() => navigate(`/damage-request/new/${vehicle._id}`)}
+                          onClick={() => handleDamageReport(vehicle._id)}
                           className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-full hover:bg-yellow-100 transition duration-200"
                         >
                           Report Damage
