@@ -6,7 +6,7 @@ import { RxCross1 } from "react-icons/rx";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 
-const RegisterPage = () => {
+export default function RegisterPage() {
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -55,7 +55,10 @@ const RegisterPage = () => {
 
         try {
             // First, register the user
-            await axios.post("http://localhost:4000/api/users/", formData);
+            await axios.post("http://localhost:4000/api/users/", {
+                ...formData,
+                type: "customer" // Use lowercase for consistency
+            });
 
             // If registration is successful, attempt to log in
             const response = await axios.post("http://localhost:4000/api/users/login", {
@@ -291,7 +294,5 @@ const RegisterPage = () => {
             </div>
         </div>
     );
-};
-
-export default RegisterPage;
+}
 

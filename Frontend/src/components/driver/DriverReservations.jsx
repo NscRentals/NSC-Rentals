@@ -1,27 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { FaInfoCircle } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 
 const DriverReservations = ({ driverId }) => {
   const [reservations, setReservations] = useState([]);
+  const [filteredReservations, setFilteredReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedReservation, setSelectedReservation] = useState(null);
-  const [showTripModal, setShowTripModal] = useState(false);
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [statusToUpdate, setStatusToUpdate] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        console.log('Fetching reservations for driver:', driverId);
-        const response = await axios.get(`http://localhost:4000/api/reservation/reservations/driver/${driverId}`);
-        console.log('Reservations response:', response.data);
+        const response = await axios.get(`http://localhost:4000/api/reservation/driver/${driverId}`);
         
         if (response.data.success) {
-          setReservations(response.data.reservations || []);
+          setReservations(response.data.reservations);
+          setFilteredReservations(response.data.reservations);
         } else {
-          setError(response.data.message || 'Failed to fetch reservations');
+          setError('Failed to fetch reservations');
         }
       } catch (err) {
         console.error('Error fetching reservations:', err);
@@ -31,114 +35,269 @@ const DriverReservations = ({ driverId }) => {
       }
     };
 
-    if (driverId) {
-      fetchReservations();
-    } else {
-      setError('Driver ID not found');
-      setLoading(false);
-    }
+    fetchReservations();
   }, [driverId]);
 
-  const handleShowDetails = (reservation) => {
-    setSelectedReservation(reservation);
-    setShowTripModal(true);
+  useEffect(() => {
+    // Filter reservations based on search term, date, and status
+    let filtered = reservations;
+
+    if (searchTerm) {
+      filtered = filtered.filter(res => 
+        res.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        res.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (dateFilter) {
+      filtered = filtered.filter(res => 
+        format(new Date(res.startDate), 'yyyy-MM-dd') === dateFilter
+      );
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter(res => 
+        res.status === statusFilter
+      );
+    }
+
+    setFilteredReservations(filtered);
+  }, [searchTerm, dateFilter, statusFilter, reservations]);
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
   };
 
-  const closeTripModal = () => {
-    setShowTripModal(false);
+  const handleDateFilter = (e) => {
+    setDateFilter(e.target.value);
+  };
+
+  const handleStatusFilter = (e) => {
+    setStatusFilter(e.target.value);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setDateFilter('');
+    setStatusFilter('');
+  };
+
+  const handleViewDetails = (reservation) => {
+    setSelectedReservation(reservation);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
     setSelectedReservation(null);
   };
 
-  const handleStartTrip = async () => {
+  const handleNavigateToLocation = (location) => {
+    // Open Google Maps with the location
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`, '_blank');
+  };
+
+  const handleStatusChange = (reservation, newStatus) => {
+    setStatusToUpdate({ reservation, newStatus });
+    setShowConfirmModal(true);
+  };
+
+  const confirmStatusChange = async () => {
     try {
-      const response = await axios.put(
-        `http://localhost:4000/api/reservation/reservations/${selectedReservation._id}`,
-        { status: 'trip started' }
-      );
+      const { reservation, newStatus } = statusToUpdate;
+      
+      // Create update data with the reservation data
+      const updateData = {
+        ...reservation,
+        tripStatus: newStatus,
+        status: newStatus === 'trip_finished' ? 'completed' : reservation.status
+      };
+
+      // If the new status is trip_started, record the current time
+      if (newStatus === 'trip_started') {
+        const now = new Date();
+        const formattedTime = format(now, 'hh:mm a'); // Format: 01:30 PM
+        updateData.startTime = formattedTime;
+      }
+
+      console.log('Updating reservation with data:', updateData);
+
+      const response = await axios.put(`http://localhost:4000/api/reservation/${reservation._id}`, updateData);
 
       if (response.data.success) {
-        // Update the local state to reflect the new status
+        // Update the local state with the new statuses and start time
         setReservations(prevReservations =>
           prevReservations.map(res =>
-            res._id === selectedReservation._id
-              ? { ...res, status: 'trip started' }
-              : res
+            res._id === reservation._id ? { 
+              ...res, 
+              tripStatus: newStatus,
+              status: newStatus === 'trip_finished' ? 'completed' : res.status,
+              startTime: newStatus === 'trip_started' ? updateData.startTime : res.startTime
+            } : res
           )
         );
-        closeTripModal();
+
+        setShowConfirmModal(false);
+        setStatusToUpdate(null);
       } else {
-        setError('Failed to update trip status');
+        throw new Error('Failed to update reservation');
       }
-    } catch (err) {
-      console.error('Error updating trip status:', err);
-      setError(err.response?.data?.message || 'Failed to update trip status');
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status. Please try again.');
     }
   };
 
-  const handleCompleteTrip = async () => {
-    try {
-      const response = await axios.put(
-        `http://localhost:4000/api/reservation/reservations/${selectedReservation._id}`,
-        { status: 'completed' }
-      );
-
-      if (response.data.success) {
-        setReservations(prevReservations =>
-          prevReservations.map(res =>
-            res._id === selectedReservation._id
-              ? { ...res, status: 'completed' }
-              : res
-          )
-        );
-        setShowCompletionModal(false);
-        closeTripModal();
-      } else {
-        setError('Failed to complete trip');
-      }
-    } catch (err) {
-      console.error('Error completing trip:', err);
-      setError(err.response?.data?.message || 'Failed to complete trip');
+  const getNextStatus = (currentStatus) => {
+    switch (currentStatus) {
+      case 'pending':
+        return 'trip_started';
+      case 'trip_started':
+        return 'trip_finished';
+      default:
+        return currentStatus;
     }
   };
 
-  if (loading) return <div className="flex justify-center items-center h-32">Loading reservations...</div>;
+  const getStatusButtonText = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'Start Trip';
+      case 'trip_started':
+        return 'Finish Trip';
+      case 'trip_finished':
+        return 'Trip Completed';
+      default:
+        return 'Update Status';
+    }
+  };
+
+  const getStatusButtonClass = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-500 hover:bg-yellow-600';
+      case 'trip_started':
+        return 'bg-blue-500 hover:bg-blue-600';
+      case 'trip_finished':
+        return 'bg-green-500 hover:bg-green-600';
+      default:
+        return 'bg-gray-500 hover:bg-gray-600';
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      case 'trip_started':
+        return 'bg-blue-100 text-blue-800';
+      case 'trip_finished':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-yellow-100 text-yellow-800';
+    }
+  };
+
+  if (loading) return <div className="flex justify-center items-center h-32">Loading...</div>;
   if (error) return <div className="text-red-500 text-center p-4">{error}</div>;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-4">My Reservations</h2>
-      {reservations.length === 0 ? (
-        <p className="text-gray-500 text-center py-4">No reservations found.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Time
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Pickup
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dropoff
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {reservations.map((reservation) => (
+      <h2 className="text-2xl font-bold mb-6">My Reservations</h2>
+
+      {/* Search and Filters */}
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Search Bar */}
+          <div className="flex-1">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by customer name or email..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              />
+              <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Date Filter */}
+          <div className="w-full md:w-48">
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={handleDateFilter}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Status Filter */}
+          <div className="w-full md:w-48">
+            <select
+              value={statusFilter}
+              onChange={handleStatusFilter}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {/* Clear Filters Button */}
+          {(searchTerm || dateFilter || statusFilter) && (
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Reservations Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Customer
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Start Time
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Time
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Pickup
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Dropoff
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Trip Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredReservations.length > 0 ? (
+              filteredReservations.map((reservation) => (
                 <tr key={reservation._id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{reservation.name}</div>
@@ -146,7 +305,12 @@ const DriverReservations = ({ driverId }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {format(new Date(reservation.wanteddate), 'MMM dd, yyyy')}
+                      {format(new Date(reservation.startDate), 'MMM dd, yyyy')}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {reservation.startTime || 'Not specified'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -159,117 +323,146 @@ const DriverReservations = ({ driverId }) => {
                     <div className="text-sm text-gray-900">{reservation.locationdrop}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      reservation.status === 'completed' 
-                        ? 'bg-green-100 text-green-800'
-                        : reservation.status === 'cancelled'
-                        ? 'bg-red-100 text-red-800'
-                        : reservation.status === 'trip started'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(reservation.status)}`}>
                       {reservation.status || 'pending'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
-                      onClick={() => handleShowDetails(reservation)}
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                      onClick={() => handleStatusChange(reservation, getNextStatus(reservation.tripStatus || 'pending'))}
+                      disabled={reservation.tripStatus === 'trip_finished'}
+                      className={`px-3 py-1 text-sm text-white rounded-md ${getStatusButtonClass(reservation.tripStatus || 'pending')} ${
+                        reservation.tripStatus === 'trip_finished' ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                     >
-                      <FaInfoCircle className="mr-2" />
-                      More Details
+                      {getStatusButtonText(reservation.tripStatus || 'pending')}
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <button
+                      onClick={() => handleViewDetails(reservation)}
+                      className="text-indigo-600 hover:text-indigo-900 mr-2"
+                    >
+                      View Details
                     </button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            ) : (
+              <tr>
+                <td colSpan="9" className="px-6 py-4 text-center text-gray-500">
+                  No reservations found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Trip Details Modal */}
-      {showTripModal && selectedReservation && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-          <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3 text-center">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Trip Details</h3>
+      {/* Modal for reservation details */}
+      {showModal && selectedReservation && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Reservation Details</h3>
               <div className="mt-2 px-7 py-3">
-                <div className="text-sm text-gray-500 text-left">
-                  <p className="font-semibold">Customer Information:</p>
-                  <p>Name: {selectedReservation.name}</p>
-                  <p>Email: {selectedReservation.email}</p>
-                  <p>Phone: {selectedReservation.phonenumber}</p>
-                  <p>Address: {selectedReservation.address}</p>
-                  
-                  <p className="font-semibold mt-4">Trip Information:</p>
-                  <p>Date: {format(new Date(selectedReservation.wanteddate), 'MMMM dd, yyyy')}</p>
-                  <p>Duration: {selectedReservation.wantedtime} hours</p>
-                  <p>Pickup: {selectedReservation.locationpick}</p>
-                  <p>Dropoff: {selectedReservation.locationdrop}</p>
-                  <p>Amount: Rs. {selectedReservation.amount}</p>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Customer Name</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.name}</p>
                 </div>
-              </div>
-              <div className="items-center px-4 py-3 space-y-3">
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedReservation.locationpick)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 text-center"
-                >
-                  Open Pickup Location in Maps
-                </a>
-                {selectedReservation.status !== 'completed' && selectedReservation.status !== 'cancelled' && selectedReservation.status !== 'trip started' && (
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.email}</p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.phonenumber}</p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Start Date</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {format(new Date(selectedReservation.startDate), 'MMM dd, yyyy')}
+                  </p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Start Time</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {selectedReservation.startTime || 'Not specified'}
+                  </p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">End Date</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {format(new Date(selectedReservation.endDate), 'MMM dd, yyyy')}
+                  </p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Duration</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.wantedtime} hours</p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Pickup Location</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.locationpick}</p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Dropoff Location</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.locationdrop}</p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Status</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.status || 'pending'}</p>
+                </div>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-500">Trip Status</p>
+                  <p className="text-sm font-medium text-gray-900">{selectedReservation.tripStatus || 'pending'}</p>
+                </div>
+                <div className="mt-4 flex justify-between">
                   <button
-                    onClick={handleStartTrip}
-                    className="block w-full px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+                    onClick={() => handleNavigateToLocation(selectedReservation.locationpick)}
+                    className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
                   >
-                    Start Trip
+                    Navigate to Pickup
                   </button>
-                )}
-                {selectedReservation.status === 'trip started' && (
                   <button
-                    onClick={() => setShowCompletionModal(true)}
-                    className="block w-full px-4 py-2 bg-purple-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                    onClick={handleCloseModal}
+                    className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
                   >
-                    Complete Trip
+                    Close
                   </button>
-                )}
-                <button
-                  onClick={closeTripModal}
-                  className="block w-full px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
-                >
-                  Close
-                </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Completion Confirmation Modal */}
-      {showCompletionModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
-          <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3 text-center">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Confirm Trip Completion</h3>
+      {/* Confirmation Modal */}
+      {showConfirmModal && statusToUpdate && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Confirm Status Change</h3>
               <div className="mt-2 px-7 py-3">
                 <p className="text-sm text-gray-500">
-                  Are you sure you want to mark this trip as completed? This action cannot be undone.
+                  Are you sure you want to change the trip status to "{statusToUpdate.newStatus.replace('_', ' ')}"?
                 </p>
-              </div>
-              <div className="items-center px-4 py-3 space-y-3">
-                <button
-                  onClick={handleCompleteTrip}
-                  className="block w-full px-4 py-2 bg-purple-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                >
-                  Yes, Complete Trip
-                </button>
-                <button
-                  onClick={() => setShowCompletionModal(false)}
-                  className="block w-full px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
-                >
-                  Cancel
-                </button>
+                <div className="mt-4 flex justify-between">
+                  <button
+                    onClick={confirmStatusChange}
+                    className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowConfirmModal(false);
+                      setStatusToUpdate(null);
+                    }}
+                    className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>

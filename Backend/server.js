@@ -10,10 +10,10 @@ import vehicleRouter from "./routes/vehicleRoutes.js";
 import sparePartsInventoryRouter from "./routes/sparePartsInventoryRoutes.js";
 import damageRequestRouter from "./routes/damageRequestRoutes.js";
 import reservationRouter from "./routes/reservationRoute.js";
+import decoRouter from "./routes/decorationsRoute.js";
 import cors from "cors";
 import path from "path"
 import { fileURLToPath } from 'url'; 
-
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import technicianRoutes from "./routes/technicianRoutes.js";
@@ -22,6 +22,8 @@ import technicianRoutes from "./routes/technicianRoutes.js";
 dotenv.config();
 
 const app = express();
+
+// Middleware
 
 // Middleware
 app.use(cors());

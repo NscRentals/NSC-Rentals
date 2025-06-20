@@ -10,8 +10,8 @@ import "slick-carousel/slick/slick-theme.css";
 const VehicleDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
-  const isAdmin = userProfile?.type === 'admin';
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = user?.type === 'admin';
 
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -98,7 +98,7 @@ const VehicleDetails = () => {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Vehicle Details</h1>
-          {(isAdmin || vehicle.owner === userProfile?._id) && !editing && (
+          {(isAdmin || vehicle.owner === user?._id) && !editing && (
             <button
               onClick={() => setEditing(true)}
               className="bg-mygreen text-white px-6 py-2 rounded-full hover:bg-opacity-90"
@@ -205,9 +205,26 @@ const VehicleDetails = () => {
                       Update Request Pending
                     </div>
                   )}
-                  {vehicle.availabilityStatus === 'Available' && !isAdmin && vehicle.owner !== userProfile?._id && (
+                  {vehicle.availabilityStatus === 'Available' && !isAdmin && vehicle.owner !== user?._id && (
                     <button
-                      onClick={() => navigate(`/rent/${vehicle._id}`)}
+                      onClick={() => navigate('/reservation/new', { 
+                        state: { 
+                          vehicleDetails: {
+                            id: vehicle._id,
+                            make: vehicle.make,
+                            model: vehicle.model,
+                            registrationNumber: vehicle.registrationNumber,
+                            rentMode: vehicle.rentMode,
+                            minRentalPeriod: vehicle.minRentalPeriod,
+                            maxRentalPeriod: vehicle.maxRentalPeriod,
+                            baseRate: vehicle.baseRate || 0,
+                            city: vehicle.city,
+                            district: vehicle.district,
+                            image: vehicle.vehicleImages?.[0],
+                            vehicleId: vehicle.registrationNumber
+                          }
+                        }
+                      })}
                       className="px-6 py-2 bg-mygreen text-white rounded-full hover:bg-opacity-90 flex items-center gap-2"
                     >
                       Rent Vehicle

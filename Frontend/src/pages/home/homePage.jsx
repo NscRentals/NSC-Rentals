@@ -45,7 +45,7 @@ export default function HomePage() {
               className="text-6xl font-bold text-white mb-10 text-left leading-tight"
               style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700 }}
             >
-              Rent Your Ride,<br />Reap the Rewards
+              Rent Your Ride, Sh<br />Reap the Rewards
             </h2>
             <p
               className="text-2xl text-white mb-12 max-w-[520px] text-left leading-relaxed"

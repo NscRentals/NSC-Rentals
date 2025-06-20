@@ -7,69 +7,42 @@ import { useNavigate } from 'react-router-dom';
 const VehicleList = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { userProfile, isLoggedIn, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const isAdmin = userProfile?.type === 'admin';
+  const isAdmin = user?.type === 'admin';
 
   const fetchVehicles = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Please log in to view vehicles');
-        navigate('/login');
-        return;
-      }
-
-      const response = await axios.get('http://localhost:4000/api/vehicles/getVehicles', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('http://localhost:4000/api/vehicles/getVehicles');
       setVehicles(response.data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching vehicles:', error);
-      if (error.response?.status === 401) {
-        toast.error('Session expired. Please log in again.');
-        logout();
-        navigate('/login');
-      } else {
-        toast.error('Failed to load vehicles');
-      }
+      toast.error('Failed to load vehicles');
       setLoading(false);
     }
-  }, [navigate, logout]);
+  }, []);
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    fetchVehicles();
+  }, [fetchVehicles]);
+
+  const handleDelete = async (id, reason) => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to perform this action');
       navigate('/login');
       return;
     }
-    fetchVehicles();
-  }, [isLoggedIn, navigate, fetchVehicles]);
 
-  const handleDelete = async (id, reason) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Please log in to perform this action');
-        navigate('/login');
-        return;
-      }
-
       await axios.delete(`http://localhost:4000/api/vehicles/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
         data: { reason }
       });
       toast.success('Vehicle deleted successfully');
       fetchVehicles();
     } catch (error) {
       console.error('Error deleting vehicle:', error);
-      if (error.response?.status === 401) {
-        toast.error('Session expired. Please log in again.');
-        logout();
-        navigate('/login');
-      } else {
-        toast.error('Failed to delete vehicle');
-      }
+      toast.error('Failed to delete vehicle');
     }
   };
 
@@ -85,12 +58,14 @@ const VehicleList = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Fleet Management</h1>
-        <button 
-          onClick={() => navigate('/vehicles/add')}
-          className="bg-mygreen text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition duration-200"
-        >
-          Add New Vehicle
-        </button>
+        {isAuthenticated && (
+          <button 
+            onClick={() => navigate('/vehicles/add')}
+            className="bg-mygreen text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition duration-200"
+          >
+            Add New Vehicle
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -128,7 +103,7 @@ const VehicleList = () => {
                 >
                   View Details
                 </button>
-                {(isAdmin || vehicle.owner === userProfile?._id) && (
+                {isAuthenticated && (isAdmin || vehicle.owner === user?._id) && (
                   <button
                     onClick={() => {
                       if (window.confirm('Are you sure you want to delete this vehicle?')) {

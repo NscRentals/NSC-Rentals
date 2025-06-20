@@ -200,30 +200,28 @@ const ViewReservations = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {reservations.map((reservation) => (
-                <tr key={reservation._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">{reservation.vehicleNum}</td>
+                <tr key={reservation._id}>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.vehicleNo}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{reservation.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{reservation.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{reservation.wanteddate}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{new Date(reservation.date).toLocaleDateString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{reservation.service}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{reservation.locationpick}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{reservation.locationdrop}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.pickupLocation}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{reservation.dropLocation}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{reservation.wantedtime}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{reservation.amount}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => handleEdit(reservation)}
-                      className="text-blue-600 hover:text-blue-800 mr-4"
-                      title="Edit"
+                      className="text-blue-600 hover:text-blue-900 mr-4"
                     >
-                      ✏️
+                      Edit
                     </button>
                     <button
                       onClick={() => handleDelete(reservation._id)}
-                      className="text-red-600 hover:text-red-800"
-                      title="Delete"
+                      className="text-red-600 hover:text-red-900"
                     >
-                      🗑️
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -235,48 +233,117 @@ const ViewReservations = () => {
 
       {/* Edit Modal */}
       {isModalOpen && editingReservation && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-          <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Edit Reservation</h3>
-              <form onSubmit={handleUpdate} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Wanted Time (hours)</label>
-                  <input
-                    type="number"
-                    name="wantedtime"
-                    value={editingReservation.wantedtime}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Amount (LKR)</label>
-                  <input
-                    type="text"
-                    name="amount"
-                    value={editingReservation.amount}
-                    readOnly
-                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-lg w-full">
+            <h3 className="text-lg font-semibold mb-4">Edit Reservation</h3>
+            <form onSubmit={handleUpdate} className="space-y-4">
+              {/* Form fields */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Vehicle Number</label>
+                <input
+                  type="text"
+                  name="vehicleNo"
+                  value={editingReservation.vehicleNo}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editingReservation.name}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editingReservation.email}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Date</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={editingReservation.date.split('T')[0]}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Service</label>
+                <input
+                  type="text"
+                  name="service"
+                  value={editingReservation.service}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Pickup Location</label>
+                <input
+                  type="text"
+                  name="pickupLocation"
+                  value={editingReservation.pickupLocation}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Drop-off Location</label>
+                <input
+                  type="text"
+                  name="dropLocation"
+                  value={editingReservation.dropLocation}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Wanted Time (hrs)</label>
+                <input
+                  type="number"
+                  name="wantedtime"
+                  value={editingReservation.wantedtime}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Amount (LKR)</label>
+                <input
+                  type="text"
+                  name="amount"
+                  value={editingReservation.amount}
+                  readOnly
+                  className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

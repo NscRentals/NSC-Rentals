@@ -6,7 +6,7 @@ import UpdateUserDetails from "./UpdateUserDetails";
 import DeleteAccount from "./DeleteAccount";
 import VerifyAccount from "./VerifyAccount";
 import MyVehicles from "../vehicles/MyVehicles";
-import UserViewReservation from "../reservation/UserViewReservation";
+import MyReservations from "./myReservations";
 import axios from 'axios';
 import Header from '../../components/header';
 
@@ -116,7 +116,7 @@ export default function UserDashboard() {
             <Route path="general/delete" element={<DeleteAccount />} />
             <Route path="general/verify" element={<VerifyAccount />} />
             <Route path="drivers" element={<MyVehicles />} />
-            <Route path="reservations" element={<UserViewReservation />} />
+            <Route path="reservations" element={<MyReservations />} />
           </Routes>
         </div>
       </div>

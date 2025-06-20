@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navigation = () => {
     const navigate = useNavigate();
-    const isLoggedIn = localStorage.getItem('driverId');
-    const isAdmin = localStorage.getItem('userRole') === 'admin';
+    const { isLoggedIn, userProfile, logout } = useAuth();
     const driverId = localStorage.getItem('driverId');
 
     const handleLogout = () => {
-        localStorage.clear();
+        logout();
+        localStorage.removeItem('driverId');
         navigate('/login');
     };
 
@@ -23,7 +24,7 @@ const Navigation = () => {
                             </Link>
                         </div>
                         
-                        <div className="hidden md:ml-6 md:flex md:space-x-8">
+                        <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                             <Link to="/" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
                                 Home
                             </Link>
@@ -39,7 +40,7 @@ const Navigation = () => {
                             
                             {isLoggedIn && (
                                 <>
-                                    {isAdmin ? (
+                                    {userProfile?.type === 'admin' ? (
                                         <>
                                             <Link to="/admin" className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
                                                 Admin Dashboard

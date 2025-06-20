@@ -1,14 +1,14 @@
 import axios from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RxCross1 } from "react-icons/rx";
 import { FaUser, FaCar, FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 
 const API_BASE_URL = "http://localhost:4000/api";
 
-export default function LoginPage() {
+function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isDriver, setIsDriver] = useState(false);
@@ -16,7 +16,6 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
-    const location = useLocation();
     const { login } = useAuth();
 
     const handleOnSubmit = async (e) => {
@@ -24,38 +23,91 @@ export default function LoginPage() {
         setLoading(true);
         setError("");
 
-        try {
-            // Set the user type in localStorage before attempting login
-            localStorage.setItem('userType', isDriver ? 'driver' : isTechnician ? 'technician' : 'user');
-            
-            const result = await login(email, password);
-            console.log("Login result:", result);
+        // Validate inputs
+        if (!email || !password) {
+            setError("Email and password are required");
+            setLoading(false);
+            return;
+        }
 
-            if (result.success) {
-                toast.success("Login successful!");
-                if (result.userType === 'driver') {
-                    navigate('/driver');
-                } else {
-                    switch (result.userType) {
-                        case 'admin':
-                            navigate('/admin');
-                            break;
-                        case 'technician':
-                            navigate('/technician');
-                            break;
-                        default:
-                            navigate('/user/general');
-                    }
-                }
+        try {
+            let endpoint;
+            if (isDriver) {
+                endpoint = `${API_BASE_URL}/driver/login`;
+                console.log("Attempting driver login with:", { email });
+            } else if (isTechnician) {
+                endpoint = `${API_BASE_URL}/technician/login`;
             } else {
-                toast.error(result.error || "Login failed. Please check your credentials.");
-                setError(result.error || "Login failed. Please check your credentials.");
+                endpoint = `${API_BASE_URL}/users/login`;
             }
+
+            // Store the user type before making the request
+            const userType = isDriver ? 'driver' : isTechnician ? 'technician' : 'user';
+            localStorage.setItem('userType', userType);
+
+            console.log('Making request to:', endpoint);
+            const response = await axios.post(endpoint, {
+                email,
+                password
+            });
+
+            console.log('Response data:', response.data);
+
+            if (!response.data.success && isDriver) {
+                throw new Error(response.data.error || "Login failed");
+            }
+
+            const { token, driver, user } = response.data;
+
+            if (!token) {
+                throw new Error("No token received");
+            }
+
+            // Set the token in localStorage
+            localStorage.setItem('token', token);
+            
+            // Set the Authorization header for future requests
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+            // Handle login based on user type
+            if (isDriver) {
+                if (!driver || !driver._id) {
+                    throw new Error("Driver data not found in response");
+                }
+                console.log("Driver login successful:", driver);
+                localStorage.setItem('driverId', driver._id);
+                await login({ ...driver, type: 'driver' });
+                navigate('/driver/dashboard');
+                toast.success(`Welcome back, ${driver.DriverName}`);
+            } else if (isTechnician) {
+                await login({ ...user, type: 'technician' });
+                navigate("/technician/dashboard");
+                toast.success("Login Successful");
+            } else if (user && user.type === "admin") {
+                await login({ ...user, type: 'admin' });
+                navigate("/admin/dashboard");
+                toast.success("Welcome back, Admin");
+            } else {
+                await login({ ...user, type: 'user' });
+                navigate("/user/general");
+                toast.success("Login Successful");
+            }
+
         } catch (error) {
             console.error("Login error:", error);
-            const errorMessage = error.response?.data?.error || "An unexpected error occurred. Please try again.";
-            toast.error(errorMessage);
+            const errorMessage = error.response?.data?.error 
+                || error.response?.data?.message 
+                || error.message 
+                || "Invalid email or password";
             setError(errorMessage);
+            toast.error(errorMessage);
+            
+            // Clear any stored data on error
+            if (isDriver) {
+                localStorage.removeItem('driverId');
+                localStorage.removeItem('token');
+                delete axios.defaults.headers.common['Authorization'];
+            }
         } finally {
             setLoading(false);
         }
@@ -80,13 +132,6 @@ export default function LoginPage() {
                     className="w-[830px] min-h-full bg-white flex flex-col justify-center items-center px-10 border-r border-gray-300"
                 >
                     <h1 className="text-5xl font-bold mb-12 w-full text-left ml-[260px]">Log In</h1>
-
-                    {/* Error Message */}
-                    {error && (
-                        <div className="w-full max-w-[500px] mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl">
-                            {error}
-                        </div>
-                    )}
 
                     {/* Login Type Toggle */}
                     <div className="w-full max-w-[500px] flex gap-4 mb-8">
@@ -171,6 +216,13 @@ export default function LoginPage() {
                         />
                     </div>
 
+                    {/* Error Message */}
+                    {error && (
+                        <div className="w-full max-w-[500px] text-red-500 text-lg mb-4">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Forgot Password */}
                     <div className="w-full max-w-[500px] mt-4 text-lg">
                         <span className="text-gray-600">Forgot your </span>
@@ -182,9 +234,10 @@ export default function LoginPage() {
                     <div className="flex gap-6 mt-10 w-full h-[80px] max-w-[500px]">
                         <button
                             type="submit"
-                            className="bg-mygreen hover:bg-green-800 text-white w-full py-4 text-2xl rounded-full"
+                            disabled={loading}
+                            className={`bg-mygreen hover:bg-green-800 text-white w-full py-4 text-2xl rounded-full ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            Log In
+                            {loading ? 'Logging in...' : 'Log In'}
                         </button>
                         <button
                             type="button"
@@ -226,3 +279,5 @@ export default function LoginPage() {
         </div>
     );
 }
+
+export default LoginPage; 

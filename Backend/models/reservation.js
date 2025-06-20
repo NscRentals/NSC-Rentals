@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const reservationSchema = new mongoose.Schema(
   {
+    rId: {
+      type: String,
+      required: true,
+      unique: true
+    },
     vehicleNum: {
       type: String,
       required: true,
@@ -14,7 +19,6 @@ const reservationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     name: {
       type: String,
       required: true,
@@ -31,7 +35,10 @@ const reservationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
+    rType: {
+      type: String,
+      required: true,
+    },
     service: {
       type: String,
       required: true,
@@ -44,22 +51,30 @@ const reservationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    wantedtime: {
-      type: String,
+    startDate: {
+      type: Date,
       required: true,
     },
-    amount: {
-      type: String,
+    endDate: {
+      type: Date,
       required: true,
     },
-
-    wanteddate: {
-      type: String,
+    price: {
+      type: Number,
       required: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: String,
-      enum: ['pending', 'trip started', 'completed', 'cancelled'],
+      enum: ['pending', 'completed', 'cancelled'],
+      default: 'pending'
+    },
+    tripStatus: {
+      type: String,
+      enum: ['pending', 'trip_started', 'trip_finished'],
       default: 'pending'
     }
   },
@@ -68,6 +83,16 @@ const reservationSchema = new mongoose.Schema(
   }
 );
 
+// Remove any existing indexes
 const Reservation = mongoose.model("reservation", reservationSchema);
+Reservation.collection.dropIndexes()
+  .then(() => console.log('Dropped all indexes from reservations collection'))
+  .catch(err => console.log('Error dropping indexes:', err));
+
+// Create only the indexes we want
+reservationSchema.index({ rId: 1 }, { unique: true });
+reservationSchema.index({ isVerified: 1 }); // Add index for faster queries on verification status
+reservationSchema.index({ status: 1 }); // Add index for status queries
+reservationSchema.index({ tripStatus: 1 }); // Add index for trip status queries
 
 export default Reservation;

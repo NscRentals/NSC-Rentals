@@ -10,8 +10,8 @@ export async function reservationAdd(req, res) {
     // Validate required fields
     const requiredFields = [
       'vehicleNum', 'userId', 'driverID', 'name', 'email', 
-      'phonenumber', 'address', 'service', 'locationpick', 
-      'locationdrop', 'wantedtime', 'amount', 'wanteddate'
+      'phonenumber', 'address', 'rType', 'service', 'locationpick', 
+      'locationdrop', 'startDate', 'endDate', 'price'
     ];
     
     const missingFields = requiredFields.filter(field => !data[field]);
@@ -24,22 +24,56 @@ export async function reservationAdd(req, res) {
       });
     }
 
-    // Create a new reservation
-    const newReservation = new Reservation(data);
-    await newReservation.save();
-
-    console.log("Reservation created successfully:", newReservation._id);
-
-    // Send success response
-    res.status(201).json({
-      message: "Reservation added successfully!",
-      reservation: newReservation,
+    // Log the data types of important fields
+    console.log('Data types check:', {
+      startDate: typeof data.startDate,
+      endDate: typeof data.endDate,
+      price: typeof data.price,
+      startDateValue: data.startDate,
+      endDateValue: data.endDate,
+      priceValue: data.price
     });
+
+    // Generate a unique rId
+    const rId = 'RES-' + Date.now().toString().slice(-6);
+
+    try {
+      // Create a new reservation with the generated rId
+      const newReservation = new Reservation({
+        ...data,
+        rId,
+        isVerified: false
+      });
+      
+      // Log the reservation object before saving
+      console.log("Attempting to save reservation:", newReservation);
+      
+      await newReservation.save();
+      console.log("Reservation saved successfully:", newReservation._id);
+
+      // Send success response
+      res.status(201).json({
+        message: "Reservation added successfully!",
+        reservation: newReservation,
+      });
+    } catch (saveError) {
+      console.error("Error saving reservation:", {
+        error: saveError.message,
+        code: saveError.code,
+        errors: saveError.errors
+      });
+      throw saveError;
+    }
   } catch (e) {
-    console.error("Error adding reservation:", e);
+    console.error("Error adding reservation:", {
+      error: e.message,
+      code: e.code,
+      errors: e.errors
+    });
     return res.status(500).json({ 
       error: "Reservation creation failed!",
-      details: e.message 
+      details: e.message,
+      validationErrors: e.errors
     });
   }
 }
@@ -89,48 +123,33 @@ export async function reservationUpdate(req, res) {
     email,
     phonenumber,
     address,
+    rType,
     service,
     locationpick,
     locationdrop,
-    wantedtime,
-    amount,
-    wanteddate,
-    status
+    startDate,
+    endDate,
+    price,
+    status,
+    tripStatus
   } = req.body;
   const reservationId = req.params.id;
 
   try {
-    // If only status is being updated, allow it without requiring other fields
-    if (Object.keys(req.body).length === 1 && req.body.status) {
-      const updatedReservation = await Reservation.findByIdAndUpdate(
-        reservationId,
-        { $set: { status } },
-        { new: true, runValidators: true }
-      );
-
-      if (!updatedReservation) {
-        return res.status(404).json({ error: "Reservation not found" });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "Reservation status updated successfully",
-        reservation: updatedReservation,
+    // Validate required fields
+    const requiredFields = [
+      'vehicleNum', 'userId', 'driverID', 'name', 'email', 
+      'phonenumber', 'address', 'rType', 'service', 'locationpick', 
+      'locationdrop', 'startDate', 'endDate', 'price'
+    ];
+    
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({ 
+        error: "Missing required fields",
+        details: missingFields
       });
-    }
-
-    // For full updates, validate required fields
-    if (
-      !vehicleNum ||
-      !userId ||
-      !driverID ||
-      !name ||
-      !email ||
-      !phonenumber ||
-      !address ||
-      !service
-    ) {
-      return res.status(400).json({ error: "All fields are required" });
     }
 
     // Update the reservation
@@ -145,13 +164,15 @@ export async function reservationUpdate(req, res) {
           email,
           phonenumber,
           address,
+          rType,
           service,
           locationpick,
           locationdrop,
-          wantedtime,
-          amount,
-          wanteddate,
-          status: status || 'pending'
+          startDate,
+          endDate,
+          price,
+          status,
+          tripStatus
         },
       },
       { new: true, runValidators: true }
@@ -212,15 +233,8 @@ export async function reservationFindUserId(req, res) {
 
 export async function reservationFindDriverId(req, res) {
   try {
-    console.log('Finding reservations for driver with ID:', req.params.driverID);
-    console.log('Request parameters:', req.params);
-    
-    const reservations = await Reservation.find({ driverID: req.params.driverID });
-    console.log('Found reservations:', reservations);
-    console.log('Number of reservations found:', reservations.length);
-    
+    const reservations = await Reservation.find({ driverID: req.params.driverid });
     if (!reservations || reservations.length === 0) {
-      console.log('No reservations found for driver');
       return res
         .status(404)
         .json({ success: false, message: "No reservations found for this driver" });
@@ -228,11 +242,112 @@ export async function reservationFindDriverId(req, res) {
     return res.status(200).json({ success: true, reservations });
   } catch (error) {
     console.error("Error finding driver reservations:", error);
-    console.error("Error details:", {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+}
+
+// Get unverified reservations
+export async function getUnverifiedReservations(req, res) {
+    try {
+        console.log('getUnverifiedReservations called');
+        console.log('User making request:', req.user);
+        
+        // Check if user is admin
+        if (req.user.type !== 'admin') {
+            console.log('User is not admin, access denied');
+            return res.status(403).json({
+                success: false,
+                message: "Only administrators can view unverified reservations"
+            });
+        }
+
+        console.log('Fetching unverified reservations from database');
+        // Explicitly query for reservations where isVerified is false
+        const reservations = await Reservation.find({ isVerified: false });
+        console.log('Found unverified reservations:', reservations.length);
+
+        return res.status(200).json({ 
+            success: true, 
+            reservations,
+            count: reservations.length 
+        });
+
+    } catch (err) {
+        console.error('Error in getUnverifiedReservations:', err);
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+}
+
+// Verify a reservation
+export async function verifyReservation(req, res) {
+    try {
+        // Check if user is admin
+        if (req.user.type !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: "Only administrators can verify reservations"
+            });
+        }
+
+        const { id } = req.params;
+        const { action } = req.body; // 'approve' or 'reject'
+
+        const reservation = await Reservation.findById(id);
+        if (!reservation) {
+            return res.status(404).json({
+                success: false,
+                message: "Reservation not found!"
+            });
+        }
+
+        if (action === 'approve') {
+            // Update the isVerified field to true
+            reservation.isVerified = true;
+            await reservation.save();
+            
+            return res.status(200).json({
+                success: true,
+                message: "Reservation approved successfully!",
+                reservation
+            });
+        } else if (action === 'reject') {
+            // For rejected reservations, we delete them
+            await Reservation.findByIdAndDelete(id);
+            return res.status(200).json({
+                success: true,
+                message: "Reservation rejected and deleted successfully!"
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid action! Use 'approve' or 'reject'"
+            });
+        }
+    } catch (err) {
+        console.error('Error in verifyReservation:', err);
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+}
+
+export async function reservationFindByEmail(req, res) {
+  try {
+    const reservations = await Reservation.find({ email: req.params.email });
+    if (!reservations || reservations.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No reservations found for this email" });
+    }
+    return res.status(200).json({ success: true, reservation: reservations });
+  } catch (error) {
+    console.error("Error finding reservations:", error);
     return res
       .status(500)
       .json({ success: false, message: "Server error", error: error.message });

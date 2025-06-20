@@ -23,7 +23,7 @@ export default function General() {
                 setUser(response.data);
                 
                 // Check verification status
-                const verificationResponse = await axios.get("http://localhost:4000/api/forms/user");
+                const verificationResponse = await axios.get("http://localhost:4000/api/users/me/verification");
                 setFormObj(verificationResponse.data);
                 
                 if (verificationResponse.data === null) {
@@ -62,117 +62,66 @@ export default function General() {
     if (!user) return <p className="text-2xl font-semibold text-gray-700">Loading...</p>;
 
     return (
-        <div className="p-12 w-full max-w-none mx-auto bg-white relative">
-            {/* Profile Picture */}
-            <div className="absolute right-12 top-12">
-                <div 
-                    onClick={() => navigate("/user/general/profile")} 
-                    className="cursor-pointer"
-                >
-                    {user.profilePicture ? (
-                        <img 
-                            src={`http://localhost:4000/uploads/profile_pictures/${user.profilePicture}`}
-                            alt={user.firstName || 'Profile'} 
-                            className="w-[70px] h-[70px] rounded-full object-cover"
-                            onError={(e) => {
-                                e.target.parentElement.querySelector('.fallback').style.display = 'flex';
-                                e.target.style.display = 'none';
-                            }}
-                        />
-                    ) : (
-                        <div className="fallback w-[70px] h-[70px] rounded-full bg-gray-800 flex items-center justify-center">
-                            <span className="text-3xl text-white">
-                                {user.firstName ? user.firstName[0].toUpperCase() : 'U'}
-                            </span>
-                        </div>
-                    )}
+        <div className="p-4">
+            <h2 className="text-2xl font-semibold text-gray-700 mb-4">User Details</h2>
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <p className="text-gray-600">Name</p>
+                        <p className="font-medium">{user.name}</p>
+                    </div>
+                    <div>
+                        <p className="text-gray-600">Email</p>
+                        <p className="font-medium">{user.email}</p>
+                    </div>
+                    <div>
+                        <p className="text-gray-600">Phone</p>
+                        <p className="font-medium">{user.phone}</p>
+                    </div>
+                    <div>
+                        <p className="text-gray-600">NIC</p>
+                        <p className="font-medium">{user.nic}</p>
+                    </div>
                 </div>
             </div>
 
-            {/* User Details in Grid Layout */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-16 max-w-4xl mt-24">
-                {/* Name Section */}
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-3">Name</h2>
-                    <p className="text-[28px] font-extralight">{`${user.firstName || ""} ${user.lastName || ""}`.trim() || "Not set"}</p>
-                </div>
-
-                {/* Email Section */}
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-3">Email</h2>
-                    <p className="text-[28px] font-extralight">{user.email || "Not set"}</p>
-                </div>
-
-                {/* Phone Section */}
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-3">Phone</h2>
-                    <p className="text-[28px] font-extralight">{user.phone || "Not set"}</p>
-                </div>
-
-                {/* Address Section */}
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-3">Address</h2>
-                    <p className="text-[28px] font-extralight">
-                      {user.address
-                        ? typeof user.address === "object"
-                          ? `${user.address.street || ""}${user.address.city ? ", " + user.address.city : ""}${user.address.country ? ", " + user.address.country : ""}`.replace(/^, |, $/g, "") || "Not set"
-                          : user.address
-                        : "Not set"}
-                    </p>
-                </div>
-
-                {/* Edit Details Link */}
-                <div>
-                    <button 
-                        onClick={() => navigate("/user/general/update")}
-                        className="text-[28px] font-extralight text-gray-700 hover:text-black transition-colors"
-                    >
-                        Edit Details
-                    </button>
-                </div>
-
-                {/* Password Link */}
-                <div>
-                    <button 
-                        onClick={() => navigate("/user/general/password")}
-                        className="text-[28px] font-extralight text-gray-700 hover:text-black transition-colors"
-                    >
-                        Password
-                    </button>
-                </div>
-
-                {/* Verified Status Section */}
-                <div className="col-span-2 mt-8">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-3">Verified Status</h2>
-                    {verificationStatus === "pending" && (
-                        <p className="text-[28px] font-extralight text-blue-500">pending</p>
-                    )}
+            <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-xl font-semibold text-gray-700 mb-4">Verification Status</h3>
+                <div className="flex items-center space-x-4">
+                    <div className={`px-4 py-2 rounded-full ${
+                        verificationStatus === "verified" ? "bg-green-100 text-green-800" :
+                        verificationStatus === "pending" ? "bg-yellow-100 text-yellow-800" :
+                        verificationStatus === "rejected" ? "bg-red-100 text-red-800" :
+                        "bg-gray-100 text-gray-800"
+                    }`}>
+                        {verificationStatus === "verified" && "Verified"}
+                        {verificationStatus === "pending" && "Pending Verification"}
+                        {verificationStatus === "rejected" && "Verification Rejected"}
+                        {verificationStatus === "not verified" && "Not Verified"}
+                    </div>
                     {verificationStatus === "not verified" && (
-                        <p className="text-[28px] font-extralight text-red-500">not verified</p>
-                    )}
-                    {verificationStatus === "verified" && (
-                        <p className="text-[28px] font-extralight text-green-600">verified</p>
+                        <button
+                            onClick={() => navigate("/user/general/verify")}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                        >
+                            Get Verified
+                        </button>
                     )}
                     {verificationStatus === "rejected" && (
-                        <p className="text-[28px] font-extralight text-orange-500">verification rejected</p>
-                    )}
-                    {verificationStatus === "rejected" ? (
-                        <button 
-                            className="text-[28px] font-extralight text-gray-700 hover:text-black transition-colors mt-3"
+                        <button
                             onClick={handleRetryVerification}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                         >
-                            Re-try verification
-                        </button>
-                    ) : (
-                        <button 
-                            className="text-[28px] font-extralight text-gray-700 hover:text-black transition-colors mt-3"
-                            onClick={() => navigate("/user/general/verify")}
-                            disabled={verificationStatus === "pending" || verificationStatus === "verified"}
-                        >
-                            Verify your account
+                            Retry Verification
                         </button>
                     )}
                 </div>
+                {formObj?.rejectionReason && verificationStatus === "rejected" && (
+                    <div className="mt-4">
+                        <p className="text-gray-600">Rejection Reason:</p>
+                        <p className="text-red-600">{formObj.rejectionReason}</p>
+                    </div>
+                )}
             </div>
         </div>
     );

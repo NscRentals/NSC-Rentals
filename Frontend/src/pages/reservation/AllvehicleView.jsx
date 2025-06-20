@@ -39,10 +39,11 @@ function VehicleView() {
       navigate('/login');
       return;
     }
+    console.log("Vehicle being booked:", vehicle);
     navigate(`/reservation/${vehicle._id}`, { 
       state: { 
         vehicleDetails: {
-          vehicleNum: vehicle._id,
+          vehicleNum: vehicle.registrationNumber,
           model: vehicle.model,
           registrationNumber: vehicle.registrationNumber
         }
