@@ -309,14 +309,12 @@ export async function deleteUser(req, res) {
 //checking whether the user is Admin
 
 export function isItAdmin (req){
-
     let isAdmin = false;
 
-    if(req.user!= null){
-
-        if(req.user.type=="admin"){
-
-            isAdmin=true;
+    if(req.user != null){
+        // Use lowercase 'admin' to match the login function
+        if(req.user.type === "admin"){
+            isAdmin = true;
         }
     }
 

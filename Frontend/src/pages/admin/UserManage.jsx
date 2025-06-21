@@ -30,10 +30,10 @@ const UserManage = () => {
         const token = localStorage.getItem('token');
         await axios.delete('http://localhost:4000/api/users', {
           headers: { Authorization: `Bearer ${token}` },
-          data: { email } // Send email in request body
+          data: { email }
         });
         toast.success('User deleted successfully');
-        fetchUsers(); // Refresh the list
+        fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
         toast.error('Failed to delete user');
@@ -41,6 +41,25 @@ const UserManage = () => {
     }
   };
 
+  const getVerificationBadge = (user) => {
+    if (user.type !== 'Customer') return null;
+    
+    if (user.isVerified) {
+      return (
+        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+          Verified
+        </span>
+      );
+    } else {
+      return (
+        <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+          Not Verified
+        </span>
+      );
+    }
+  };
+
+  //search
   const filteredUsers = users.filter(user => {
     const matchesType = selectedType === 'Customers' ? user.type === 'Customer' : user.type === 'admin';
     const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
@@ -76,6 +95,12 @@ const UserManage = () => {
           <div key={user._id} className="border-b pb-6">
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
+                <div className="flex items-center gap-4 mb-2">
+                  <span className="text-xl font-medium">
+                    {user.firstName} {user.lastName}
+                  </span>
+                  {getVerificationBadge(user)}
+                </div>
                 <div className="flex">
                   <span className="font-semibold w-32">user id:</span>
                   <span>{user._id}</span>
@@ -89,24 +114,31 @@ const UserManage = () => {
                   <span>{user.phone}</span>
                 </div>
                 {user.type === 'Customer' && (
-                  <div className="flex">
-                    <span className="font-semibold w-32">Loyalty points:</span>
-                    <span>{user.loyaltyPoints}</span>
-                  </div>
+                  <>
+                    <div className="flex">
+                      <span className="font-semibold w-32">Loyalty points:</span>
+                      <span>{user.loyaltyPoints}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="font-semibold w-32">Status:</span>
+                      <span>{user.isVerified ? 'Verified Account' : 'Pending Verification'}</span>
+                    </div>
+                  </>
                 )}
               </div>
               <div className="space-y-2">
                 <div className="flex">
-                  <span className="font-semibold w-32">First Name:</span>
-                  <span>{user.firstName}</span>
-                </div>
-                <div className="flex">
-                  <span className="font-semibold w-32">Last Name:</span>
-                  <span>{user.lastName}</span>
+                  <span className="font-semibold w-32">Address:</span>
+                  <div>
+                    <p>{user.address?.street}</p>
+                    <p>{user.address?.city}, {user.address?.state}</p>
+                    <p>{user.address?.zipCode}</p>
+                    <p>{user.address?.country}</p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-end mt-4 gap-3">
               <button
                 onClick={() => handleDelete(user.email)}
                 className="bg-[#D05A53] hover:bg-[#B94A48] text-white px-6 py-2 rounded-full text-lg"

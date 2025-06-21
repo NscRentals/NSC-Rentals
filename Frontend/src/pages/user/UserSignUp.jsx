@@ -52,228 +52,176 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-4xl">
-                <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-                    <div className="md:flex">
-                        {/* Left side - Image/Illustration */}
-                        <div className="hidden md:block md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12">
-                            <div className="flex flex-col h-full justify-center">
-                                <h2 className="text-4xl font-bold text-white mb-6">Welcome to NSC Rentals</h2>
-                                <p className="text-blue-100 text-lg mb-8">
-                                    Join our community and experience the best car rental service in town.
-                                </p>
-                                <div className="space-y-4">
-                                    <div className="flex items-center text-blue-100">
-                                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center mr-3">
-                                            <FaUser className="text-white" />
-                                        </div>
-                                        <span>Easy Registration</span>
-                                    </div>
-                                    <div className="flex items-center text-blue-100">
-                                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center mr-3">
-                                            <FaLock className="text-white" />
-                                        </div>
-                                        <span>Secure Process</span>
-                                    </div>
-                                    <div className="flex items-center text-blue-100">
-                                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center mr-3">
-                                            <FaMapMarkerAlt className="text-white" />
-                                        </div>
-                                        <span>Multiple Locations</span>
-                                    </div>
+            <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+                <div className="md:flex">
+                    {/* Left side - Form */}
+                    <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+                        <p className="text-gray-600 mb-8">Fill in your details to get started</p>
+
+                        <form onSubmit={handleOnSubmit} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-xl font-semibold block mb-2">First Name</label>
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Enter your first name"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xl font-semibold block mb-2">Last Name</label>
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Enter your last name"
+                                    />
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Right side - Form */}
-                        <div className="w-full md:w-1/2 p-8 md:p-12">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-                            <p className="text-gray-600 mb-8">Fill in your details to get started</p>
+                            <div className="space-y-2">
+                                <label className="text-xl font-semibold block mb-2">Email</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Enter your email"
+                                />
+                            </div>
 
-                            <form onSubmit={handleOnSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">First Name</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaUser className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                name="firstName"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                value={formData.firstName}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </div>
-                </div>
+                            <div className="space-y-2">
+                                <label className="text-xl font-semibold block mb-2">Password</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Enter your password"
+                                />
+                            </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">Last Name</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaUser className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                name="lastName"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                value={formData.lastName}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                            <div className="space-y-2">
+                                <label className="text-xl font-semibold block mb-2">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Enter your phone number"
+                                />
+                            </div>
 
+                            <div className="space-y-2">
+                                <label className="text-xl font-semibold block mb-2">Street Address</label>
+                                <input
+                                    type="text"
+                                    name="address.street"
+                                    className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                    value={formData.address.street}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Street address"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">Email</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <FaEnvelope className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
+                                    <label className="text-xl font-semibold block mb-2">City</label>
+                                    <input
+                                        type="text"
+                                        name="address.city"
+                                        className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                        value={formData.address.city}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="City"
+                                    />
                                 </div>
-
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">Password</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <FaLock className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type="password"
-                                            name="password"
-                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            value={formData.password}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
+                                    <label className="text-xl font-semibold block mb-2">State</label>
+                                    <input
+                                        type="text"
+                                        name="address.state"
+                                        className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                        value={formData.address.state}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="State"
+                                    />
                                 </div>
+                            </div>
 
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">Phone Number</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <FaPhone className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
+                                    <label className="text-xl font-semibold block mb-2">ZIP Code</label>
+                                    <input
+                                        type="text"
+                                        name="address.zipCode"
+                                        className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                        value={formData.address.zipCode}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="ZIP code"
+                                    />
                                 </div>
-
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">Street Address</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <FaMapMarkerAlt className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            name="address.street"
-                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            value={formData.address.street}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
+                                    <label className="text-xl font-semibold block mb-2">Country</label>
+                                    <input
+                                        type="text"
+                                        name="address.country"
+                                        className="w-full h-[70px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5"
+                                        value={formData.address.country}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Country"
+                                    />
                                 </div>
+                            </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">City</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaCity className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                name="address.city"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                value={formData.address.city}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">State</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaGlobe className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                name="address.state"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                value={formData.address.state}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">ZIP Code</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaMapMarkerAlt className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                name="address.zipCode"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                value={formData.address.zipCode}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-gray-700">Country</label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <FaGlobe className="h-5 w-5 text-gray-400" />
-                                            </div>
-                                            <input
-                                                type="text"
-                                                name="address.country"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                                value={formData.address.country}
-                                                onChange={handleChange}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                </div>
-
-                                <button
-                                    type="submit"
-                                    className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02]"
-                                >
-                                    Create Account
-                </button>
-            </form>
+                            <button
+                                type="submit"
+                                className="w-full bg-mygreen hover:bg-green-800 text-white py-4 text-2xl rounded-full mt-6"
+                            >
+                                Register
+                            </button>
+                        </form>
+                    </div>
+                    {/* Right side - Social Logins */}
+                    <div className="w-full md:w-1/2 flex items-center justify-center bg-white rounded-3xl shadow-xl p-12">
+                        <div className="w-full max-w-[400px] text-center flex flex-col items-center">
+                            <h2 className="text-3xl font-bold mb-12">Or sign up with...</h2>
+                            <div className="flex flex-col gap-6 w-full">
+                                {/* Facebook */}
+                                <button className="w-full flex items-center gap-5 bg-[#4267B2] text-white text-xl py-5 px-7 rounded-xl shadow-md justify-center">
+                                    <img src="/icons/facebook.svg" alt="Facebook" className="h-8 w-8" />
+                                    Continue with Facebook
+                                </button>
+                                {/* Google */}
+                                <button className="w-full flex items-center gap-5 border border-gray-300 text-xl py-5 px-7 rounded-xl justify-center">
+                                    <img src="/icons/google.svg" alt="Google" className="h-8 w-8" />
+                                    Continue with Google
+                                </button>
+                                {/* Apple */}
+                                <button className="w-full flex items-center gap-5 bg-black text-white text-xl py-5 px-7 rounded-xl justify-center">
+                                    <img src="/icons/apple.svg" alt="Apple" className="h-8 w-8" />
+                                    Continue with Apple
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

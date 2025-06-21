@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import Logo from "./Logo"; // Make sure this path is correct
 import { useAuth } from "../context/AuthContext";
 
 export default function Header() {
   const { isLoggedIn, userProfile } = useAuth();
+  const location = useLocation();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] h-[84px] px-10 flex items-center justify-between">
@@ -21,7 +22,7 @@ export default function Header() {
           to="/cars" 
           className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
         >
-          Cars
+          Our Fleet
           <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
         </Link>
         <Link 
@@ -40,10 +41,10 @@ export default function Header() {
         </Link>
         <Link 
           to="/blog" 
-          className="text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group"
+          className={`text-gray-700 text-xl font-medium hover:text-black transition-colors duration-200 relative group ${location.pathname.startsWith('/blog') ? 'text-black' : ''}`}
         >
           Blog
-          <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-200 group-hover:w-full"></span>
+          <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${location.pathname.startsWith('/blog') ? 'w-full' : 'w-0'} group-hover:w-full`}></span>
         </Link>
       </nav>
 

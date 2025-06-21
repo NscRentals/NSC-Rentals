@@ -1,6 +1,7 @@
 import IdentityForm from "../models/identityForm.js";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import User from "../models/user.js";
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,63 @@ transporter.verify(function(error, success) {
         console.log('Transporter is ready to send emails');
     }
 });
+
+// Add this common email template function
+const getEmailTemplate = (content, isApproval = true) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .logo {
+      text-align: center;
+      padding: 20px;
+      background-color: #2f4f2f;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .content {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+    .status-header {
+      color: ${isApproval ? '#4A7B3F' : '#D32F2F'};
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      padding: 20px;
+      border-top: 1px solid #eee;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    NSC-RENTALS®
+  </div>
+  ${content}
+  <div class="footer">
+    <p>If you have any questions, please don't hesitate to contact our support team.</p>
+    <p>Best regards,<br>The NSC-RENTALS Team</p>
+  </div>
+</body>
+</html>
+`;
 
 export async function identityFormSave(req, res) {
     console.log("DEBUG: req.user in identityFormSave:", req.user);
@@ -105,41 +163,51 @@ export async function approveUser(req, res) {
             return res.status(400).json({ message: "Email is required!" });
         }
 
-        const updatedForm = await IdentityForm.findOneAndUpdate(
-            { email },
-            { isVerified: true },
-            { new: true }
-        );
+        // Update both IdentityForm and User models
+        const [updatedForm, updatedUser] = await Promise.all([
+            IdentityForm.findOneAndUpdate(
+                { email },
+                { isVerified: true },
+                { new: true }
+            ),
+            User.findOneAndUpdate(
+                { email },
+                { isVerified: true },
+                { new: true }
+            )
+        ]);
 
         if (!updatedForm) {
             return res.status(404).json({ message: "Identity form not found!" });
         }
 
-        // Send email to the user
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found!" });
+        }
+
+        const emailContent = `
+            <div class="content">
+                <h2 class="status-header">Account Verified!</h2>
+                <p>Dear ${updatedForm.fullName},</p>
+                <p>Congratulations! Your account has been successfully verified on NSC-RENTALS.</p>
+                <p>You now have full access to our services and can start:</p>
+                <ul>
+                    <li>Booking vehicles</li>
+                    <li>Accessing special offers</li>
+                    <li>Using our premium features</li>
+                </ul>
+                <p>Thank you for choosing NSC-RENTALS for your car rental needs!</p>
+            </div>
+        `;
+
         const mailOptions = {
             from: {
-                name: 'NSC Car Rental',
+                name: 'NSC-RENTALS',
                 address: process.env.EMAIL_USER
             },
             to: email,
-            subject: 'Account Verification - NSC Car Rental',
-            text: 'You are now verified on our website!',
-            html: `
-                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #4A7B3F; margin-bottom: 20px;">Account Verified!</h2>
-                    <p style="font-size: 16px; line-height: 1.5; color: #333;">
-                        Congratulations! Your account has been successfully verified on NSC Car Rental.
-                    </p>
-                    <p style="font-size: 16px; line-height: 1.5; color: #333;">
-                        You now have full access to our services and can start renting cars.
-                    </p>
-                    <div style="margin-top: 30px; padding: 20px; background-color: #f5f5f5; border-radius: 5px;">
-                        <p style="margin: 0; color: #666; font-size: 14px;">
-                            If you have any questions, please don't hesitate to contact us.
-                        </p>
-                    </div>
-                </div>
-            `
+            subject: 'Account Verification Successful - NSC-RENTALS',
+            html: getEmailTemplate(emailContent, true)
         };
 
         console.log('Attempting to send email with options:', {
@@ -167,8 +235,8 @@ export async function approveUser(req, res) {
         res.json({ message: "Identity form approved successfully!", form: updatedForm });
 
     } catch (error) {
-        console.error("Error approving identity form:", error);
-        res.status(500).json({ message: "An error occurred!" });
+        console.error('Error approving user:', error);
+        return res.status(500).json({ message: "Failed to approve user" });
     }
 }
 
@@ -190,31 +258,28 @@ export async function rejectUser(req, res) {
             return res.status(404).json({ message: "Identity form not found!" });
         }
 
-        // Send email to the user
+        const emailContent = `
+            <div class="content">
+                <h2 class="status-header">Account Verification Status</h2>
+                <p>Dear ${updatedForm.fullName},</p>
+                <p>We have reviewed your account verification submission and regret to inform you that it was not successful at this time.</p>
+                <div style="background-color: #fff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    <p style="margin: 0; color: #D32F2F;"><strong>Reason for rejection:</strong></p>
+                    <p style="margin: 10px 0 0 0;">${reason}</p>
+                </div>
+                <p>You can submit a new verification request after addressing the issues mentioned above.</p>
+                <p>If you believe this was a mistake or need further clarification, please don't hesitate to contact our support team.</p>
+            </div>
+        `;
+
         const mailOptions = {
             from: {
-                name: 'NSC Car Rental',
+                name: 'NSC-RENTALS',
                 address: process.env.EMAIL_USER
             },
             to: email,
-            subject: 'Account Verification Status - NSC Car Rental',
-            text: 'Your account verification was not successful.',
-            html: `
-                <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #D32F2F; margin-bottom: 20px;">Account Verification Status</h2>
-                    <p style="font-size: 16px; line-height: 1.5; color: #333;">
-                        We regret to inform you that your account verification was not successful at this time.
-                    </p>
-                    <p style="font-size: 16px; line-height: 1.5; color: #333;">
-                        Reason for rejection: ${reason}
-                    </p>
-                    <div style="margin-top: 30px; padding: 20px; background-color: #f5f5f5; border-radius: 5px;">
-                        <p style="margin: 0; color: #666; font-size: 14px;">
-                            If you believe this was a mistake or need further clarification, please contact our support team.
-                        </p>
-                    </div>
-                </div>
-            `
+            subject: 'Account Verification Status - NSC-RENTALS',
+            html: getEmailTemplate(emailContent, false)
         };
 
         console.log('Attempting to send rejection email with options:', {

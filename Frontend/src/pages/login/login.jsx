@@ -23,7 +23,8 @@ export default function LoginPage() {
             const { user, token } = response.data;
 
             if (token) {
-                login(token);
+                login(token, user._id);
+                localStorage.setItem('userId', user._id);
                 
                 // Navigate based on user type without page reload
                 if (user.type === "Customer") {

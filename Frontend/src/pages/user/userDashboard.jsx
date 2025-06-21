@@ -1,14 +1,24 @@
-import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import General from "./general";
 import UpdateProfilePicture from "./UpdateProfilePicture";
 import ChangePassword from "./ChangePassword";
 import UpdateUserDetails from "./UpdateUserDetails";
 import DeleteAccount from "./DeleteAccount";
 import VerifyAccount from "./VerifyAccount";
+import AddPaymentMethod from "./addPaymentMethod";
+import Payments from "./Payments";
+import MyReservations from "./myReservations";
+import MyCoupons from "./myCoupons";
+import MakePayment from "./makePayment";
 import axios from 'axios';
 
 export default function UserDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path) => {
+    return location.pathname.startsWith(`/user/${path}`);
+  };
 
   const handleLogout = async () => {
     try {
@@ -38,7 +48,7 @@ export default function UserDashboard() {
               className="block text-[26px] font-medium text-black relative group"
             >
               General
-              <span className="absolute bottom-0 left-0 w-full h-[3px] bg-black"></span>
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all duration-200 ${isActive('general') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
             </Link>
           </div>
           <div className="w-fit">
@@ -47,7 +57,7 @@ export default function UserDashboard() {
               className="block text-[26px] font-medium text-black relative group"
             >
               Reservations
-              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all duration-200 ${isActive('notifications') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
             </Link>
           </div>
           <div className="w-fit">
@@ -56,7 +66,7 @@ export default function UserDashboard() {
               className="block text-[26px] font-medium text-black relative group"
             >
               Notifications
-              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all duration-200 ${isActive('clubs') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
             </Link>
           </div>
           <div className="w-fit">
@@ -65,16 +75,16 @@ export default function UserDashboard() {
               className="block text-[26px] font-medium text-black relative group"
             >
               Payments
-              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all duration-200 ${isActive('payment') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
             </Link>
           </div>
           <div className="w-fit">
             <Link 
-              to="/user/referrals" 
+              to="/user/coupons" 
               className="block text-[26px] font-medium text-black relative group"
             >
               Coupons
-              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all duration-200 ${isActive('coupons') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
             </Link>
           </div>
           <div className="w-fit">
@@ -83,7 +93,7 @@ export default function UserDashboard() {
               className="block text-[26px] font-medium text-black relative group"
             >
               My vehicles
-              <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-black transition-all duration-200 group-hover:w-full"></span>
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all duration-200 ${isActive('drivers') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
             </Link>
           </div>
           <div className="w-fit mt-24">
@@ -110,6 +120,11 @@ export default function UserDashboard() {
           <Route path="general/update" element={<UpdateUserDetails />} />
           <Route path="general/delete" element={<DeleteAccount />} />
           <Route path="general/verify" element={<VerifyAccount />} />
+          <Route path="payment" element={<Payments />} />
+          <Route path="payment/add" element={<AddPaymentMethod />} />
+          <Route path="notifications" element={<MyReservations />} />
+          <Route path="coupons" element={<MyCoupons />} />
+          <Route path="make-payment" element={<MakePayment />} />
         </Routes>
       </div>
     </div>

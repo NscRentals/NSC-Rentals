@@ -3,6 +3,8 @@ import VerifyUsers from "./VerifyUsers";
 import BlogVerify from "./blogVerify";
 import UserManage from "./UserManage";
 import Dashboard from "./Dashboard";
+import Coupons from "./coupons";
+import CreateCoupon from "./CreateCoupon";
 import axios from 'axios';
 
 export default function AdminDashboard() {
@@ -88,6 +90,15 @@ export default function AdminDashboard() {
               <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${isActive('/admin/reports') ? 'w-full' : 'w-0'}`}></span>
             </Link>
           </div>
+          <div className="w-fit">
+            <Link 
+              to="/admin/coupons" 
+              className="block text-[26px] font-medium text-black relative group"
+            >
+              Coupons
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${isActive('/admin/coupons') ? 'w-full' : 'w-0'}`}></span>
+            </Link>
+          </div>
           <div className="w-fit mt-24">
             <button 
               onClick={handleLogout}
@@ -112,6 +123,8 @@ export default function AdminDashboard() {
           <Route path="blogposts" element={<BlogVerify />} />
           <Route path="vehicles" element={<h1 style={{ marginBottom: "20px", fontSize: "2.8rem", fontWeight: "bold", letterSpacing: "-1px" }}>Vehicle Management</h1>} />
           <Route path="reports" element={<h1 style={{ marginBottom: "20px", fontSize: "2.8rem", fontWeight: "bold", letterSpacing: "-1px" }}>Reports</h1>} />
+          <Route path="coupons" element={<Coupons />} />
+          <Route path="coupons/create" element={<CreateCoupon />} />
         </Routes>
       </div>
     </div>

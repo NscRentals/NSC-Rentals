@@ -7,7 +7,8 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState({
     name: "",
-    profilePicture: null
+    profilePicture: null,
+    userId: null
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -15,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (!token) {
       setIsLoggedIn(false);
-      setUserProfile({ name: "", profilePicture: null });
+      setUserProfile({ name: "", profilePicture: null, userId: null });
       setIsLoading(false);
       return;
     }
@@ -29,33 +30,42 @@ export const AuthProvider = ({ children }) => {
       
       if (response.data) {
         setIsLoggedIn(true);
+        const userId = response.data._id;
+        localStorage.setItem('userId', userId);
         setUserProfile({
           name: response.data.firstName || response.data.name || 'User',
-          profilePicture: response.data.profilePicture
+          profilePicture: response.data.profilePicture,
+          userId: userId
         });
       } else {
         localStorage.removeItem('token');
+        localStorage.removeItem('userId');
         setIsLoggedIn(false);
-        setUserProfile({ name: "", profilePicture: null });
+        setUserProfile({ name: "", profilePicture: null, userId: null });
       }
     } catch (error) {
       console.error('Error checking login status:', error);
       localStorage.removeItem('token');
+      localStorage.removeItem('userId');
       setIsLoggedIn(false);
-      setUserProfile({ name: "", profilePicture: null });
+      setUserProfile({ name: "", profilePicture: null, userId: null });
     }
     setIsLoading(false);
   };
 
-  const login = (token) => {
+  const login = (token, userId) => {
     localStorage.setItem('token', token);
+    if (userId) {
+      localStorage.setItem('userId', userId);
+    }
     checkLoginStatus();
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     setIsLoggedIn(false);
-    setUserProfile({ name: "", profilePicture: null });
+    setUserProfile({ name: "", profilePicture: null, userId: null });
   };
 
   useEffect(() => {

@@ -8,6 +8,9 @@ import jwt from "jsonwebtoken";
 import identityRouter from "./routes/identityFormRoutes.js";
 import blogRouter from "./routes/blogRoutes.js";
 import activityRouter from "./routes/userActivityRoutes.js";
+import paymentMethodRouter from "./routes/paymentMethodRoutes.js";
+import couponRouter from "./routes/couponRoutes.js";
+import reservationRouter from "./routes/reservationRoutes.js";
 import cors from "cors";
 import path from "path"
 import { fileURLToPath } from 'url'; 
@@ -44,27 +47,31 @@ app.listen(4000, ()=>{
 
 });
 
-app.use((req,res,next)=>{
+app.use(async (req, res, next) => {
+  let token = req.header("Authorization");
 
-
-    let token = req.header("Authorization");
-
-    if(token!=null) {
-
-        token = token.replace("Bearer ","");
-        jwt.verify(token, process.env.JWT_SECRET,(err,decoded)=>{
-            
-            if(!err){
-                req.user = decoded ;
-            }
-        })
+  if (token) {
+    try {
+      token = token.replace("Bearer ", "");
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      // Fetch the complete user object from database
+      const user = await mongoose.model('User').findById(decoded.id).select('-password');
+      if (user) {
+        req.user = user;
+      }
+    } catch (error) {
+      console.error('Token verification error:', error);
     }
-
-    next()
-})
+  }
+  next();
+});
 
 app.use("/api/users",userRouter)
 app.use("/api/driver",driverRouter)
 app.use("/api/forms",identityRouter)
 app.use("/api/blogpost",blogRouter)
 app.use("/api/activities", activityRouter)
+app.use("/api/payment-methods", paymentMethodRouter)
+app.use("/api/coupons", couponRouter)
+app.use("/api/reservations", reservationRouter)

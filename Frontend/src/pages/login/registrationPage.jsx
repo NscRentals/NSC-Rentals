@@ -116,7 +116,7 @@ export default function RegisterPage() {
                 {/* Left Form */}
                 <form
                     onSubmit={handleSubmit}
-                    className="w-[830px] min-h-full bg-white flex flex-col justify-center items-center px-10 border-r border-gray-300"
+                    className="w-[830px] min-h-full bg-white flex flex-col items-center px-10 overflow-y-auto h-[calc(100vh-83px)] pt-8"
                 >
                     <h1 className="text-5xl font-bold mb-10 w-full text-left ml-[240px]">Sign Up</h1>
 
@@ -125,62 +125,62 @@ export default function RegisterPage() {
                             <label className="block font-semibold mb-1">First Name</label>
                             <input type="text" name="firstName" value={formData.firstName}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">Last Name</label>
                             <input type="text" name="lastName" value={formData.lastName}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div className="col-span-2">
                             <label className="block font-semibold mb-1">Street</label>
                             <input type="text" name="address.street" value={formData.address.street}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">City</label>
                             <input type="text" name="address.city" value={formData.address.city}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">State</label>
                             <input type="text" name="address.state" value={formData.address.state}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">Zip Code</label>
                             <input type="text" name="address.zipCode" value={formData.address.zipCode}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">Country</label>
                             <input type="text" name="address.country" value={formData.address.country}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div className="col-span-2">
                             <label className="block font-semibold mb-1">Email</label>
                             <input type="email" name="email" value={formData.email}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div className="col-span-2">
                             <label className="block font-semibold mb-1">Phone</label>
                             <input type="tel" name="phone" value={formData.phone}
                                 onChange={handleChange} required
-                                className="input" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5" />
                         </div>
                         <div className="col-span-2 relative">
                             <label className="block font-semibold mb-1">Password</label>
                             <input type={showPassword ? "text" : "password"}
                                 name="password" value={formData.password}
                                 onChange={handleChange} required
-                                className="input pr-12" />
+                                className="w-full h-[50px] px-4 border bg-white border-gray-300 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-black mb-5 pr-12" />
                             <div
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute top-[42px] right-4 cursor-pointer"
@@ -202,22 +202,24 @@ export default function RegisterPage() {
                     </button>
                 </form>
 
-                {/* Right Section - Optional */}
-                <div className="w-[calc(100vw-830px)] flex items-center justify-center">
-                    <div className="text-left">
-                        <h2 className="text-4xl font-bold mb-10">Or sign up with...</h2>
-                        <button className="social-btn bg-[#4267B2] text-white mb-6">
-                            <img src="/icons/facebook.svg" className="h-9 w-9" />
-                            Continue with Facebook
-                        </button>
-                        <button className="social-btn border mb-6">
-                            <img src="/icons/google.svg" className="h-9 w-9" />
-                            Continue with Google
-                        </button>
-                        <button className="social-btn bg-black text-white">
-                            <img src="/icons/apple.svg" className="h-9 w-9" />
-                            Continue with Apple
-                        </button>
+                {/* Right Section - Social Logins */}
+                <div className="w-[calc(100vw-830px)] flex items-center justify-center bg-white rounded-3xl p-12">
+                    <div className="w-full max-w-[400px] text-center flex flex-col items-center">
+                        <h2 className="text-3xl font-bold mb-12">Or sign up with...</h2>
+                        <div className="flex flex-col gap-6 w-full">
+                            <button className="w-full flex items-center gap-5 bg-[#4267B2] text-white text-xl py-5 px-7 rounded-xl shadow-md justify-center">
+                                <img src="/icons/facebook.svg" className="h-8 w-8" />
+                                Continue with Facebook
+                            </button>
+                            <button className="w-full flex items-center gap-5 border border-gray-300 text-xl py-5 px-7 rounded-xl justify-center">
+                                <img src="/icons/google.svg" className="h-8 w-8" />
+                                Continue with Google
+                            </button>
+                            <button className="w-full flex items-center gap-5 bg-black text-white text-xl py-5 px-7 rounded-xl justify-center">
+                                <img src="/icons/apple.svg" className="h-8 w-8" />
+                                Continue with Apple
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
