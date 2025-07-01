@@ -159,9 +159,15 @@ export default function MakePayment() {
         {showQRScanner && (
           <div className="mt-4">
             <QrReader
-              delay={300}
-              onError={(err) => console.error(err)}
-              onScan={handleQRScan}
+              constraints={{ facingMode: 'environment' }}
+              onResult={(result, error) => {
+                if (!!result) {
+                  handleQRScan(result?.text);
+                }
+                if (!!error) {
+                  // Optionally handle error
+                }
+              }}
               style={{ width: '100%' }}
             />
           </div>

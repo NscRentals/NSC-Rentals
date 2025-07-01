@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 
+//creating the component with arrow function
 const AddBlog = () => {
   const [image, setImage] = useState(null);
   const [caption, setCaption] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Replace with your backend endpoint
+
   const API_URL = "http://localhost:4000/api/blogpost/";
 
   const handleImageChange = (e) => {
@@ -18,10 +19,13 @@ const AddBlog = () => {
   };
 
   const handleSubmit = async (e) => {
+    
+    //stops reloading the page
     e.preventDefault();
+
     setLoading(true);
     setMessage("");
-    const token = localStorage.getItem("token"); // Adjust if you store token elsewhere
+    const token = localStorage.getItem("token"); 
     if (!image) {
       setMessage("Image is required!");
       setLoading(false);

@@ -1,15 +1,16 @@
 {
   "dependencies": {
+    "@blackbox-vision/react-qr-reader": "^5.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "axios": "^1.9.0",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.5.0",
     "jspdf": "^3.0.1",
     "nodemailer": "^6.10.1",
     "qrcode": "^1.5.4",
-    "react-qr-reader": "^3.0.0-beta-1"
+    "react-qr-reader": "^3.0.0-beta-1",
+    "react-qr-scanner": "^1.0.0-alpha.11"
   }
 }
