@@ -4,8 +4,8 @@ const driverSchema = new mongoose.Schema({
 
     DriverID:{
 
-        type: String,   
-        required: true
+        type: Number,   
+        required: false
     },
 
     DriverName:{
@@ -54,13 +54,7 @@ const driverSchema = new mongoose.Schema({
 });
 
 
-driverSchema.pre("save", async function (next) {
-    if (!this.DriverID) {
-        const lastDriver = await mongoose.model("Driver").findOne().sort({ DriverID: -1 });
-        this.DriverID = lastDriver ? lastDriver.DriverID + 1 : 1000; // Start from 1000
-    }
-    next();
-});
+
 
 
 

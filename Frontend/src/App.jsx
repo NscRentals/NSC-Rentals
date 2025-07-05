@@ -63,10 +63,6 @@ function App() {
               
               {/* Admin Routes */}
               <Route path="/admin/*" element={<AdminDashboard/>} />
-              <Route path="/admin/vehicle-approvals" element={<AdminVehicleApprovals/>} />
-              <Route path="/admin/vehicle-list" element={<AdminVehicleList/>} />
-              <Route path="/admin/spare-parts" element={<SparePartsInventory/>} />
-              <Route path="/admin/vehicle-updates" element={<VehicleUpdateRequests/>} />
               
               {/* Technician Routes */}
               <Route path="/technician/dashboard/*" element={<TechnicianDashboard/>} />
@@ -75,7 +71,7 @@ function App() {
               
               {/* Driver Routes */}
               <Route path="/Driver" element={<DriverDashboard/>} />
-              <Route path="/register" element={<DriverRegister />} />
+              <Route path="/driverregister" element={<DriverRegister />} />
               <Route path="/drivers" element={<AllDrivers />} />
               <Route path="/driverprofile/:id" element={<DriverProfile />} />     
               <Route path="/driverprofile/update/:id" element={<DriverProfileUpdate />} /> 

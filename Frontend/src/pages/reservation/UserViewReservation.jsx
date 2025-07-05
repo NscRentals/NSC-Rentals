@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Notification from "../../components/Notification";
+import UserLayout from "../user/UserLayout";
 
 const ViewReservations = () => {
   const [reservations, setReservations] = useState([]);
@@ -461,4 +462,10 @@ const ViewReservations = () => {
   );
 };
 
-export default ViewReservations;
+export default function UserViewReservationsPageWrapper() {
+  return (
+    <UserLayout>
+      <ViewReservations />
+    </UserLayout>
+  );
+}

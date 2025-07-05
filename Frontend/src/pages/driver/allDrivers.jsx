@@ -59,7 +59,7 @@ class AllDrivers extends Component {
       <div className="container">
         <h2>All Drivers - Admin Panel </h2>
 
-        <button onClick={() => this.props.navigate('/register')} className="btn btn-primary">
+        <button onClick={() => this.props.navigate('/driverregister')} className="btn btn-primary">
           Register New Driver
         </button>
 

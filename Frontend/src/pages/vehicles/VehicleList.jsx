@@ -128,7 +128,7 @@ const VehicleList = () => {
                 >
                   View Details
                 </button>
-                {(isAdmin || vehicle.owner === userProfile?._id) && (
+                {/* {(isAdmin || vehicle.owner === userProfile?._id) && (
                   <button
                     onClick={() => {
                       if (window.confirm('Are you sure you want to delete this vehicle?')) {
@@ -142,7 +142,7 @@ const VehicleList = () => {
                   >
                     Delete
                   </button>
-                )}
+                )} */}
               </div>
             </div>
           </div>

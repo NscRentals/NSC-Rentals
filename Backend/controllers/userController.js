@@ -55,7 +55,7 @@ export async function loginUser(req, res) {
         let role = null;
 
         if (!user) {
-            user = await driver.findOne({ email });
+            user = await driver.findOne({ DriverEmail: email });
             if (user) role = "driver";
         }
 
@@ -77,7 +77,8 @@ export async function loginUser(req, res) {
         }
 
         // Validating the password
-        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        const passwordField = role === "driver" ? "DriverPW" : "password";
+        const isPasswordCorrect = await bcrypt.compare(password, user[passwordField]);
         if (!isPasswordCorrect) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
@@ -90,9 +91,9 @@ export async function loginUser(req, res) {
             //same
             lastName: role === "admin" || role === "customer" ? user.lastName : null,
             address:  role === "customer" ? user.address.street : null,
-            name: role === "driver" || role === "technician" ? user.name : null,
-            email: user.email,
-            phone: user.phone || "",
+            name: role === "driver" || role === "technician" ? (role === "driver" ? user.DriverName : user.name) : null,
+            email: role === "driver" ? user.DriverEmail : user.email,
+            phone: role === "driver" ? user.DriverPhone : (user.phone || ""),
             type: role.toLowerCase(), // Ensure consistent casing
             profilePicture: role === "admin" || role === "customer" ? user.profilePicture || null : null,
         };
@@ -143,6 +144,8 @@ export async function adminRegister(req,res){
             data.password = bcrypt.hashSync(data.password,10)
             //making the type - admin
             data.type = "admin"
+            //admins are automatically verified
+            data.isVerified = true
 
             const newAdmin = new User(data)
             await newAdmin.save()
@@ -164,17 +167,50 @@ export async function adminRegister(req,res){
 
 export async function getAllUsers(req,res){
 
-    const data = req.body;
-    const user = req.user;
+    try {
+        const user = req.user;
 
-    if(isItAdmin(req)){
+        if(!user) {
+            return res.status(401).json({message : "Authentication required"});
+        }
 
-        const users = await User.find();
-        res.json(users);
+        if(isItAdmin(req)){
 
-    }else{
+            const users = await User.find();
+            res.json(users);
 
-        res.json({message : " Authorization is needed "})
+        }else{
+
+            res.status(403).json({message : "Admin authorization required"})
+        }
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).json({message : "Internal server error"});
+    }
+}
+
+//to get unverified users for admin verification
+export async function getUnverifiedUsers(req,res){
+
+    try {
+        const user = req.user;
+
+        if(!user) {
+            return res.status(401).json({message : "Authentication required"});
+        }
+
+        if(isItAdmin(req)){
+
+            const users = await User.find({ isVerified: false });
+            res.json(users);
+
+        }else{
+
+            res.status(403).json({message : "Admin authorization required"})
+        }
+    } catch (error) {
+        console.error("Error fetching unverified users:", error);
+        res.status(500).json({message : "Internal server error"});
     }
 }
 
@@ -198,6 +234,66 @@ export async function getUserDetails(req, res) {
     }
 
     res.json(user);
+}
+
+//to verify a user by admin
+export async function verifyUser(req, res) {
+    try {
+        if (req.user.type !== 'admin') {
+            return res.status(403).json({ message: "You are not allowed to perform this task!" });
+        }
+
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "Email is required!" });
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            { email, isVerified: false },
+            { isVerified: true },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found or already verified!" });
+        }
+
+        res.json({ message: "User verified successfully!", user: updatedUser });
+
+    } catch (error) {
+        console.error("Error verifying user:", error);
+        res.status(500).json({ message: "An error occurred!" });
+    }
+}
+
+//to unverify a user by admin
+export async function unverifyUser(req, res) {
+    try {
+        if (req.user.type !== 'admin') {
+            return res.status(403).json({ message: "You are not allowed to perform this task!" });
+        }
+
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "Email is required!" });
+        }
+
+        const updatedUser = await User.findOneAndUpdate(
+            { email, isVerified: true },
+            { isVerified: false },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found or already unverified!" });
+        }
+
+        res.json({ message: "User unverified successfully!", user: updatedUser });
+
+    } catch (error) {
+        console.error("Error unverifying user:", error);
+        res.status(500).json({ message: "An error occurred!" });
+    }
 }
 
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 const DriverRegister = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +13,7 @@ const DriverRegister = () => {
     NICNo: '',
     DriverPW: ''
   });
-  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const [driverID, setDriverID] = useState(null);
   const navigate = useNavigate();
 
@@ -25,20 +26,37 @@ const DriverRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    
     try {
       const response = await axios.post('http://localhost:4000/api/driver/register', formData);
 
       if (response.status === 200) {
-        setMessage(response.data.error);
-        alert(response.data.success);
-    
-      } else {
-        setMessage(response.data.error);
-        alert(response.data.error); 
-      };
+        toast.success(response.data.success || 'Driver registered successfully!');
+        setDriverID(response.data.driver?.DriverID);
+        
+        // Clear form after successful registration
+        setFormData({
+          DriverName: '',
+          DriverPhone: '',
+          DriverAdd: '',
+          DriverEmail: '',
+          DLNo: '',
+          NICNo: '',
+          DriverPW: ''
+        });
+        
+        // Optionally navigate to login after a delay
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      }
     } catch (error) {
-      setMessage(error.response?.data?.error || 'An error occurred');
-      alert(error.response?.data?.error || 'An error occurred');
+      console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.error || 'Registration failed. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,10 +65,14 @@ const DriverRegister = () => {
       <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-2xl">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-4 p-4">Driver Registration</h2>
         <p className="text-center text-gray-600 mb-6">Fill out the form carefully to register the driver</p>
-        {message && <div className="text-center text-green-600 font-semibold mb-4">{message}</div>}
-        {driverID && <div className="text-center text-blue-600 font-semibold mb-4">Assigned Driver ID: {driverID}</div>}
         
-        <form onSubmit={handleSubmit} className="space-y-6 ">
+        {driverID && (
+          <div className="text-center text-blue-600 font-semibold mb-4 p-3 bg-blue-50 rounded-lg">
+            Driver registered successfully! Driver ID: {driverID}
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-2">
             <div>
               <label className="block text-gray-700 font-medium mb-2 p-4">Driver Name : </label>
@@ -61,6 +83,7 @@ const DriverRegister = () => {
                 onChange={handleChange}
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 required
+                disabled={loading}
               />
             </div>
             <div>
@@ -72,6 +95,8 @@ const DriverRegister = () => {
                 onChange={handleChange}
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 required
+                disabled={loading}
+                placeholder="10 digits only"
               />
             </div>
           </div>
@@ -85,6 +110,7 @@ const DriverRegister = () => {
               onChange={handleChange}
               className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
               required
+              disabled={loading}
             />
           </div>
 
@@ -98,6 +124,7 @@ const DriverRegister = () => {
                 onChange={handleChange}
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 required
+                disabled={loading}
               />
             </div>
             <div>
@@ -109,11 +136,12 @@ const DriverRegister = () => {
                 onChange={handleChange}
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
-          <div className=" grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="p-4 block text-gray-700 font-medium mb-2">NIC No</label>
               <input
@@ -123,6 +151,9 @@ const DriverRegister = () => {
                 onChange={handleChange}
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 required
+                disabled={loading}
+                placeholder="10 characters"
+                maxLength="10"
               />
             </div>
             <div>
@@ -134,15 +165,22 @@ const DriverRegister = () => {
                 onChange={handleChange}
                 className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 required
+                disabled={loading}
+                minLength="6"
               />
             </div>
           </div>
           
           <button
             type="submit"
-            className="p-4 w-full bg-green-600 text-white py-3 rounded-lg font-semibold shadow-md hover:shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300"
+            disabled={loading}
+            className={`p-4 w-full py-3 rounded-lg font-semibold shadow-md transition-transform transform focus:outline-none focus:ring-2 focus:ring-green-300 ${
+              loading 
+                ? 'bg-gray-400 text-white cursor-not-allowed' 
+                : 'bg-green-600 text-white hover:shadow-lg hover:bg-green-700 hover:scale-105'
+            }`}
           >
-            Register Driver
+            {loading ? 'Registering...' : 'Register Driver'}
           </button>
         </form>
       </div>

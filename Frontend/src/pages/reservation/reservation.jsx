@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import Notification from "../../components/Notification";
+import UserLayout from "../user/UserLayout";
 
 const ReservationForm = () => {
   const [formData, setFormData] = useState({
@@ -636,4 +637,10 @@ const ReservationForm = () => {
   );
 };
 
-export default ReservationForm;
+export default function ReservationPageWrapper() {
+  return (
+    <UserLayout>
+      <ReservationForm />
+    </UserLayout>
+  );
+}

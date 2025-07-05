@@ -225,7 +225,7 @@ export async function driverRegister(req, res) {
   
       // Generate a unique Driver ID
       const latestDriver = await driver.findOne().sort({ DriverID: -1 });
-      const newDriverID = latestDriver ? latestDriver.DriverID + 1 : 1001;
+      const newDriverID = latestDriver ? (parseInt(latestDriver.DriverID) + 1) : 1001;
 
       // Create and save the new driver
       const newDriver = new driver({
