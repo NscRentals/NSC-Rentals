@@ -15,7 +15,7 @@ const AdminVehicleApprovals = () => {
 
   const fetchPendingVehicles = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       console.log('Fetching pending vehicles...');
       
       const response = await axios.get('http://localhost:4000/api/vehicles/pending', {
@@ -37,7 +37,7 @@ const AdminVehicleApprovals = () => {
   const handleApproval = async (id, action) => {
     try {
       setProcessing(true);
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       
       await axios.put(`http://localhost:4000/api/vehicles/handle-approval/${id}`, 
         { 

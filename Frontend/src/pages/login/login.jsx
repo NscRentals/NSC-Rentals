@@ -26,7 +26,7 @@ export default function LoginPage() {
             const { user, token } = response.data;
             if (token) {
                 toast.success("Login Successful");
-                localStorage.setItem('userId', user.id);
+                sessionStorage.setItem('userId', user.id);
                 await login(token); // Wait for login to complete
                 // After login is complete, navigate based on user type
                 const userType = user.type.toLowerCase();
@@ -37,8 +37,8 @@ export default function LoginPage() {
                     } else if (userType === "admin") {
                         navigate("/admin/dashboard", { replace: true });
                     } else if (userType === "driver") {
-                        localStorage.setItem('driverId', user.id);
-                        navigate(`/dashboard/${user.id}`);
+                        sessionStorage.setItem('driverId', user.id);
+                        navigate(`/driver/dashboard/${user.id}`);
                     } else if (userType === "technician") {
                         navigate("/technician/dashboard", { replace: true });
                     } else {

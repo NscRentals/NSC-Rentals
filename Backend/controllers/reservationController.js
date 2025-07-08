@@ -9,12 +9,12 @@ export async function reservationAdd(req, res) {
   try {
     // Validate required fields
     const requiredFields = [
-      'vehicleNum', 'userId', 'driverID', 'name', 'email', 
+      'vehicleNum', 'userId', 'name', 'email', 
       'phonenumber', 'address', 'service', 'locationpick', 
-      'locationdrop', 'wantedtime', 'amount', 'wanteddate'
+      'locationdrop', 'wantedtime', 'amount', 'wanteddate', 'needDriver'
     ];
     
-    const missingFields = requiredFields.filter(field => !data[field]);
+    const missingFields = requiredFields.filter(field => data[field] === undefined || data[field] === null || data[field] === "");
     
     if (missingFields.length > 0) {
       console.error("Missing required fields:", missingFields);
@@ -22,6 +22,23 @@ export async function reservationAdd(req, res) {
         error: "Missing required fields", 
         details: missingFields 
       });
+    }
+
+    // If needDriver is true, do not require driverID
+    if (data.needDriver) {
+      data.driverAssigned = false;
+      data.driverID = undefined;
+      // Get all driver IDs for notification
+      const Driver = (await import('../models/DriverModel.js')).default;
+      const allDrivers = await Driver.find({}, '_id');
+      data.notifiedDrivers = allDrivers.map(d => d._id.toString());
+    } else {
+      // If not needing a driver, driverID is required
+      if (!data.driverID) {
+        return res.status(400).json({ error: "driverID is required if not requesting a driver" });
+      }
+      data.driverAssigned = true;
+      data.notifiedDrivers = [];
     }
 
     // Create a new reservation
@@ -202,5 +219,26 @@ export async function reservationFindDriverId(req, res) {
     return res
       .status(500)
       .json({ success: false, message: "Server error", error: error.message });
+  }
+}
+
+// New: Driver accepts a reservation (first-come, first-served)
+export async function driverAcceptReservation(req, res) {
+  const { reservationId, driverId } = req.body;
+  try {
+    const reservation = await Reservation.findById(reservationId);
+    if (!reservation) {
+      return res.status(404).json({ error: "Reservation not found" });
+    }
+    if (!reservation.needDriver || reservation.driverAssigned) {
+      return res.status(400).json({ error: "Reservation already assigned or does not require a driver" });
+    }
+    // Assign the driver (first-come, first-served)
+    reservation.driverID = driverId;
+    reservation.driverAssigned = true;
+    await reservation.save();
+    res.status(200).json({ message: "Reservation assigned to driver", reservation });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 }

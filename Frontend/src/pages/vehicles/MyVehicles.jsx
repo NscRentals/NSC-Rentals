@@ -17,7 +17,7 @@ function MyVehicles() {
 
   const fetchMyVehicles = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setNotification({
           message: 'Please log in to view your vehicles',
@@ -84,7 +84,7 @@ function MyVehicles() {
 
   const sendNotification = async (title, message) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) return;
 
       await axios.post('http://localhost:4000/api/notifications', {
@@ -101,7 +101,7 @@ function MyVehicles() {
 
   const handleDelete = async (id, reason) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setNotification({
           message: 'Please log in to perform this action',
@@ -155,7 +155,7 @@ function MyVehicles() {
 
   const handleDamageReport = async (vehicleId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setNotification({
           message: 'Please log in to perform this action',

@@ -6,7 +6,7 @@ export default function Layout() {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isTechnicianRoute = location.pathname.startsWith('/technician/dashboard');
   const isUserDashboardRoute = location.pathname.startsWith('/user');
-  const isDriverDashboardRoute = location.pathname.startsWith('/dashboard/');
+  const isDriverDashboardRoute = location.pathname.startsWith('/driver/dashboard/');
 
   return (
     <div className="min-h-screen flex flex-col">

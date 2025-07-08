@@ -22,7 +22,7 @@ const DamageRequestsList = () => {
 
   const fetchDamageRequests = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view requests');
         navigate('/login');
@@ -44,7 +44,7 @@ const DamageRequestsList = () => {
   };
   const handleAccept = async (id) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to accept requests');
         return;
@@ -71,7 +71,7 @@ const DamageRequestsList = () => {
 
   const handleScheduleSubmit = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to schedule request');
         return;
@@ -102,7 +102,7 @@ const DamageRequestsList = () => {
 
   const handleStatusUpdate = async (id) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to update status');
         return;
@@ -127,6 +127,24 @@ const DamageRequestsList = () => {
     } catch (error) {
       console.error('Error updating status:', error);
       toast.error(error.response?.data?.message || 'Failed to update status');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to delete requests');
+        return;
+      }
+      await axios.delete(`http://localhost:4000/api/damage-requests/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('Request deleted successfully');
+      fetchDamageRequests();
+    } catch (error) {
+      console.error('Error deleting request:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete request');
     }
   };
 
@@ -164,7 +182,7 @@ const DamageRequestsList = () => {
             </button>
           )}
           
-          {request.technicianId?._id === localStorage.getItem('userId') && (
+          {request.technicianId?._id === sessionStorage.getItem('userId') && (
             <>
               <button
                 onClick={() => setSelectedRequest(request)}
@@ -185,6 +203,12 @@ const DamageRequestsList = () => {
               )}
             </>
           )}
+          <button
+            onClick={() => handleDelete(request._id)}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+          >
+            Delete Request
+          </button>
         </div>
       </div>
     </div>

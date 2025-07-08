@@ -199,8 +199,8 @@ export async function handleVehicleApproval(req, res) {
         // Populate owner information
         await vehicle.populate('owner', 'firstName lastName email phone');
 
-        // Check if vehicle is pending
-        if (vehicle.approvalStatus !== 'Pending' || vehicle.availabilityStatus !== 'Pending') {
+        // Check if vehicle is pending approval (only approvalStatus)
+        if (vehicle.approvalStatus !== 'Pending') {
             return res.status(400).json({ 
                 message: 'This vehicle is not pending approval',
                 currentStatus: {
@@ -208,6 +208,11 @@ export async function handleVehicleApproval(req, res) {
                     availabilityStatus: vehicle.availabilityStatus
                 }
             });
+        }
+        // If status is pending but availability is not, auto-fix it
+        if (vehicle.availabilityStatus !== 'Pending') {
+            vehicle.availabilityStatus = 'Pending';
+            await vehicle.save();
         }
 
         if (cleanAction === 'approve') {

@@ -222,7 +222,7 @@ export async function getUserDetails(req, res) {
     let user = null;
 
     if (type === "driver") {
-        user = await driver.findOne({ email });
+        user = await driver.findOne({ DriverEmail: email });
     } else if (type === "technician") {
         user = await Technician.findOne({ email });
     } else {

@@ -71,7 +71,7 @@ const EditVehicle = () => {
 
   const fetchVehicleData = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to edit vehicles');
         navigate('/login');
@@ -264,7 +264,7 @@ const EditVehicle = () => {
       // If no new images, keep the existing ones
       formDataToSend.append('existingImages', JSON.stringify(existingImages));
     }    try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to edit vehicles');
         navigate('/login');

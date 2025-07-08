@@ -37,7 +37,7 @@ const AcceptedRequests = () => {
 
   const fetchSpareParts = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view spare parts');
         navigate('/login');
@@ -117,7 +117,7 @@ const AcceptedRequests = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.patch(
         `http://localhost:4000/api/damage-requests/${selectedRequest._id}/update-status`,
         {
@@ -142,7 +142,7 @@ const AcceptedRequests = () => {
 
   const fetchAcceptedRequests = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view requests');
         navigate('/login');

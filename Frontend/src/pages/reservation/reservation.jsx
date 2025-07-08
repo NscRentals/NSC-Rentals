@@ -8,7 +8,6 @@ const ReservationForm = () => {
   const [formData, setFormData] = useState({
     vehicleNum: "",
     userId: "",
-    driverID: "",
     name: "",
     email: "",
     phonenumber: "",
@@ -19,6 +18,7 @@ const ReservationForm = () => {
     wantedtime: "",
     amount: "",
     wanteddate: "",
+    needDriver: false,
   });
   const [Data, setData] = useState({
     amount: "0",
@@ -27,7 +27,6 @@ const ReservationForm = () => {
   });
   const [showForm, setShowForm] = useState(false);
   const { id } = useParams();
-  const [drivers, setDrivers] = useState([]);
   const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ const ReservationForm = () => {
   const [notification, setNotification] = useState({ message: "", type: "" });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (!token) {
       navigate('/login');
       return;
@@ -44,28 +43,30 @@ const ReservationForm = () => {
     if (location.state?.vehicleDetails) {
       setFormData(prev => ({
         ...prev,
-        vehicleNum: location.state.vehicleDetails.vehicleNum,
-        model: location.state.vehicleDetails.model,
-        registrationNumber: location.state.vehicleDetails.registrationNumber
+        vehicleNum: location.state.vehicleDetails.registrationNumber,
+        model: location.state.vehicleDetails.model
       }));
+    } else if (id) {
+      // Fallback: fetch vehicle details from backend
+      const token = sessionStorage.getItem("token");
+      fetch(`http://localhost:4000/api/vehicles/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.registrationNumber) {
+            setFormData(prev => ({
+              ...prev,
+              vehicleNum: data.registrationNumber,
+              model: data.model
+            }));
+          }
+        })
+        .catch(() => {});
     }
-
-    fetchDrivers();
   }, [id, navigate, location.state]);
-
-  const fetchDrivers = async () => {
-    try {
-      const response = await fetch("http://localhost:4000/api/driver");
-      const result = await response.json();
-      if (result.success) {
-        setDrivers(result.posts);
-      } else {
-        console.error("Failed to fetch drivers");
-      }
-    } catch (error) {
-      console.error("Error fetching drivers:", error);
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,7 +85,7 @@ const ReservationForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.vehicleNum) newErrors.vehicleNum = "Vehicle number is required.";
+    if (!formData.vehicleNum) newErrors.vehicleNum = "Registration number is required.";
     if (!formData.name) newErrors.name = "Name is required.";
     if (!formData.email) newErrors.email = "Email is required.";
     if (!formData.phonenumber)
@@ -95,8 +96,6 @@ const ReservationForm = () => {
       newErrors.locationdrop = "Drop-off location is required.";
     if (!formData.wantedtime) newErrors.wantedtime = "Wanted time is required.";
     if (!formData.service) newErrors.service = "Service type is required.";
-    if (!formData.driverID)
-      newErrors.driverID = "Driver selection is required.";
     if (!formData.wanteddate) newErrors.wanteddate = "Date is required.";
 
     setErrors(newErrors);
@@ -105,17 +104,16 @@ const ReservationForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
-
+    if (!validateForm()) {
+      return;
+    }
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       if (!token) {
         navigate('/login');
         return;
       }
-
-      const userId = localStorage.getItem("userId");
+      const userId = sessionStorage.getItem("userId");
       if (!userId) {
         setMessage({ 
           type: "error", 
@@ -123,18 +121,14 @@ const ReservationForm = () => {
         });
         return;
       }
-
-      // Ensure all required fields are included and properly formatted
       const formDataWithUserId = {
         ...formData,
         userId: userId,
         phonenumber: formData.phonenumber.toString(),
         wantedtime: formData.wantedtime.toString(),
-        amount: formData.amount.toString()
+        amount: formData.amount.toString(),
+        vehicleNum: formData.vehicleNum
       };
-
-      console.log("Submitting reservation data:", formDataWithUserId);
-
       const response = await fetch(
         "http://localhost:4000/api/reservation/reservations",
         {
@@ -146,31 +140,31 @@ const ReservationForm = () => {
           body: JSON.stringify(formDataWithUserId),
         }
       );
-
       const result = await response.json();
       if (response.ok) {
         setNotification({
           message: "Reservation successful",
           type: "success",
         });
-
         const doc = new jsPDF();
         doc.setFontSize(18);
         doc.text("Reservation Confirmation", 20, 20);
-
         doc.setFontSize(12);
         doc.text(`Name: ${formData.name}`, 20, 40);
         doc.text(`Email: ${formData.email}`, 20, 50);
         doc.text(`Phone Number: ${formData.phonenumber}`, 20, 60);
         doc.text(`Service: ${formData.service}`, 20, 70);
-        doc.text(`Vehicle Number: ${formData.vehicleNum}`, 20, 80);
-        doc.text(`Driver ID: ${formData.driverID}`, 20, 90);
-        doc.text(`Pick-up: ${formData.locationpick}`, 20, 100);
-        doc.text(`Drop-off: ${formData.locationdrop}`, 20, 110);
-        doc.text(`Date: ${formData.wanteddate}`, 20, 120);
-        doc.text(`Wanted Time: ${formData.wantedtime} hours`, 20, 130);
-        doc.text(`Total Amount: Rs. ${formData.amount}`, 20, 140);
-
+        doc.text(`Registration Number: ${formData.vehicleNum}`, 20, 90);
+        if (formData.needDriver) {
+          doc.text(`Driver Needed: Yes`, 20, 100);
+        } else {
+          doc.text(`Driver Needed: No`, 20, 100);
+        }
+        doc.text(`Pick-up: ${formData.locationpick}`, 20, 110);
+        doc.text(`Drop-off: ${formData.locationdrop}`, 20, 120);
+        doc.text(`Date: ${formData.wanteddate}`, 20, 130);
+        doc.text(`Wanted Time: ${formData.wantedtime} hours`, 20, 140);
+        doc.text(`Total Amount: Rs. ${formData.amount}`, 20, 150);
         doc.save("Reservation-Details.pdf");
         navigate("/reservation/viewReservations");
       } else {
@@ -336,10 +330,10 @@ const ReservationForm = () => {
         </div>
 
         <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
-          {/* Vehicle Number (Read-only) */}
+          {/* Registration Number (Read-only) */}
           <div style={{ flex: 1 }}>
             <label style={{ display: "block", marginBottom: "5px" }}>
-              Vehicle Number:
+              Registration Number:
             </label>
             <input
               type="text"
@@ -354,37 +348,40 @@ const ReservationForm = () => {
                 backgroundColor: "#eee",
               }}
             />
-          </div>
-
-          {/* Driver Dropdown */}
-          <div style={{ flex: 1 }}>
-            <label style={{ display: "block", marginBottom: "5px" }}>
-              Select Driver:
-            </label>
-            <select
-              name="driverID"
-              value={formData.driverID}
-              onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                height: "46px",
-              }}
-            >
-              <option value="">-- Select a Driver --</option>
-              {drivers.map((driver) => (
-                <option key={driver._id} value={driver._id}>
-                  {driver.DriverName} - {driver.DriverPhone}
-                </option>
-              ))}
-            </select>
-            {errors.driverID && (
+            {errors.vehicleNum && (
               <div style={{ color: "red", fontSize: "12px" }}>
-                {errors.driverID}
+                {errors.vehicleNum}
               </div>
             )}
+          </div>
+
+          {/* Need a driver? */}
+          <div style={{ flex: 1 }}>
+            <label style={{ display: "block", marginBottom: "5px" }}>
+              Need a driver?
+            </label>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <label>
+                <input
+                  type="radio"
+                  name="needDriver"
+                  value={true}
+                  checked={formData.needDriver === true}
+                  onChange={() => setFormData(prev => ({ ...prev, needDriver: true }))}
+                />
+                Yes
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="needDriver"
+                  value={false}
+                  checked={formData.needDriver === false}
+                  onChange={() => setFormData(prev => ({ ...prev, needDriver: false }))}
+                />
+                No
+              </label>
+            </div>
           </div>
         </div>
 
@@ -567,12 +564,11 @@ const ReservationForm = () => {
                 checked={showForm === false}
                 onChange={() => {
                   setShowForm(false);
-                  setFormData({
-                    ...formData,
+                  setFormData(prev => ({
+                    ...prev,
                     type: "",
-                    price: "",
-                    amount: "0",
-                  });
+                    price: ""
+                  }));
                 }}
               />
               No

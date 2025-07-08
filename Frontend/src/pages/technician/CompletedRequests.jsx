@@ -183,7 +183,7 @@ const CompletedRequests = () => {
 
   const fetchCompletedRequests = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view requests');
         navigate('/login');
@@ -208,6 +208,10 @@ const CompletedRequests = () => {
 
   useEffect(() => {
     fetchCompletedRequests();
+    // Listen for refresh event from AssignedRequests
+    const handler = () => fetchCompletedRequests();
+    window.addEventListener('refreshCompletedRequests', handler);
+    return () => window.removeEventListener('refreshCompletedRequests', handler);
   }, [fetchCompletedRequests]);
 
   if (loading) {

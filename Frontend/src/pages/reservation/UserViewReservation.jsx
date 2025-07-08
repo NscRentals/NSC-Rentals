@@ -9,8 +9,8 @@ const UserViewReservation = () => {
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("userId");
+        const token = sessionStorage.getItem("token");
+        const userId = sessionStorage.getItem("userId");
         if (!token || !userId) {
           setError("You must be logged in to view reservations.");
           setLoading(false);

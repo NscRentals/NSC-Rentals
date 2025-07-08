@@ -31,7 +31,7 @@ const VehicleDetails = () => {
 
   const fetchVehicleDetails = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       const response = await axios.get(`http://localhost:4000/api/vehicles/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -59,7 +59,7 @@ const VehicleDetails = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       
       // For admin, update directly. For user, submit update request
       if (isAdmin) {

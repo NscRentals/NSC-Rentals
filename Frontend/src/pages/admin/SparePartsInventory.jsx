@@ -20,7 +20,7 @@ const SparePartsInventory = () => {
 
   const fetchParts = React.useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view inventory');
         navigate('/login');
@@ -59,7 +59,7 @@ const SparePartsInventory = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in');
         return;
@@ -104,7 +104,7 @@ const SparePartsInventory = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in');
         return;

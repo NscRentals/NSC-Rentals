@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const checkLoginStatus = async () => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       setIsLoggedIn(false);
       setUserProfile({ 
@@ -34,7 +34,6 @@ export const AuthProvider = ({ children }) => {
         id: null, 
         type: null 
       });
-      localStorage.removeItem('userId');
       setIsLoading(false);
       return;
     }
@@ -56,11 +55,11 @@ export const AuthProvider = ({ children }) => {
           type: response.data.type?.toLowerCase()
         });
         
-        // Store userId in localStorage
-        localStorage.setItem('userId', userId);
+        // Store userId in sessionStorage
+        sessionStorage.setItem('userId', userId);
       } else {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('userId');
         setIsLoggedIn(false);
         setUserProfile({ 
           name: "", 
@@ -71,8 +70,8 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error checking login status:', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('userId');
       setIsLoggedIn(false);
       setUserProfile({ 
         name: "", 
@@ -85,18 +84,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (token) => {
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
     await checkLoginStatus();
-    
-    // Store userId in localStorage if available
-    if (userProfile.id) {
-      localStorage.setItem('userId', userProfile.id);
-    }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
+    // Remove all session data for a clean logout
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userId');
     setIsLoggedIn(false);
     setUserProfile({ 
       name: "", 

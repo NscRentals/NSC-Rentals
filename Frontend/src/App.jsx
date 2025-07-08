@@ -31,6 +31,7 @@ import TechnicianSignUp from './pages/technician/TechnicianSignUp';
 import AllvehicleView from './pages/reservation/AllvehicleView';
 import ReservationForm from './pages/reservation/reservation';
 import UserViewReservation from './pages/reservation/UserViewReservation';
+import AssignedRequests from './pages/technician/AssignedRequests';
 
 // Component imports
 import Layout from './components/Layout';
@@ -91,7 +92,9 @@ function App() {
               <Route path="/admin/*" element={<AdminDashboard />} />
               
               {/* Technician Routes */}
-              <Route path="/technician/dashboard/*" element={<TechnicianDashboard />} />
+              <Route path="/technician/dashboard/*" element={<TechnicianDashboard />}>
+                <Route path="assigned" element={<AssignedRequests />} />
+              </Route>
               <Route path="/technician/signup" element={<TechnicianSignUp />} />
               <Route path="/Tech" element={<TechnicianDashboard />} />
               
@@ -104,7 +107,7 @@ function App() {
               <Route path="/driver/availability" element={<DriverAvailability />} />
               <Route path="/driver/availability/view" element={<ViewAvailability />} />
               <Route path="/admin/drivers/available" element={<AvailableDrivers />} />
-              <Route path="/dashboard/:id" element={<DriverDashboard />} />
+              <Route path="/driver/dashboard/:userid" element={<DriverDashboard />} />
 
               {/* Vehicle Routes */}
               <Route path="/vehicles" element={<VehicleList />} />

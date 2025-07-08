@@ -23,7 +23,7 @@ function Notifications() {
 
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         setNotification({
           message: 'Please log in to view notifications',
@@ -52,7 +52,7 @@ function Notifications() {
 
   const markAsRead = async (notificationId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.put(`http://localhost:4000/api/notifications/${notificationId}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });

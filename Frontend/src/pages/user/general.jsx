@@ -10,7 +10,7 @@ export default function General() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
+        const token = sessionStorage.getItem("token");
         axios.get("http://localhost:4000/api/users/me", {
             headers: { Authorization: `Bearer ${token}` }
         })
@@ -42,7 +42,7 @@ export default function General() {
 
     const handleRetryVerification = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = sessionStorage.getItem("token");
             await axios.delete("http://localhost:4000/api/forms/user", {
                 headers: { Authorization: `Bearer ${token}` }
             });

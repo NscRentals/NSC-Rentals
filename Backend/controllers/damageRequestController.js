@@ -30,6 +30,10 @@ export async function addDamageRequest(req, res) {
       });
     }
 
+    // Set vehicle as under maintenance
+    vehicle.availabilityStatus = 'Under Maintenance';
+    await vehicle.save();
+
     // Create new damage request
     const dr = new damageRequest({
       vehicle: vehicleId,
@@ -280,8 +284,10 @@ export async function scheduleDamageRequest(req, res) {
     
     // If there's no technician assigned or if it's the same technician
     if (!dr.technicianId) {
-      dr.technicianId = req.user._id;
-    } else if (dr.technicianId.toString() !== req.user._id.toString()) {
+      dr.technicianId = req.user.id || req.user._id;
+    } else if (
+      dr.technicianId.toString() !== (req.user.id ? req.user.id.toString() : req.user._id.toString())
+    ) {
       return res.status(403).json({
         message: 'You can only schedule requests assigned to you.'
       });
@@ -295,6 +301,7 @@ export async function scheduleDamageRequest(req, res) {
     
     res.json(dr);
   } catch (err) {
+    console.error('Schedule error:', err);
     res.status(500).json({
       message: 'Failed to schedule request',
       error: err.message
@@ -450,6 +457,28 @@ export async function uploadDamageImages(req, res) {
   } catch (err) {
     res.status(500).json({
       message: 'Failed to upload files',
+      error: err.message
+    });
+  }
+}
+
+// Get all damage requests (Admin only)
+export async function getAdminDamageRequests(req, res) {
+  if (!isItAdmin(req)) {
+    return res.status(403).json({
+      message: 'Only admins can view all damage requests.'
+    });
+  }
+  try {
+    const requests = await damageRequest.find()
+      .populate('vehicle', 'make model registrationNumber availabilityStatus')
+      .populate('reportedBy', 'firstName lastName email')
+      .populate('technicianId', 'firstName lastName email')
+      .sort('-createdAt');
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({
+      message: 'Failed to fetch damage requests',
       error: err.message
     });
   }

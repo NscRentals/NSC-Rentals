@@ -13,7 +13,7 @@ const VehicleList = () => {
 
   const fetchVehicles = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view vehicles');
         navigate('/login');
@@ -54,7 +54,7 @@ const VehicleList = () => {
 
   const handleDelete = async (id, reason) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to perform this action');
         navigate('/login');

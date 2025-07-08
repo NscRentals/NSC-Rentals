@@ -17,7 +17,7 @@ const CreateDamageRequest = () => {
     setIsSubmitting(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to submit a damage request');
         navigate('/login');
@@ -55,7 +55,7 @@ const CreateDamageRequest = () => {
   };
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     
     try {      const formData = new FormData();
       files.forEach(file => {

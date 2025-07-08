@@ -9,7 +9,7 @@ const VehicleUpdateRequests = () => {
 
   useEffect(() => {
     console.log('VehicleUpdateRequests component mounted');
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     console.log('Token exists:', !!token);
     if (token) {
       console.log('Token payload:', JSON.parse(atob(token.split('.')[1])));
@@ -19,7 +19,7 @@ const VehicleUpdateRequests = () => {
 
   const fetchDamageRequests = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view damage requests');
         return;
@@ -38,6 +38,24 @@ const VehicleUpdateRequests = () => {
       console.error('Error response:', error.response?.data);
       toast.error('Failed to load damage requests');
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
+        toast.error('Please log in to delete requests');
+        return;
+      }
+      await axios.delete(`http://localhost:4000/api/damage-requests/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('Request deleted successfully');
+      fetchDamageRequests();
+    } catch (error) {
+      console.error('Error deleting request:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete request');
     }
   };
 
@@ -88,13 +106,20 @@ const VehicleUpdateRequests = () => {
                     Status: {request.status}
                   </p>
                 </div>
-                
-                <button
-                  onClick={() => setSelectedRequest(request)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  See More
-                </button>
+                <div className="flex flex-col gap-2 items-end">
+                  <button
+                    onClick={() => setSelectedRequest(request)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    See More
+                  </button>
+                  <button
+                    onClick={() => handleDelete(request._id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors mt-2"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}

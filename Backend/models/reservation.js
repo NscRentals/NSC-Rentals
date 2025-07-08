@@ -12,8 +12,20 @@ const reservationSchema = new mongoose.Schema(
     },
     driverID: {
       type: String,
-      required: true,
+      required: false,
     },
+    needDriver: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    driverAssigned: {
+      type: Boolean,
+      default: false,
+    },
+    notifiedDrivers: [{
+      type: String,
+    }],
 
     name: {
       type: String,

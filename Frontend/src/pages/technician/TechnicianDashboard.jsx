@@ -1,4 +1,4 @@
-import { Link, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import DamageRequestsList from './DamageRequestsList';
 import TechnicianSchedule from './TechnicianSchedule';
 import AcceptedRequests from './AcceptedRequests';
@@ -12,7 +12,7 @@ const TechnicianDashboard = () => {
   const isActive = (path) => location.pathname.startsWith(path);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     navigate('/');
     window.location.reload();
   };
@@ -48,14 +48,15 @@ const TechnicianDashboard = () => {
             </Link>
           </div>          <div className="w-fit">
             <Link 
-              to="/technician/dashboard/accepted"
+              to="/technician/dashboard/assigned"
               className={`block text-[26px] font-medium relative group ${
-                isActive('/technician/dashboard/accepted') ? 'text-black' : 'text-gray-500 hover:text-black'
+                isActive('/technician/dashboard/assigned') ? 'text-black' : 'text-gray-500 hover:text-black'
               }`}
             >
+            
               My Assigned Tasks
               <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${
-                isActive('/technician/dashboard/accepted') ? 'w-full' : 'w-0 group-hover:w-full'
+                isActive('/technician/dashboard/assigned') ? 'w-full' : 'w-0 group-hover:w-full'
               }`}></span>
             </Link>
           </div>
@@ -93,6 +94,7 @@ const TechnicianDashboard = () => {
           <Route path="accepted" element={<AcceptedRequests />} />
           <Route path="completed" element={<CompletedRequests />} />
         </Routes>
+        <Outlet />
       </div>
     </div>
   );

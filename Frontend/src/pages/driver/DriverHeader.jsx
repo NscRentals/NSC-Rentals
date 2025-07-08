@@ -34,7 +34,7 @@ const DriverHeader = () => {
                         </button>
 
                         <button
-                            onClick={() => navigate(`/dashboard/${driverId}`)}
+                            onClick={() => navigate(`/driver/dashboard/${driverId}`)}
                             className="flex items-center space-x-1 text-gray-600 hover:text-gray-800"
                         >
                             <FaTachometerAlt className="text-lg" />

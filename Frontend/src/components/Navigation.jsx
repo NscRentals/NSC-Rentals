@@ -51,7 +51,7 @@ const Navigation = () => {
                                             </Link>
                                         </>
                                     ) : (
-                                        <Link to={`/dashboard/${driverId}`} className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
+                                        <Link to={`/driver/dashboard/${driverId}`} className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium">
                                             Driver Dashboard
                                         </Link>
                                     )}

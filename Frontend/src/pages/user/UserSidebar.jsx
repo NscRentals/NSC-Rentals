@@ -9,14 +9,14 @@ export default function UserSidebar() {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       await axios.post('http://localhost:4000/api/activities/logout', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {
       console.error('Error logging logout:', error);
     } finally {
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
       navigate('/');
       window.location.reload();
     }

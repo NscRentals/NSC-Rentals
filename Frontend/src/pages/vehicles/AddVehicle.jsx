@@ -205,6 +205,11 @@ const AddVehicle = () => {
     setImagePreviewUrls(newImageUrls);
   };
 
+  const handleImageRemove = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviewUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
   // Cleanup preview URLs when component unmounts
   useEffect(() => {
     return () => {
@@ -233,7 +238,7 @@ const AddVehicle = () => {
     // Debug log
     console.log('Form data being sent:', Object.fromEntries(formDataToSend));
     console.log('Raw pricing data:', formData.pricing);    try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to add a vehicle');
         navigate('/login');

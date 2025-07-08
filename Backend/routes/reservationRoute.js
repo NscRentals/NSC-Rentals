@@ -6,7 +6,8 @@ import {
     reservationUpdate,
     reservationDelete,
     reservationFindUserId,
-    reservationFindDriverId
+    reservationFindDriverId,
+    driverAcceptReservation
 } from '../controllers/reservationController.js';
 
 const router = express.Router();
@@ -18,5 +19,6 @@ router.put('/reservations/:id', reservationUpdate);  // Update a reservation by 
 router.delete('/reservations/:id', reservationDelete);  // Delete a reservation by ID
 router.get('/reservations/user/:userid', reservationFindUserId);  // Get reservations for a specific user
 router.get('/reservations/driver/:driverid', reservationFindDriverId);  // Get reservations for a specific driver
+router.post('/reservations/accept', driverAcceptReservation);
 
 export default router;

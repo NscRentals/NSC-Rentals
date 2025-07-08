@@ -15,7 +15,7 @@ const UserDamageRequests = () => {
 
   const fetchUserRequests = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to view your requests');
         navigate('/login');
@@ -38,7 +38,7 @@ const UserDamageRequests = () => {
 
   const handleDelete = async (id) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (!token) {
         toast.error('Please log in to delete requests');
         return;
