@@ -22,10 +22,11 @@ const ReservationSummary = () => {
   const handleConfirm = async () => {
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:4000/api/reservations', reservation);
+      const response = await axios.post('http://localhost:4000/api/reservation/reservations', reservation);
       toast.success('Reservation confirmed successfully!');
       navigate('/user/dashboard');
     } catch (error) {
+      console.error('Reservation confirmation error:', error, error.response);
       setError(error.response?.data?.message || 'Failed to confirm reservation');
       toast.error('Failed to confirm reservation');
     } finally {
@@ -116,6 +117,9 @@ const ReservationSummary = () => {
       </div>
     );
   }
+
+  const total = (parseFloat(reservation.amount) || 0) +
+    (reservation.decorations?.reduce((sum, d) => sum + (parseFloat(d.price) || 0), 0) || 0);
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
