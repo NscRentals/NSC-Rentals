@@ -32,6 +32,8 @@ import AllvehicleView from './pages/reservation/AllvehicleView';
 import ReservationForm from './pages/reservation/reservation';
 import UserViewReservation from './pages/reservation/UserViewReservation';
 import AssignedRequests from './pages/technician/AssignedRequests';
+import ReservationSummary from './pages/reservation/ReservationSummary';
+import DecorationsPage from './pages/decorations/admin/DecorationsPage';
 
 // Component imports
 import Layout from './components/Layout';
@@ -119,6 +121,8 @@ function App() {
               <Route path="/reservation/vehicles" element={<AllvehicleView />} />
               <Route path="/reservation/:id" element={<ReservationForm />} />
               <Route path="/reservation/viewReservations" element={<UserViewReservation />} />
+              <Route path="/reservation/summary" element={<ReservationSummary />} />
+              <Route path="/admin/decorations" element={<DecorationsPage />} />
 
               {/* Damage Request Routes */}
               <Route path="/damage-request/new/:vehicleId" element={<CreateDamageRequest />} />

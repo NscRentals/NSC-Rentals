@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import Notification from "../../components/Notification";
 import UserLayout from "../user/UserLayout";
+import DecorationsSelector from '../decorations/user/DecorationsSelector';
 
 const ReservationForm = () => {
   const [formData, setFormData] = useState({
@@ -32,6 +33,7 @@ const ReservationForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [notification, setNotification] = useState({ message: "", type: "" });
+  const [selectedDecorations, setSelectedDecorations] = useState([]);
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -127,7 +129,8 @@ const ReservationForm = () => {
         phonenumber: formData.phonenumber.toString(),
         wantedtime: formData.wantedtime.toString(),
         amount: formData.amount.toString(),
-        vehicleNum: formData.vehicleNum
+        vehicleNum: formData.vehicleNum,
+        decorations: selectedDecorations,
       };
       const response = await fetch(
         "http://localhost:4000/api/reservation/reservations",
@@ -146,27 +149,8 @@ const ReservationForm = () => {
           message: "Reservation successful",
           type: "success",
         });
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text("Reservation Confirmation", 20, 20);
-        doc.setFontSize(12);
-        doc.text(`Name: ${formData.name}`, 20, 40);
-        doc.text(`Email: ${formData.email}`, 20, 50);
-        doc.text(`Phone Number: ${formData.phonenumber}`, 20, 60);
-        doc.text(`Service: ${formData.service}`, 20, 70);
-        doc.text(`Registration Number: ${formData.vehicleNum}`, 20, 90);
-        if (formData.needDriver) {
-          doc.text(`Driver Needed: Yes`, 20, 100);
-        } else {
-          doc.text(`Driver Needed: No`, 20, 100);
-        }
-        doc.text(`Pick-up: ${formData.locationpick}`, 20, 110);
-        doc.text(`Drop-off: ${formData.locationdrop}`, 20, 120);
-        doc.text(`Date: ${formData.wanteddate}`, 20, 130);
-        doc.text(`Wanted Time: ${formData.wantedtime} hours`, 20, 140);
-        doc.text(`Total Amount: Rs. ${formData.amount}`, 20, 150);
-        doc.save("Reservation-Details.pdf");
-        navigate("/reservation/viewReservations");
+        // Remove automatic PDF generation here
+        navigate("/reservation/summary", { state: { reservation: formDataWithUserId } });
       } else {
         console.error("Reservation error:", result);
         setMessage({ 
@@ -531,88 +515,8 @@ const ReservationForm = () => {
           </div>
         </div>
 
-        <div style={{ flex: 1 }}>
-          <label style={{ display: "block", marginBottom: "5px" }}>
-            Decorations:
-          </label>
-
-          {/* Radio Buttons */}
-          <div
-            style={{
-              marginTop: "10px",
-              marginBottom: "10px",
-              display: "flex",
-              alignItems: "center",
-              gap: "20px",
-            }}
-          >
-            <label style={{ marginRight: "10px" }}>
-              <input
-                type="radio"
-                name="decorations"
-                value="yes"
-                checked={showForm === true}
-                onChange={() => setShowForm(true)}
-              />
-              Yes
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="decorations"
-                value="no"
-                checked={showForm === false}
-                onChange={() => {
-                  setShowForm(false);
-                  setFormData(prev => ({
-                    ...prev,
-                    type: "",
-                    price: ""
-                  }));
-                }}
-              />
-              No
-            </label>
-          </div>
-
-          {/* Conditionally rendered form */}
-          {showForm && (
-            <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ marginBottom: "5px" }}>Type:</label>
-                <input
-                  type="text"
-                  name="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    marginBottom: "10px",
-                    border: "1px solid #ccc",
-                    borderRadius: "6px",
-                  }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ marginBottom: "5px" }}>Price:</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    marginBottom: "10px",
-                    border: "1px solid #ccc",
-                    borderRadius: "6px",
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Move DecorationsSelector up for visibility */}
+        <DecorationsSelector selectedDecorations={selectedDecorations} setSelectedDecorations={setSelectedDecorations} />
 
         <button
           type="submit"

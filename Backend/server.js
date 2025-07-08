@@ -17,6 +17,7 @@ import { fileURLToPath } from 'url';
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import technicianRoutes from "./routes/technicianRoutes.js";
+import decoRouter from "./routes/decoRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -78,6 +79,7 @@ app.use("/api/maintenance", sparePartsInventoryRouter);
 app.use("/api/damage-requests", damageRequestRouter);
 app.use("/api/technician", technicianRoutes);
 app.use("/api/reservation", reservationRouter);
+app.use("/api/deco", decoRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
