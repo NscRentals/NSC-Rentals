@@ -20,9 +20,15 @@ const VehicleList = () => {
         return;
       }
 
+      console.log('Fetching vehicles for user type:', userProfile?.type);
+
       const response = await axios.get('http://localhost:4000/api/vehicles/getVehicles', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log('Vehicles response:', response.data);
+      console.log('Number of vehicles:', response.data.length);
+      
       setVehicles(response.data);
       setLoading(false);
     } catch (error) {
@@ -36,7 +42,7 @@ const VehicleList = () => {
       }
       setLoading(false);
     }
-  }, [navigate, logout]);
+  }, [navigate, logout, userProfile?.type]);
 
   useEffect(() => {
     if (!isLoggedIn) {

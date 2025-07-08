@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Notification from '../Notification';
+import Notification from "../../components/Notification";
 
 const DriverProfile = () => {
   const { id } = useParams();

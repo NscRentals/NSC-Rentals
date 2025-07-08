@@ -6,11 +6,12 @@ export default function Layout() {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isTechnicianRoute = location.pathname.startsWith('/technician/dashboard');
   const isUserDashboardRoute = location.pathname.startsWith('/user');
+  const isDriverDashboardRoute = location.pathname.startsWith('/dashboard/');
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isAdminRoute && !isTechnicianRoute && !isUserDashboardRoute && <Header />}
-      <main className={`flex-1 ${!isAdminRoute && !isTechnicianRoute && !isUserDashboardRoute ? 'my-[84px]' : ''}`}>
+      {!isAdminRoute && !isTechnicianRoute && !isUserDashboardRoute && !isDriverDashboardRoute && <Header />}
+      <main className={`flex-1 ${!isAdminRoute && !isTechnicianRoute && !isUserDashboardRoute && !isDriverDashboardRoute ? 'my-[84px]' : ''}`}>
         <Outlet />
       </main>
     </div>

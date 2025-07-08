@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Notification from '../../components/Notification';
+import UserLayout from './UserLayout';
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -70,51 +71,53 @@ function Notifications() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Notification message={notification.message} type={notification.type} />
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Notifications</h1>
-      
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-md mb-4">
-          {error}
-        </div>
-      )}
+    <UserLayout>
+      <div className="p-8">
+        <Notification message={notification.message} type={notification.type} />
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Notifications</h1>
+        
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded-md mb-4">
+            {error}
+          </div>
+        )}
 
-      {notifications.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-xl text-gray-600">No notifications yet.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => (
-            <div 
-              key={notification._id} 
-              className={`p-4 rounded-lg shadow-md ${
-                notification.read ? 'bg-gray-50' : 'bg-white'
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-lg font-medium text-gray-900">{notification.title}</p>
-                  <p className="text-gray-600 mt-1">{notification.message}</p>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {new Date(notification.createdAt).toLocaleString()}
-                  </p>
+        {notifications.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-600">No notifications yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {notifications.map((notification) => (
+              <div 
+                key={notification._id} 
+                className={`p-4 rounded-lg shadow-md ${
+                  notification.read ? 'bg-gray-50' : 'bg-white'
+                }`}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-lg font-medium text-gray-900">{notification.title}</p>
+                    <p className="text-gray-600 mt-1">{notification.message}</p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  {!notification.read && (
+                    <button
+                      onClick={() => markAsRead(notification._id)}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      Mark as read
+                    </button>
+                  )}
                 </div>
-                {!notification.read && (
-                  <button
-                    onClick={() => markAsRead(notification._id)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Mark as read
-                  </button>
-                )}
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </UserLayout>
   );
 }
 

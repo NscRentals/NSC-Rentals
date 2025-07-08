@@ -3,7 +3,7 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import Notification from '../Notification';
+import Notification from '../../components/Notification';
 import { FaDownload } from 'react-icons/fa';
 
 const API_BASE_URL = "http://localhost:4000/api";

@@ -6,7 +6,7 @@ import UserLayout from "../user/UserLayout";
 
 const ReservationForm = () => {
   const [formData, setFormData] = useState({
-    vehicleNum: "{id}",
+    vehicleNum: "",
     userId: "",
     driverID: "",
     name: "",
@@ -84,6 +84,7 @@ const ReservationForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.vehicleNum) newErrors.vehicleNum = "Vehicle number is required.";
     if (!formData.name) newErrors.name = "Name is required.";
     if (!formData.email) newErrors.email = "Email is required.";
     if (!formData.phonenumber)
@@ -637,10 +638,4 @@ const ReservationForm = () => {
   );
 };
 
-export default function ReservationPageWrapper() {
-  return (
-    <UserLayout>
-      <ReservationForm />
-    </UserLayout>
-  );
-}
+export default ReservationForm;

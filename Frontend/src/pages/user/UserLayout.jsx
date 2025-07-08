@@ -1,18 +1,19 @@
 import Header from '../../components/header';
 import UserSidebar from './UserSidebar';
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 
-export default function UserLayout({ children }) {
+export default function UserLayout() {
   return (
     <>
       <Header />
-      <div className="flex min-h-[calc(100vh-84px)]">
-        <UserSidebar />
-        {/* Separator Line */}
-        <div className="fixed left-56 md:left-64 top-[84px] h-[calc(100vh-84px)] w-px bg-gray-200 z-30"></div>
+      <div className="flex min-h-[calc(100vh-84px)] bg-gray-50">
+        <aside className="w-56 md:w-64 bg-white pt-10 md:pt-16 px-2 md:px-4 pb-6 md:pb-8 h-[calc(100vh-84px)] z-40 shadow-lg border-r border-gray-200">
+          <UserSidebar />
+        </aside>
         {/* Main Content */}
-        <div className="flex-1 ml-56 md:ml-64 p-2 md:p-6 bg-white min-h-[calc(100vh-84px)] max-w-3xl mx-auto">
-          {children}
+        <div className="flex-grow p-2 md:p-6 bg-white min-h-[calc(100vh-84px)] w-full">
+          <Outlet />
         </div>
       </div>
     </>

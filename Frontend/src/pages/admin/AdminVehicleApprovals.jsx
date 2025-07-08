@@ -16,9 +16,15 @@ const AdminVehicleApprovals = () => {
   const fetchPendingVehicles = async () => {
     try {
       const token = localStorage.getItem('token');
+      console.log('Fetching pending vehicles...');
+      
       const response = await axios.get('http://localhost:4000/api/vehicles/pending', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      console.log('Pending vehicles response:', response.data);
+      console.log('Number of pending vehicles:', response.data.vehicles?.length || 0);
+      
       setPendingVehicles(response.data.vehicles);
       setLoading(false);
     } catch (error) {

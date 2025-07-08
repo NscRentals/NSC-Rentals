@@ -27,12 +27,16 @@ function MyVehicles() {
         return;
       }
 
+      console.log('Fetching vehicles with token:', token.substring(0, 20) + '...');
+
       const response = await axios.get('http://localhost:4000/api/vehicles/user/my-vehicles', {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+
+      console.log('API Response:', response.data);
 
       if (!response.data || !Array.isArray(response.data)) {
         console.error('Invalid response format:', response.data);
@@ -206,8 +210,13 @@ function MyVehicles() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mygreen mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your vehicles...</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -217,20 +226,41 @@ function MyVehicles() {
       <Notification message={notification.message} type={notification.type} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">My Vehicles</h1>
-        <button 
-          onClick={() => navigate('/vehicles/add')}
-          className="bg-mygreen text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition duration-200"
-        >
-          Add New Vehicle
-        </button>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => navigate('/vehicles/add')}
+            className="bg-mygreen text-white px-6 py-2 rounded-full hover:bg-opacity-90 transition duration-200"
+          >
+            Add New Vehicle
+          </button>
+          <button 
+            onClick={() => navigate('/user/myvehicles/my-damage-requests')}
+            className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition duration-200"
+          >
+            View Damage Requests
+          </button>
+        </div>
       </div>
 
       {vehicles.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-xl text-gray-600">You haven't added any vehicles yet.</p>
-          <p className="mt-2 text-gray-500">
-            Start by adding your first vehicle using the button above.
-          </p>
+          <div className="max-w-md mx-auto">
+            <div className="mb-6">
+              <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No vehicles found</h3>
+            <p className="text-gray-600 mb-6">
+              You haven't added any vehicles yet. Start by adding your first vehicle to begin renting it out.
+            </p>
+            <button 
+              onClick={() => navigate('/vehicles/add')}
+              className="bg-mygreen text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition duration-200"
+            >
+              Add Your First Vehicle
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

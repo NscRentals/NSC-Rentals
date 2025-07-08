@@ -44,17 +44,21 @@ const UserDamageRequests = () => {
         return;
       }
 
-      await axios.delete(
+      console.log('Attempting to delete damage request:', id);
+      
+      const response = await axios.delete(
         `http://localhost:4000/api/damage-requests/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
 
+      console.log('Delete response:', response.data);
       toast.success('Request deleted successfully');
       fetchUserRequests();
     } catch (error) {
       console.error('Error deleting request:', error);
+      console.error('Error response:', error.response?.data);
       toast.error(error.response?.data?.message || 'Failed to delete request');
     }
   };
@@ -74,7 +78,7 @@ const UserDamageRequests = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="p-8 min-h-screen bg-white text-black">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">My Damage Requests</h1>
         <button

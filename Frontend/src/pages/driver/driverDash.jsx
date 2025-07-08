@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { FaUserEdit, FaCalendarCheck, FaMoneyBill, FaClock, FaEnvelope, FaPhone, FaUserCircle, FaTrash, FaCamera, FaMapMarkerAlt, FaIdCard, FaIdBadge, FaEdit, FaUser } from "react-icons/fa";
 import axios from "axios";
-import Notification from "../Notification";
+import Notification from "../../components/Notification";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { format } from "date-fns";
@@ -15,6 +15,7 @@ const API_BASE_URL = "http://localhost:4000/api";
 const DriverDashboard = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,6 +27,8 @@ const DriverDashboard = () => {
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
   const driverId = localStorage.getItem('driverId');
+
+  const isDriverDashboard = location.pathname.startsWith("/dashboard/");
 
   useEffect(() => {
     // Check if we have a valid driverId
@@ -520,92 +523,100 @@ const DriverDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans">
-      <DriverHeader />
-      
-      <div className="flex pt-16">
-        <div className="w-64 bg-white shadow-lg min-h-screen fixed left-0 top-16">
-          <div className="p-4">
-            <div className="flex items-center justify-center mb-6">
-              <div className="text-center">
-                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-2">
-                  {driver?.profilePicture ? (
-                    <img
-                      src={`http://localhost:4000/${driver.profilePicture}`}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <FaUserCircle className="w-full h-full text-gray-400" />
-                  )}
-                </div>
-                <h2 className="text-xl font-semibold font-sans">{driver?.DriverName}</h2>
-              </div>
-            </div>
+    <div className="flex min-h-screen bg-gray-100 font-sans">
+      {/* Sidebar */}
+      <aside className="w-64 md:w-80 xl:w-96 min-w-[200px] max-w-[380px] bg-white px-6 md:px-12 py-4 fixed left-0 top-0 h-screen overflow-y-auto border-r border-gray-200 z-20">
+        <h2 className="text-xl md:text-2xl xl:text-3xl font-bold mb-16">Driver Dashboard</h2>
+        <nav className="space-y-10 pb-8">
+          <div className="w-fit">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`block text-lg font-medium text-black relative group text-left ${activeTab === 'profile' ? 'font-bold' : ''}`}
+              style={{ width: '100%' }}
+            >
+              Profile
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${activeTab === 'profile' ? 'w-full' : 'w-0'}`}></span>
+            </button>
+          </div>
+          <div className="w-fit">
+            <button
+              onClick={() => setActiveTab('reservations')}
+              className={`block text-lg font-medium text-black relative group text-left ${activeTab === 'reservations' ? 'font-bold' : ''}`}
+              style={{ width: '100%' }}
+            >
+              Reservations
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${activeTab === 'reservations' ? 'w-full' : 'w-0'}`}></span>
+            </button>
+          </div>
+          <div className="w-fit">
+            <button
+              onClick={() => setActiveTab('salary')}
+              className={`block text-lg font-medium text-black relative group text-left ${activeTab === 'salary' ? 'font-bold' : ''}`}
+              style={{ width: '100%' }}
+            >
+              Salary Details
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${activeTab === 'salary' ? 'w-full' : 'w-0'}`}></span>
+            </button>
+          </div>
+          <div className="w-fit">
+            <button
+              onClick={() => setActiveTab('availability')}
+              className={`block text-lg font-medium text-black relative group text-left ${activeTab === 'availability' ? 'font-bold' : ''}`}
+              style={{ width: '100%' }}
+            >
+              Availability
+              <span className={`absolute bottom-0 left-0 h-[3px] bg-black transition-all ${activeTab === 'availability' ? 'w-full' : 'w-0'}`}></span>
+            </button>
+          </div>
+        </nav>
+        {/* Logout Button */}
+        <div className="absolute bottom-8 left-0 w-full flex justify-center">
+          <button
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = '/login';
+            }}
+            className="w-5/6 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors font-sans text-lg font-semibold"
+          >
+            Logout
+          </button>
+        </div>
+      </aside>
 
-            <nav className="space-y-2">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
-                  activeTab === 'profile' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
-                }`}
-              >
-                <FaUserEdit />
-                <span>Profile</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('reservations')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
-                  activeTab === 'reservations' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
-                }`}
-              >
-                <FaCalendarCheck />
-                <span>Reservations</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('salary')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
-                  activeTab === 'salary' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
-                }`}
-              >
-                <FaMoneyBill />
-                <span>Salary Details</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('availability')}
-                className={`w-full flex items-center space-x-2 px-4 py-2 rounded-lg font-sans ${
-                  activeTab === 'availability' ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
-                }`}
-              >
-                <FaClock />
-                <span>Availability</span>
-              </button>
-            </nav>
+      {/* Main Content */}
+      <div className="flex-1 ml-64 md:ml-80 xl:ml-96 p-8 bg-white min-h-screen">
+        {/* Summary Cards */}
+        <div className="mb-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-gray-100 rounded-xl p-6 flex flex-col items-center shadow">
+            <span className="text-2xl font-bold">{currentAvailability ? 'Available' : 'Not Available'}</span>
+            <span className="text-gray-600 mt-2">Current Status</span>
+          </div>
+          <div className="bg-gray-100 rounded-xl p-6 flex flex-col items-center shadow">
+            <span className="text-2xl font-bold">{upcomingSchedule.length}</span>
+            <span className="text-gray-600 mt-2">Upcoming Schedules</span>
+          </div>
+          <div className="bg-gray-100 rounded-xl p-6 flex flex-col items-center shadow">
+            <span className="text-2xl font-bold">--</span>
+            <span className="text-gray-600 mt-2">Total Reservations</span>
           </div>
         </div>
 
-        <div className="flex-1 ml-64 p-8">
-          {notification.message && (
-            <Notification message={notification.message} type={notification.type} />
-          )}
-          
-          {loading ? (
-            <div className="flex justify-center items-center h-full">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : (
-            <>
-              {renderDashboardHeader()}
-              {activeTab === 'profile' && renderProfileContent()}
-              {activeTab === 'reservations' && renderReservationsContent()}
-              {activeTab === 'salary' && renderSalaryContent()}
-              {activeTab === 'availability' && renderAvailabilityContent()}
-            </>
-          )}
-        </div>
+        {notification.message && (
+          <Notification message={notification.message} type={notification.type} />
+        )}
+
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <>
+            {activeTab === 'profile' && renderProfileContent()}
+            {activeTab === 'reservations' && renderReservationsContent()}
+            {activeTab === 'salary' && renderSalaryContent()}
+            {activeTab === 'availability' && renderAvailabilityContent()}
+          </>
+        )}
       </div>
     </div>
   );

@@ -71,9 +71,14 @@ export async function addVehicle (req, res) {
 
 // Get all pending vehicles (Admin only)
 export async function getPendingVehicles(req, res) {
+    console.log('getPendingVehicles called');
+    console.log('User:', req.user);
+    console.log('Is admin:', isItAdmin(req));
+    
     try {
         // Verify admin access
         if (!isItAdmin(req)) {
+            console.log('Access denied - not admin');
             return res.status(403).json({ 
                 message: 'Only administrators can view pending vehicles'
             });
@@ -486,13 +491,17 @@ export async function deleteVehicle(req, res) {
 }
 
 // Read - Get all vehicles
-export async function getVehicles(req, res) {    try{
+export async function getVehicles(req, res) {
+    try {
         if(isItAdmin(req)) {
+            // Admins can see all vehicles (approved, pending, rejected)
             const vehicles = await Vehicle.find({ isDeleted: { $ne: true } });
             res.json(vehicles);
             return;
         } else {
+            // Regular users can only see approved and available vehicles
             const vehicles = await Vehicle.find({
+                approvalStatus: "Approved",
                 availabilityStatus: "Available",
                 isDeleted: { $ne: true }
             });
@@ -537,8 +546,11 @@ export async function getUserVehicles(req, res) {
         
         console.log('Fetching vehicles for user:', userId);
 
-        // Find all vehicles owned by this user and approved
-        const vehicles = await Vehicle.find({ owner: userId, approvalStatus: "Approved" }).sort({ createdAt: -1 });
+        // Find all vehicles owned by this user (both approved and pending)
+        const vehicles = await Vehicle.find({ 
+            owner: userId,
+            approvalStatus: { $in: ["Approved", "Pending", "Rejected"] }
+        }).sort({ createdAt: -1 });
 
         console.log('Found vehicles:', vehicles.length);
         

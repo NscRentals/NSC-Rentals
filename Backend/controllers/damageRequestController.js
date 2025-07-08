@@ -117,6 +117,10 @@ export async function getAllDamageRequests(req, res) {
 
 // Delete damage request (Customer or Admin only)
 export async function deleteDamageRequest(req, res) {
+  console.log('Delete damage request called with ID:', req.params.id);
+  console.log('User ID from token:', req.user.id);
+  console.log('User type:', req.user.type);
+
   if (!isItCustomer(req) && !isItAdmin(req)) {
     return res.status(403).json({
       message: 'Only customers or admins can delete damage requests.'
@@ -131,8 +135,19 @@ export async function deleteDamageRequest(req, res) {
       });
     }
 
+    console.log('Found damage request:', {
+      id: dr._id,
+      reportedBy: dr.reportedBy,
+      status: dr.status,
+      userType: req.user.type
+    });
+
     // Check if user is the one who reported the damage (unless they're an admin)
-    if (!isItAdmin(req) && dr.reportedBy.toString() !== req.user._id.toString()) {
+    if (!isItAdmin(req) && dr.reportedBy.toString() !== req.user.id.toString()) {
+      console.log('Permission denied - user mismatch:', {
+        reportedBy: dr.reportedBy.toString(),
+        userId: req.user.id.toString()
+      });
       return res.status(403).json({
         message: 'You can only delete your own damage requests.'
       });
@@ -140,14 +155,17 @@ export async function deleteDamageRequest(req, res) {
 
     // Only allow deletion if status is Pending
     if (dr.status !== 'Pending') {
+      console.log('Cannot delete - status is not Pending:', dr.status);
       return res.status(400).json({
         message: 'Can only delete pending damage requests.'
       });
     }
 
     await damageRequest.findByIdAndDelete(req.params.id);
+    console.log('Damage request deleted successfully');
     res.json({ message: 'Damage request deleted successfully.' });
   } catch (err) {
+    console.error('Error deleting damage request:', err);
     res.status(500).json({
       message: 'Failed to delete damage request',
       error: err.message

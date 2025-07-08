@@ -37,7 +37,7 @@ const CreateDamageRequest = () => {
       );
 
       toast.success('Damage request submitted successfully');
-      navigate('/my-damage-requests');
+      navigate('/user/myvehicles/my-damage-requests');
     } catch (error) {
       console.error('Error submitting damage request:', error);
       toast.error(error.response?.data?.message || 'Failed to submit damage request');

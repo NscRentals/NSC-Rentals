@@ -46,7 +46,7 @@ export default function Header() {
             location.pathname === '/about' ? 'text-black' : ''
           }`}
         >
-          Aboutaaaaaa
+          About
           <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-200 ${
             location.pathname === '/about' ? 'w-full' : 'w-0 group-hover:w-full'
           }`}></span>

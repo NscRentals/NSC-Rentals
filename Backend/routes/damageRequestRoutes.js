@@ -12,7 +12,8 @@ import {
   deleteDamageRequest,
   uploadDamageImages,
   getAssignedRequests,
-  getCompletedRequests
+  getCompletedRequests,
+  getAdminDamageRequests
 } from '../controllers/damageRequestController.js';
 
 const damageRequestRouter = express.Router();
@@ -31,6 +32,9 @@ damageRequestRouter.get('/my-requests', getUserDamageRequests);
 
 // List all requests (Technician)
 damageRequestRouter.get('/all', getAllDamageRequests);   
+
+// List all requests (Admin)
+damageRequestRouter.get('/admin/all', getAdminDamageRequests);   
 
 // Get technician's assigned requests
 damageRequestRouter.get('/my-assigned', getAssignedRequests);

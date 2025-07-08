@@ -26,6 +26,7 @@ export default function LoginPage() {
             const { user, token } = response.data;
             if (token) {
                 toast.success("Login Successful");
+                localStorage.setItem('userId', user.id);
                 await login(token); // Wait for login to complete
                 // After login is complete, navigate based on user type
                 const userType = user.type.toLowerCase();

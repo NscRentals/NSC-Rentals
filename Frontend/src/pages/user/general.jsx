@@ -16,26 +16,26 @@ export default function General() {
         })
         .then(response => {
             setUser(response.data);
-            // Check verification status using the new endpoint
-            axios.get("http://localhost:4000/api/forms/user", {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            .then(res => {
-                setFormObj(res.data);
-                if (res.data === null) {
-                    setVerificationStatus("not verified");
-                } else if (res.data.isRejected) {
-                    setVerificationStatus("rejected");
-                } else if (res.data.isVerified) {
-                    setVerificationStatus("verified");
-                } else {
-                    setVerificationStatus("pending");
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching verification status:", error);
-                setVerificationStatus("not verified");
-            });
+            // Commented out verification status fetch since backend does not support it
+            // axios.get("http://localhost:4000/api/forms/user", {
+            //     headers: { Authorization: `Bearer ${token}` }
+            // })
+            // .then(res => {
+            //     setFormObj(res.data);
+            //     if (res.data === null) {
+            //         setVerificationStatus("not verified");
+            //     } else if (res.data.isRejected) {
+            //         setVerificationStatus("rejected");
+            //     } else if (res.data.isVerified) {
+            //         setVerificationStatus("verified");
+            //     } else {
+            //         setVerificationStatus("pending");
+            //     }
+            // })
+            // .catch(error => {
+            //     console.error("Error fetching verification status:", error);
+            //     setVerificationStatus("not verified");
+            // });
         })
         .catch(error => console.error("Error fetching user details:", error));
     }, []);
@@ -69,7 +69,8 @@ export default function General() {
                             alt={user.firstName || 'Profile'} 
                             className="w-[70px] h-[70px] rounded-full object-cover"
                             onError={(e) => {
-                                e.target.parentElement.querySelector('.fallback').style.display = 'flex';
+                                const fallback = e.target.parentElement.querySelector('.fallback');
+                                if (fallback) fallback.style.display = 'flex';
                                 e.target.style.display = 'none';
                             }}
                         />
